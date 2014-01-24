@@ -1,0 +1,7 @@
+bin
+.metadata
+.gitignore~
+.project
+.classpath
+.settings
+org.eclipse.jdt.ui.prefs
