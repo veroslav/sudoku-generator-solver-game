@@ -41,8 +41,10 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.Box;
@@ -218,12 +220,24 @@ public class MainWindow {
 		return buttons;
 	}
 	
-	//TODO: Use the method when generating a new puzzle with changed type (i.e. 16x16) or symbols (i.e. letters) 
-	/*private void setSymbolButtonLabels(final JToggleButton[] buttons, final String[] labels) {
+	private String getSelectedButtonActionCommand(final ButtonGroup buttonGroup) {
+		final Enumeration<AbstractButton> buttons = buttonGroup.getElements();
+		while(buttons.hasMoreElements()) {
+            final AbstractButton button = buttons.nextElement();
+
+            if(button.isSelected()) {
+                return button.getActionCommand();
+            }
+        }
+		return null;
+	}
+	 
+	private void setSymbolButtonNames(final JToggleButton[] buttons, final String[] labels) {
 		for(int i = 0; i < buttons.length; ++i) {
 			buttons[i].setText(labels[i]);
+			buttons[i].setActionCommand(labels[i]);
 		}
-	}*/
+	}
 	
 	private String[] getSymbolButtonLabels(final SymbolType symbolType, int buttonCount) {
 		final String[] buttonLabels = new String[buttonCount];
@@ -749,7 +763,18 @@ public class MainWindow {
 				}
 			}
 			if(newPuzzle != null || newPuzzleWindowOptions.isFromEmptyBoard()) {
+				final SymbolType currentSymbolType = board.getSymbolType();
 				final SymbolType newSymbolType = newPuzzleWindowOptions.getSelectedSymbolType();
+				
+				if(currentSymbolType != newSymbolType) { 
+					//Board symbol input has changed, update symbol buttons					
+					final String[] buttonLabels = getSymbolButtonLabels(newSymbolType, unit);
+					setSymbolButtonNames(symbolButtons, buttonLabels);
+					final String mouseClickInputValue = getSelectedButtonActionCommand(symbolButtonsGroup);
+					board.setMouseClickInputValue(mouseClickInputValue != null? 
+							mouseClickInputValue : symbolButtons[0].getActionCommand());
+				}
+				
 				setSymbolInputKeyType(newSymbolType);
 				undoManager.discardAllEdits();
 				updateUndoControls();

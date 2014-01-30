@@ -265,7 +265,7 @@ public class Board extends JPanel {
 	}
 	
 	/**
-	 * Set the digit to be used when the player clicks in an empty cell 
+	 * Set the symbol to be used when the player clicks in an empty cell 
 	 * @param value
 	 */
 	public void setMouseClickInputValue(final String value) {
