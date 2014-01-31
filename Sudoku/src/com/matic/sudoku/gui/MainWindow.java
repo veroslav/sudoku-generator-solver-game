@@ -63,12 +63,12 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.undo.UndoManager;
 
 import com.matic.sudoku.generator.ClassicGenerator;
 import com.matic.sudoku.generator.Generator;
 import com.matic.sudoku.generator.GeneratorResult;
 import com.matic.sudoku.gui.Board.SymbolType;
+import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.logic.strategy.LogicStrategy;
@@ -145,7 +145,7 @@ public class MainWindow {
 	
 	private final ButtonGroup symbolButtonsGroup;
 	
-	private final UndoManager undoManager;
+	private final SudokuUndoManager undoManager;
 	private final Puzzle puzzle;
 	private final Board board;
 	
@@ -168,7 +168,7 @@ public class MainWindow {
 		showSymbolsToolBarMenuItem = new JCheckBoxMenuItem(SHOW_SYMBOLS_TOOLBAR_STRING);
 		showColorsToolBarMenuItem = new JCheckBoxMenuItem(SHOW_COLORS_TOOLBAR_STRING);
 		
-		undoManager = new UndoManager();
+		undoManager = new SudokuUndoManager();
 		
 		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);
 		
@@ -618,7 +618,7 @@ public class MainWindow {
 	}
 	
 	private void flagWrongEntriesForBoardAction(final UndoableBoardEntryAction boardAction) {
-		if(!board.isVerified()) {
+		if(!board.isVerified() || !flagWrongEntriesMenuItem.isSelected()) {
 			return;
 		}
 		final String actionName = boardAction.getPresentationName();
@@ -746,13 +746,17 @@ public class MainWindow {
 		}
 		
 		private void handleUndoAction() {
+			final UndoableBoardEntryAction undoAction = (UndoableBoardEntryAction)undoManager.editToBeUndone();
 			undoManager.undo();
 			updateUndoControls();
+			flagWrongEntriesForBoardAction(undoAction);
 		}
 		
 		private void handleRedoAction() {
+			final UndoableBoardEntryAction redoAction = (UndoableBoardEntryAction)undoManager.editToBeRedone();
 			undoManager.redo();
 			updateUndoControls();
+			flagWrongEntriesForBoardAction(redoAction);
 		}
 	}
 	
