@@ -34,7 +34,7 @@ public class Cell {
 	private Color backgroundColor = Board.BACKGROUND_COLOR;
 		
 	//This cell's font color (default black)
-	private Color fontColor = Board.FONT_COLOR;
+	private Color fontColor = Board.NORMAL_FONT_COLOR;
 	
 	//Whether the cell holds a given value that can't be changed by the player
 	private boolean given;

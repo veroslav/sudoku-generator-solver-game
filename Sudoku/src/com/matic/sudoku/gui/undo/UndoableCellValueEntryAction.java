@@ -30,7 +30,7 @@ public class UndoableCellValueEntryAction extends UndoableBoardEntryAction {
 	private static final long serialVersionUID = 7639782414229940909L;
 	
 	public static final String DELETE_SYMBOL_PRESENTATION_NAME = "delete cell value";
-	public static final String DEFAULT_PRESENTATION_NAME = "insert cell value";
+	public static final String INSERT_VALUE_PRESENTATION_NAME = "insert cell value";
 	public static final String GIVE_CLUE_PRESENTATION_NAME = "give clue";
 	
 	private final int oldValue;

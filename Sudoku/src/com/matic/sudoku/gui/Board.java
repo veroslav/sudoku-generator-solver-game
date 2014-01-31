@@ -112,7 +112,11 @@ public class Board extends JPanel {
 	private static final Color PICKER_COLOR = new Color(220, 0, 0); //new Color(210,210,210);
 	
 	static Color BACKGROUND_COLOR = Color.white;
-	static Color FONT_COLOR = Color.black;
+	
+	//Font color used to mark an incorrect board entry
+	static Color ERROR_FONT_COLOR = Color.red;
+		
+	static Color NORMAL_FONT_COLOR = Color.black;
 	
 	//Color used to paint cells manually selected by the player
 	private Color cellSelectionBackgroundColor;
@@ -246,6 +250,16 @@ public class Board extends JPanel {
 	}
 	
 	/**
+	 * Get a cell's value
+	 * @param row Row for the cell to be updated
+	 * @param column Column for the cell to be updated
+	 * @return
+	 */
+	public int getCellValue(final int row, final int column) {
+		return cells[column][row].getDigit();
+	}
+	
+	/**
 	 * Set the background color to be used when user clicks on a cell to select it 
 	 * @param color Cell selection color
 	 */
@@ -261,6 +275,17 @@ public class Board extends JPanel {
 	 */
 	public void setCellBackgroundColor(final int row, final int column, final Color color) {
 		cells[column][row].setBackgroundColor(color);
+		repaint();
+	}
+	
+	/**
+	 * Set the font color of a cell
+	 * @param row Row index of the cell
+	 * @param column Column index of the cell
+	 * @param color The font color to set
+	 */
+	public void setCellFontColor(final int row, final int column, final Color color) {
+		cells[column][row].setFontColor(color);
 		repaint();
 	}
 	
@@ -692,7 +717,7 @@ public class Board extends JPanel {
 			return null;				
 		}
 		final UndoableBoardEntryAction undoableAction = new UndoableCellValueEntryAction(
-				UndoableCellValueEntryAction.DEFAULT_PRESENTATION_NAME, this, cellPickerRow, 
+				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME, this, cellPickerRow, 
 				cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), digit);
 		cells[cellPickerCol][cellPickerRow].setDigit(digit);
 		return undoableAction;

@@ -67,6 +67,7 @@ import javax.swing.undo.UndoManager;
 
 import com.matic.sudoku.generator.ClassicGenerator;
 import com.matic.sudoku.generator.Generator;
+import com.matic.sudoku.generator.GeneratorResult;
 import com.matic.sudoku.gui.Board.SymbolType;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
@@ -96,6 +97,7 @@ public class MainWindow {
 	//Menu options strings
 	private static final String SHOW_COLORS_TOOLBAR_STRING = "Color selection toolbar";
 	private static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
+	private static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
 	private static final String CLEAR_COLORS_STRING = "Clear color selections";
 	private static final String GIVE_CLUE_STRING = "Give clue";
 	private static final String NEW_STRING = "New...";
@@ -127,9 +129,13 @@ public class MainWindow {
 	
 	private final JCheckBoxMenuItem showSymbolsToolBarMenuItem;
 	private final JCheckBoxMenuItem showColorsToolBarMenuItem;
-	private final JMenuItem giveClueMenuItem;
+	private final JCheckBoxMenuItem flagWrongEntriesMenuItem;
+	
 	private final JToggleButton focusButton;
 	private final JToolBar symbolsToolBar;
+	
+	private final JMenuItem giveClueMenuItem;
+	private final JMenuItem solveMenuItem;
 	private final JMenuItem undoMenuItem;
 	private final JMenuItem redoMenuItem;
 	private final JToolBar colorsToolBar;
@@ -140,11 +146,14 @@ public class MainWindow {
 	private final ButtonGroup symbolButtonsGroup;
 	
 	private final UndoManager undoManager;
+	private final Puzzle puzzle;
 	private final Board board;
 	
 	public MainWindow(final String windowTitle) {
 		dimension = BOARD_DIMENSION_3x3;
 		unit = dimension * dimension;
+		
+		puzzle = new Puzzle();
 		
 		board = new Board(BOARD_DIMENSION_3x3, SymbolType.DIGITS);
 		initBoard(board);
@@ -161,7 +170,10 @@ public class MainWindow {
 		
 		undoManager = new UndoManager();
 		
+		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);
+		
 		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
+		solveMenuItem = new JMenuItem(SOLVE_STRING);
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
 		undoMenuItem = new JMenuItem(undoManager.getUndoPresentationName());
 		
@@ -172,6 +184,8 @@ public class MainWindow {
 		symbolButtonsGroup = new ButtonGroup();		
 		symbolsToolBar = buildSymbolsToolBar();
 		colorsToolBar = buildColorsToolBar();
+		
+		setPuzzleVerified(false);
 		
 		window = new JFrame(windowTitle);
 		initWindow(window);
@@ -203,6 +217,10 @@ public class MainWindow {
 				if(undoableAction != null) {
 					//Possible to undo this key action, add it to the undo manager
 					registerUndoableAction(undoableAction);
+					//If flagging wrong entries is on, set appropriate font color of the target cell
+					if(flagWrongEntriesMenuItem.isSelected()) {
+						flagWrongEntriesForBoardAction(undoableAction);
+					}
 				}
 			}
 		});
@@ -534,15 +552,16 @@ public class MainWindow {
 		
 		giveClueMenuItem.setEnabled(false);
 		
-		final JMenuItem[] puzzleMenuItems = {new JMenuItem(VERIFY_STRING), new JMenuItem(SOLVE_STRING),
-				giveClueMenuItem, new JMenuItem(RESET_STRING)};
+		final JMenuItem[] puzzleMenuItems = {new JMenuItem(VERIFY_STRING), solveMenuItem,
+				giveClueMenuItem, flagWrongEntriesMenuItem, new JMenuItem(RESET_STRING)};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
 		puzzleMenu.add(puzzleMenuItems[1]);
 		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[2]);
-		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[3]);
+		puzzleMenu.addSeparator();
+		puzzleMenu.add(puzzleMenuItems[4]);
 		
 		final ActionListener actionListener = new PuzzleMenuItemListener();
 		
@@ -598,6 +617,50 @@ public class MainWindow {
 		}
 	}
 	
+	private void flagWrongEntriesForBoardAction(final UndoableBoardEntryAction boardAction) {
+		if(!board.isVerified()) {
+			return;
+		}
+		final String actionName = boardAction.getPresentationName();
+		if(UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME.equals(actionName) ||
+				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME.equals(actionName)) {
+			final int columnIndex = boardAction.getColumn();
+			final int rowIndex = boardAction.getRow();
+			final int cellIndex = rowIndex * unit + columnIndex;
+			final int newCellValue = board.getCellValue(rowIndex, columnIndex);
+			if(newCellValue != 0 && puzzle.getSolution()[cellIndex] != newCellValue) {
+				//A wrong symbol has been entered
+				board.setCellFontColor(rowIndex, columnIndex, Board.ERROR_FONT_COLOR);
+			}
+			else {
+				//Either a correct new value was entered or previous cell value was deleted
+				board.setCellFontColor(rowIndex, columnIndex, Board.NORMAL_FONT_COLOR);
+			}
+		}
+	}
+	
+	private void setBoardFontColor(final Color color) {
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {						
+				board.setCellFontColor(i, j, color);			
+			}
+		}
+	}
+	
+	private void setPuzzleVerified(final boolean verified) {
+		board.setVerified(verified);
+		
+		giveClueMenuItem.setEnabled(verified);
+		solveMenuItem.setEnabled(verified);
+		
+		flagWrongEntriesMenuItem.setEnabled(verified);
+		
+		if(!verified) {
+			//Remove all incorrect board entry flags if board is not verified				
+			setBoardFontColor(Board.NORMAL_FONT_COLOR);
+		}
+	}
+	
 	@SuppressWarnings("serial")
 	private class BoardKeyAction extends AbstractAction {		
 		public BoardKeyAction(final String keyAction) {
@@ -610,6 +673,10 @@ public class MainWindow {
 			if(undoableAction != null) {
 				//Possible to undo this key action, add it to the undo manager
 				registerUndoableAction(undoableAction);
+				//If flagging wrong entries is on, set appropriate font color of the target cell
+				if(flagWrongEntriesMenuItem.isSelected()) {
+					flagWrongEntriesForBoardAction(undoableAction);
+				}
 			}
 		}
 	}
@@ -748,21 +815,21 @@ public class MainWindow {
 				return;
 			}
 			
-			int[] newPuzzle = null;
+			GeneratorResult generatorResult = null;
 			 
 			if (!newPuzzleWindowOptions.isFromEmptyBoard()) {
-				newPuzzle = generator.createNew(
+				generatorResult = generator.createNew(
 						newPuzzleWindowOptions.getSelectedDifficulty(), 
 						newPuzzleWindowOptions.getSelectedSymmetry());				
 				
-				if(newPuzzle == null) {
+				if(generatorResult == null) {
 					JOptionPane.showMessageDialog(window,
 							"Failed to generate a new puzzle of specified difficulty.",
 							"New puzzle", JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
 			}
-			if(newPuzzle != null || newPuzzleWindowOptions.isFromEmptyBoard()) {
+			if(generatorResult != null || newPuzzleWindowOptions.isFromEmptyBoard()) {
 				final SymbolType currentSymbolType = board.getSymbolType();
 				final SymbolType newSymbolType = newPuzzleWindowOptions.getSelectedSymbolType();
 				
@@ -784,14 +851,13 @@ public class MainWindow {
 				
 				if(newPuzzleWindowOptions.isFromEmptyBoard()) {
 					board.recordGivens();
-					board.setVerified(false);
-					giveClueMenuItem.setEnabled(false);
+					setPuzzleVerified(false);
 				}
-				else if(newPuzzle != null) {
-					board.setPuzzle(newPuzzle);
+				else if(generatorResult != null) {
+					board.setPuzzle(generatorResult.getGeneratedPuzzle());
 					board.recordGivens();
-					board.setVerified(true);
-					giveClueMenuItem.setEnabled(true);
+					setPuzzleVerified(true);
+					puzzle.setSolution(generatorResult.getPuzzleSolution());
 				}
 			} 
 		}
@@ -850,7 +916,7 @@ public class MainWindow {
 				board.clear(true);
 				board.recordGivens();
 				board.setPuzzle(pastedPuzzle);
-				board.setVerified(false);
+				setPuzzleVerified(false);
 			}
 			else {				
 				JOptionPane.showMessageDialog(window, "Unsupported puzzle format.", "Paste", JOptionPane.ERROR_MESSAGE);
@@ -919,9 +985,39 @@ public class MainWindow {
 			case GIVE_CLUE_STRING:
 				handleGiveClueAction();
 				break;
+			case FLAG_WRONG_ENTRIES_STRING:
+				handleFlagWrongEntriesAction();
+				break;
 			case RESET_STRING:
 				handleResetAction();
 				break;
+			}
+		}
+		
+		private void handleFlagWrongEntriesAction() {
+			if(!board.isVerified()) {
+				return;
+			}
+			if(flagWrongEntriesMenuItem.isSelected()) {
+				//Flag all incorrect board entries
+				final int[] puzzleSolution = puzzle.getSolution();
+				final int[] boardEntries = board.getPuzzle();		
+				int puzzleIndex = 0;
+				
+				for(int i = 0; i < unit; ++i) {
+					for(int j = 0; j < unit; ++j) {
+						final int cellValue = boardEntries[puzzleIndex];
+						//Only consider non-empty cells
+						if(cellValue > 0 && (puzzleSolution[puzzleIndex] != cellValue)) {
+							board.setCellFontColor(i, j, Board.ERROR_FONT_COLOR);
+						}	
+						++puzzleIndex;
+					}
+				}
+			}
+			else {
+				//Remove all incorrect board entry flags				
+				setBoardFontColor(Board.NORMAL_FONT_COLOR);
 			}
 		}
 		
@@ -970,14 +1066,15 @@ public class MainWindow {
 		
 		private void handleVerifyAction() {			
 			final String title = "Verify puzzle";
+			final int[] enteredPuzzle = board.getPuzzle();
 			
-			if(bruteForceSolver.solve(board.getPuzzle()) != BruteForceSolver.UNIQUE_SOLUTION) {
+			if(bruteForceSolver.solve(enteredPuzzle) != BruteForceSolver.UNIQUE_SOLUTION) {
 				JOptionPane.showMessageDialog(window, "Invalid puzzle entered.", title, JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 			
-			final int[][] puzzle = board.toIntMatrix();			
-			final int result = logicSolver.solve(puzzle);
+			final int[][] puzzleAsMatrix = board.toIntMatrix();			
+			final int result = logicSolver.solve(puzzleAsMatrix);
 				
 			if(result != LogicSolver.UNIQUE_SOLUTION) {
 				JOptionPane.showMessageDialog(window, "No logic solution found.", title, JOptionPane.INFORMATION_MESSAGE);
@@ -997,8 +1094,8 @@ public class MainWindow {
 				
 				if(choice == JOptionPane.YES_OPTION) {
 					board.recordGivens();
-					board.setVerified(true);
-					giveClueMenuItem.setEnabled(true);
+					setPuzzleVerified(true);
+					puzzle.setSolution(enteredPuzzle);
 				}
 			}
 		}

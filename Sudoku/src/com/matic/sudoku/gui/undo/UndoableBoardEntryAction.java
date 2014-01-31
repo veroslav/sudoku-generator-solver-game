@@ -49,6 +49,14 @@ public abstract class UndoableBoardEntryAction extends AbstractUndoableEdit {
 		this.column = column;
 	}
 	
+	public int getRow() {
+		return row;
+	}
+	
+	public int getColumn() {
+		return column;
+	}
+	
 	@Override
 	public String getPresentationName() {
 		return presentationName;

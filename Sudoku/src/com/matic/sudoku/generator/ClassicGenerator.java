@@ -52,7 +52,7 @@ public class ClassicGenerator extends Generator {
 	 * @see com.matic.sudoku.generator.Generator#createNew(com.matic.sudoku.solver.LogicSolver.Grading, com.matic.sudoku.generator.Generator.Symmetry)
 	 */
 	@Override
-	public int[] createNew(Grading grading, Symmetry symmetry) {
+	public GeneratorResult createNew(Grading grading, Symmetry symmetry) {
 		initArrays();
 		
 		for(int i = 0; i < maxIterations; ++i) {
@@ -63,7 +63,7 @@ public class ClassicGenerator extends Generator {
 			final int[] generatedPuzzle = fromFilledBoard(filledBoard, grading, symmetry);
 			if(generatedPuzzle != null) {
 				resetStates();
-				return generatedPuzzle;
+				return new GeneratorResult(generatedPuzzle, filledBoard);
 			}
 		}
 		resetStates();

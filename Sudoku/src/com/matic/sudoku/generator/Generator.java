@@ -90,7 +90,7 @@ public abstract class Generator {
 	 * Create a new puzzle with a given difficulty grading and type of symmetry, if any.
 	 * @param grading Target difficulty grading for generated puzzle
 	 * @param symmetry Target board symmetry for generated puzzle 
-	 * @return A new puzzle or null if no such was possible to generate within generator constraints
+	 * @return A new puzzle and it's solution, or null if no such was possible to generate within generator constraints
 	 */
-	public abstract int[] createNew(final Grading grading, final Symmetry symmetry);
+	public abstract GeneratorResult createNew(final Grading grading, final Symmetry symmetry);
 }
