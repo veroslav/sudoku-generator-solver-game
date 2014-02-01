@@ -151,6 +151,9 @@ public class Board extends JPanel {
 	//Size of a region (box, row or column), 9 for a 9x9 board
 	private final int unit;
 	
+	//How many symbols are on the board (givens + entered by the player)
+	private int symbolsFilledCount;
+	
 	//Width of the board on the screen (in pixels, including the surrounding thick grid lines)
 	private int boardWidth;
 	
@@ -202,6 +205,7 @@ public class Board extends JPanel {
 		addMouseMotionListener(new MouseMotionHandler());
 		
 		cellPickerCol = cellPickerRow = 0;
+		symbolsFilledCount = 0;
 		initCells(dimension);		
 	}
 	
@@ -230,6 +234,10 @@ public class Board extends JPanel {
 		return symbolType;
 	}
 	
+	public int getSymbolsFilledCount() {
+		return symbolsFilledCount;
+	}
+	
 	public boolean isVerified() {
 		return verified;
 	}
@@ -245,6 +253,14 @@ public class Board extends JPanel {
 	 * @param value Value to set
 	 */
 	public void setCellValue(final int row, final int column, final int value) {
+		if(cells[column][row].getDigit() == 0 && value > 0) {
+			//New symbol entered, increase symbols filled count
+			++symbolsFilledCount;
+		}
+		if(cells[column][row].getDigit() > 0 && value == 0) {
+			//A symbol has been removed, decrease symbols filled count
+			--symbolsFilledCount;
+		}
 		cells[column][row].setDigit(value);
 		repaint();
 	}
@@ -361,8 +377,7 @@ public class Board extends JPanel {
 	 * @param actionKey
 	 * @return	Undoable key action, or null if no such is possible for given key
 	 */
-	public UndoableBoardEntryAction handleKeyPressed(final String actionKey) {
-		UndoableBoardEntryAction undoableAction = null;
+	public UndoableBoardEntryAction handleKeyPressed(final String actionKey) {		
 		switch(actionKey) {
 		case KEY_UP_ACTION:			
 			cellPickerRow = cellPickerRow - 1 > -1? --cellPickerRow : unit - 1;			
@@ -379,21 +394,17 @@ public class Board extends JPanel {
 		case KEY_DELETE_ACTION:
 			if(cells[cellPickerCol][cellPickerRow].isGiven()) {
 				return null;
-			}
-			undoableAction = new UndoableCellValueEntryAction(
+			} 
+			setCellValue(cellPickerRow, cellPickerCol, 0);
+			return new UndoableCellValueEntryAction(
 					UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME, this, cellPickerRow, 
-					cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), 0); 
-			cells[cellPickerCol][cellPickerRow].setDigit(0);
-			break;
+					cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), 0);
 		default:
 			//We have (possibly) a symbol to enter on the board
-			undoableAction = handleDigitEntered(actionKey);
-			if(undoableAction == null) {
-				return null;
-			}
+			return handleDigitEntered(actionKey);
 		}
 		repaint();
-		return undoableAction;
+		return null;
 	}
 	
 	/**
@@ -424,7 +435,7 @@ public class Board extends JPanel {
 				if (cells[cellPickerCol][cellPickerRow].isGiven()) {
 					return null;
 				}
-				undoableAction = handleDigitEntered(mouseClickInputValue);
+				return handleDigitEntered(mouseClickInputValue);
 			}			
 			break;
 		case MouseEvent.BUTTON3:
@@ -496,6 +507,9 @@ public class Board extends JPanel {
 		for (int i = 0; i < unit; ++i) {
 			for (int j = 0; j < unit; ++j) {	
 				if(clearGivens || !cells[j][i].isGiven()) {
+					if(cells[j][i].getDigit() > 0) {
+						--symbolsFilledCount;
+					}
 					cells[j][i].setDigit(0);
 				}
 			}
@@ -520,12 +534,16 @@ public class Board extends JPanel {
 	//Convert puzzle solution from the format used by the solver and display it on the board
 	private void fromIntArray(final int[] puzzle) {		
 		int puzzleIndex = 0;
+		symbolsFilledCount = 0;
 		
 		for (int j = 0; j < unit; ++j) {
 			for (int k = 0; k < unit; ++k) {				
 				cells[k][j].setDigit(puzzle[puzzleIndex++]);
+				if(cells[k][j].getDigit() > 0) {
+					++symbolsFilledCount;
+				}
 			}
-		}		
+		}
 	}
 	
 	private void initCells(final int dimension) {					
@@ -718,8 +736,9 @@ public class Board extends JPanel {
 		}
 		final UndoableBoardEntryAction undoableAction = new UndoableCellValueEntryAction(
 				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME, this, cellPickerRow, 
-				cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), digit);
-		cells[cellPickerCol][cellPickerRow].setDigit(digit);
+				cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), digit);		
+		setCellValue(cellPickerRow, cellPickerCol, digit);
+		
 		return undoableAction;
 	}
 
