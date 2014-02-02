@@ -412,10 +412,11 @@ public class Board extends JPanel {
 			if(!allowEditing || cells[cellPickerCol][cellPickerRow].isGiven()) {
 				return null;
 			} 
+			final int oldCellValue = cells[cellPickerCol][cellPickerRow].getDigit();
 			setCellValue(cellPickerRow, cellPickerCol, 0);
 			return new UndoableCellValueEntryAction(
 					UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME, this, cellPickerRow, 
-					cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), 0);
+					cellPickerCol, oldCellValue, 0);
 		default:
 			//We have (possibly) a symbol to enter on the board
 			return !allowEditing? null : handleDigitEntered(actionKey);
