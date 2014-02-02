@@ -391,9 +391,10 @@ public class Board extends JPanel {
 	 * Perform appropriate repaints depending on the key pressed. If the key action is undoable,
 	 * return it, otherwise return null
 	 * @param actionKey
+	 * @param allowEditing Whether the player is allowed to enter or delete symbols at this moment
 	 * @return	Undoable key action, or null if no such is possible for given key
 	 */
-	public UndoableBoardEntryAction handleKeyPressed(final String actionKey) {		
+	public UndoableBoardEntryAction handleKeyPressed(final String actionKey, final boolean allowEditing) {		
 		switch(actionKey) {
 		case KEY_UP_ACTION:			
 			cellPickerRow = cellPickerRow - 1 > -1? --cellPickerRow : unit - 1;			
@@ -408,7 +409,7 @@ public class Board extends JPanel {
 			cellPickerCol = ++cellPickerCol % unit;
 			break;
 		case KEY_DELETE_ACTION:
-			if(cells[cellPickerCol][cellPickerRow].isGiven()) {
+			if(!allowEditing || cells[cellPickerCol][cellPickerRow].isGiven()) {
 				return null;
 			} 
 			setCellValue(cellPickerRow, cellPickerCol, 0);
@@ -417,7 +418,7 @@ public class Board extends JPanel {
 					cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), 0);
 		default:
 			//We have (possibly) a symbol to enter on the board
-			return handleDigitEntered(actionKey);
+			return !allowEditing? null : handleDigitEntered(actionKey);
 		}
 		repaint();
 		return null;
@@ -426,9 +427,10 @@ public class Board extends JPanel {
 	/**
 	 * A handler for mouse clicks, used when player applies visual aids to the board
 	 * @param event Originating mouse event
+	 * @param allowEditing Whether the player is allowed perform certain mouse actions at this moment
 	 * @return A handle to the undoable action for this mouse event	 
 	 */
-	public UndoableBoardEntryAction handleMouseClicked(final MouseEvent event) {
+	public UndoableBoardEntryAction handleMouseClicked(final MouseEvent event, final boolean allowEditing) {
 		final int mouseX = event.getX();
 		final int mouseY = event.getY();
 
@@ -448,7 +450,7 @@ public class Board extends JPanel {
 			}
 			else {
 				//No Ctrl button was down, a simple digit entry
-				if (cells[cellPickerCol][cellPickerRow].isGiven()) {
+				if (!allowEditing || cells[cellPickerCol][cellPickerRow].isGiven()) {
 					return null;
 				}
 				return handleDigitEntered(mouseClickInputValue);
@@ -456,8 +458,7 @@ public class Board extends JPanel {
 			break;
 		case MouseEvent.BUTTON3:
 			// Right-button click (pencilmark entry)
-			undoableAction = handlePencilmarkEntered();
-			break;
+			return allowEditing? handlePencilmarkEntered() : null;
 		}
 		repaint();
 		return undoableAction;

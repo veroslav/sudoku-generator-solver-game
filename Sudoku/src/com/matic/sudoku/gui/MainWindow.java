@@ -136,6 +136,7 @@ public class MainWindow {
 	private final JToolBar symbolsToolBar;
 	
 	private final JMenuItem giveClueMenuItem;
+	private final JMenuItem verifyMenuItem;
 	private final JMenuItem checkMenuItem;
 	private final JMenuItem solveMenuItem;
 	private final JMenuItem undoMenuItem;
@@ -175,6 +176,7 @@ public class MainWindow {
 		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);
 		
 		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
+		verifyMenuItem = new JMenuItem(VERIFY_STRING);
 		checkMenuItem = new JMenuItem(CHECK_STRING);
 		solveMenuItem = new JMenuItem(SOLVE_STRING);
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
@@ -215,16 +217,9 @@ public class MainWindow {
 		board.addComponentListener(new BoardResizeListener());
 		board.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent event) {
-				final UndoableBoardEntryAction undoableAction = board.handleMouseClicked(event);
-				if(undoableAction != null) {
-					//Possible to undo this key action, add it to the undo manager
-					registerUndoableAction(undoableAction);
-					//If flagging wrong entries is on, set appropriate font color of the target cell
-					if(flagWrongEntriesMenuItem.isSelected()) {
-						flagWrongEntriesForBoardAction(undoableAction);
-					}
-				}
+			public void mouseClicked(MouseEvent event) {				
+				final UndoableBoardEntryAction undoableAction = board.handleMouseClicked(event, !puzzle.isSolved());
+				handleUndoableAction(undoableAction);
 			}
 		});
 		addKeyActions(board);
@@ -553,9 +548,10 @@ public class MainWindow {
 		final JMenu puzzleMenu = new JMenu(PUZZLE_MENU);
 		puzzleMenu.setMnemonic(KeyEvent.VK_P);
 		
+		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
 		giveClueMenuItem.setEnabled(false);
 		
-		final JMenuItem[] puzzleMenuItems = {new JMenuItem(VERIFY_STRING), solveMenuItem,
+		final JMenuItem[] puzzleMenuItems = {verifyMenuItem, solveMenuItem,
 				giveClueMenuItem, checkMenuItem, flagWrongEntriesMenuItem, new JMenuItem(RESET_STRING)};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
@@ -643,6 +639,37 @@ public class MainWindow {
 		}
 	}
 	
+	//Check if player has solved a puzzle on each cell value modification (keyboard and mouse actions)
+	private void checkPuzzleSolutionForBoardAction(final UndoableBoardEntryAction boardAction) {
+		final String actionName = boardAction.getPresentationName();
+		if(UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME.equals(actionName) ||
+				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME.equals(actionName)) {
+			if(puzzle.checkSolution()) {
+				handlePuzzleSolved();
+			}
+		}
+	}
+	
+	private void handlePuzzleSolved() {
+		JOptionPane.showMessageDialog(window,
+				"Congratulations! You solved the puzzle correctly.",
+				"Puzzle solved", JOptionPane.INFORMATION_MESSAGE);
+		//Prevent the player from undoing any moves and using aids, as the puzzle has been solved
+		flagWrongEntriesMenuItem.setEnabled(false);
+		giveClueMenuItem.setEnabled(false);		
+		verifyMenuItem.setEnabled(false);		
+		solveMenuItem.setEnabled(false);	
+		checkMenuItem.setEnabled(false);
+		
+		undoManager.discardAllEdits();
+		
+		undoMenuItem.setEnabled(false);
+		undoMenuItem.setText(undoManager.getUndoPresentationName());
+		
+		redoMenuItem.setEnabled(false);
+		redoMenuItem.setText(undoManager.getRedoPresentationName());
+	}
+	
 	private void setPuzzleVerified(final boolean verified) {
 		board.setVerified(verified);
 		
@@ -656,6 +683,19 @@ public class MainWindow {
 		board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 	}
 	
+	private void handleUndoableAction(final UndoableBoardEntryAction undoableAction) {
+		if(undoableAction != null) {
+			//Possible to undo this key action, add it to the undo manager
+			registerUndoableAction(undoableAction);
+			//If flagging wrong entries is on, set appropriate font color of the target cell
+			if(flagWrongEntriesMenuItem.isSelected()) {
+				flagWrongEntriesForBoardAction(undoableAction);
+			}
+			//Check whether the player possibly completed the puzzle
+			checkPuzzleSolutionForBoardAction(undoableAction);
+		}
+	}
+	
 	@SuppressWarnings("serial")
 	private class BoardKeyAction extends AbstractAction {		
 		public BoardKeyAction(final String keyAction) {
@@ -664,15 +704,8 @@ public class MainWindow {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			final UndoableBoardEntryAction undoableAction = board.handleKeyPressed(e.getActionCommand());
-			if(undoableAction != null) {
-				//Possible to undo this key action, add it to the undo manager
-				registerUndoableAction(undoableAction);
-				//If flagging wrong entries is on, set appropriate font color of the target cell
-				if(flagWrongEntriesMenuItem.isSelected()) {
-					flagWrongEntriesForBoardAction(undoableAction);
-				}
-			}
+			final UndoableBoardEntryAction undoableAction = board.handleKeyPressed(e.getActionCommand(), !puzzle.isSolved());
+			handleUndoableAction(undoableAction);
 		}
 	}
 	
@@ -851,6 +884,7 @@ public class MainWindow {
 				if(newPuzzleWindowOptions.isFromEmptyBoard()) {
 					board.recordGivens();
 					setPuzzleVerified(false);
+					puzzle.setSolved(false);
 				}
 				else if(generatorResult != null) {
 					board.setPuzzle(generatorResult.getGeneratedPuzzle());
@@ -916,6 +950,7 @@ public class MainWindow {
 				board.recordGivens();
 				board.setPuzzle(pastedPuzzle);
 				setPuzzleVerified(false);
+				puzzle.setSolved(false);
 			}
 			else {				
 				JOptionPane.showMessageDialog(window, "Unsupported puzzle format.", "Paste", JOptionPane.ERROR_MESSAGE);
@@ -1008,9 +1043,10 @@ public class MainWindow {
 			final StringBuilder sb = new StringBuilder();
 			
 			if(incorrectCount > 0) {
-				sb.append("There are ");
+				sb.append(incorrectCount == 1? "There is " : "There are ");
 				sb.append(incorrectCount);
-				sb.append(" wrong entries.\n");
+				sb.append(" wrong ");
+				sb.append(incorrectCount == 1? "entry.\n" : "entries.\n");
 			}
 			else {
 				sb.append("Everything looks good.\n");
@@ -1079,9 +1115,12 @@ public class MainWindow {
 				final UndoableBoardEntryAction undoableAction = new UndoableCellValueEntryAction(
 						UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME, board, 
 						clueLocation[1], clueLocation[0], 0, clue);
-				registerUndoableAction(undoableAction);
 				
+				registerUndoableAction(undoableAction);				
 				board.setCellValue(clueLocation[1], clueLocation[0], clue);
+				
+				//Check whether the player possibly completed the puzzle
+				checkPuzzleSolutionForBoardAction(undoableAction);
 			}
 		}
 		
@@ -1091,9 +1130,15 @@ public class MainWindow {
 			final int choice = JOptionPane.showConfirmDialog(window, message, title, 
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(choice == JOptionPane.YES_OPTION) {
+				verifyMenuItem.setEnabled(true);
 				undoManager.discardAllEdits();
 				updateUndoControls();
+				
+				board.clearColorSelections();
 				board.clear(false);
+				
+				puzzle.setSolved(false);
+				setPuzzleVerified(board.isVerified());
 			}
 		}
 		
@@ -1134,8 +1179,8 @@ public class MainWindow {
 		}
 		
 		private void handleSolveAction() {	
-			final int[] puzzle = board.getPuzzle();
-			final int solutionCount = bruteForceSolver.solve(puzzle);
+			final int[] enteredPuzzle = board.getPuzzle();
+			final int solutionCount = bruteForceSolver.solve(enteredPuzzle);
 			
 			final String title = "Solve puzzle";
 			
@@ -1143,7 +1188,9 @@ public class MainWindow {
 			case BruteForceSolver.UNIQUE_SOLUTION:
 				//Remove all incorrect board entry flags				
 				board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
-				board.setPuzzle(puzzle);
+				board.setPuzzle(enteredPuzzle);
+				puzzle.setSolved(true);
+				handlePuzzleSolved();
 				break;
 			case BruteForceSolver.NO_SOLUTION:
 				JOptionPane.showMessageDialog(window, "No solution found.", title, JOptionPane.INFORMATION_MESSAGE);

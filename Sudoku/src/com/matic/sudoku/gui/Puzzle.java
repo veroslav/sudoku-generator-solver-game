@@ -68,18 +68,31 @@ public class Puzzle {
 	}
 	
 	/**
+	 * Set whether the player has solved the puzzle
+	 * @param solved
+	 */
+	public void setSolved(final boolean solved) {
+		this.solved = solved;
+	}
+	
+	/**
+	 * Check whether the puzzle has been solved by the player
+	 * @return
+	 */
+	public boolean isSolved() {
+		return solved;
+	}
+	
+	/**
 	 * Check if the puzzle is solved correctly by the player
 	 * @return true if player has solved the puzzle correctly, false otherwise or
 	 * if it was already solved prior to this call
 	 */
-	public boolean isSolved() {
+	public boolean checkSolution() {
 		if(!solved && (board.getSymbolsFilledCount() == board.cellCount) &&
 				getIncorrectCount() == 0) {
-			//Prevent player from further modifying the board (it is solved)
-			board.recordGivens();
 			solved = true;
-			return true;
 		}
-		return false;
+		return solved;
 	}
 }
