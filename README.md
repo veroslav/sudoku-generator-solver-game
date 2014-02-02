@@ -10,7 +10,7 @@ The following features are currently implemented:
 - Undo and redo
 - Reveal clues (next digit) on player's request
 - Flag wrong entries
-- Enter a puzzle manually, let SuDonkey verify it (determine difficulty grading), and allow player to use all available aid tools in order to solve the puzzle
+- Enter a puzzle manually, verify it (determine difficulty grading), and allow player to use all available aid tools in order to solve the puzzle
 - Puzzle symmetry can be selected before creating a new puzzle. Five symmetry types can be chosen: 180 Degree Rotational, Vertical and Horizontal mirroring, Diagonal and Anti-diagonal
 - Either digits or letters can be used based on player’s preferences
 - Apply colors to any cell (often needed for more difficult puzzles)
