@@ -643,14 +643,6 @@ public class MainWindow {
 		}
 	}
 	
-	private void setBoardFontColor(final Color color) {
-		for(int i = 0; i < unit; ++i) {
-			for(int j = 0; j < unit; ++j) {						
-				board.setCellFontColor(i, j, color);			
-			}
-		}
-	}
-	
 	private void setPuzzleVerified(final boolean verified) {
 		board.setVerified(verified);
 		
@@ -661,7 +653,7 @@ public class MainWindow {
 		flagWrongEntriesMenuItem.setEnabled(verified);
 		
 		//Remove all incorrect board entry flags				
-		setBoardFontColor(Board.NORMAL_FONT_COLOR);
+		board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 	}
 	
 	@SuppressWarnings("serial")
@@ -1058,7 +1050,7 @@ public class MainWindow {
 			}
 			else {
 				//Remove all incorrect board entry flags				
-				setBoardFontColor(Board.NORMAL_FONT_COLOR);
+				board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 			}
 		}
 		
@@ -1150,7 +1142,7 @@ public class MainWindow {
 			switch(solutionCount) {
 			case BruteForceSolver.UNIQUE_SOLUTION:
 				//Remove all incorrect board entry flags				
-				setBoardFontColor(Board.NORMAL_FONT_COLOR);
+				board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 				board.setPuzzle(puzzle);
 				break;
 			case BruteForceSolver.NO_SOLUTION:

@@ -310,6 +310,18 @@ public class Board extends JPanel {
 	}
 	
 	/**
+	 * Set the font color for all board cells
+	 * @param color The font color to set
+	 */
+	public void setBoardFontColor(final Color color) {
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {						
+				setCellFontColor(i, j, color);			
+			}
+		}
+	}
+	
+	/**
 	 * Set the symbol to be used when the player clicks in an empty cell 
 	 * @param value
 	 */
