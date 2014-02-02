@@ -102,6 +102,7 @@ public class MainWindow {
 	private static final String GIVE_CLUE_STRING = "Give clue";
 	private static final String NEW_STRING = "New...";
 	private static final String VERIFY_STRING = "Verify";
+	private static final String CHECK_STRING = "Check";
 	private static final String RESET_STRING = "Reset";
 	private static final String COPY_STRING = "Copy";
 	private static final String PASTE_STRING = "Paste";
@@ -135,6 +136,7 @@ public class MainWindow {
 	private final JToolBar symbolsToolBar;
 	
 	private final JMenuItem giveClueMenuItem;
+	private final JMenuItem checkMenuItem;
 	private final JMenuItem solveMenuItem;
 	private final JMenuItem undoMenuItem;
 	private final JMenuItem redoMenuItem;
@@ -153,10 +155,10 @@ public class MainWindow {
 		dimension = BOARD_DIMENSION_3x3;
 		unit = dimension * dimension;
 		
-		puzzle = new Puzzle();
-		
 		board = new Board(BOARD_DIMENSION_3x3, SymbolType.DIGITS);
 		initBoard(board);
+		
+		puzzle = new Puzzle(board);
 				
 		bruteForceSolver = new DlxSolver(BOARD_DIMENSION_3x3, BruteForceSolver.MULTIPLE_SOLUTIONS);
 		logicSolver = new LogicSolver(BOARD_DIMENSION_3x3);
@@ -173,6 +175,7 @@ public class MainWindow {
 		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);
 		
 		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
+		checkMenuItem = new JMenuItem(CHECK_STRING);
 		solveMenuItem = new JMenuItem(SOLVE_STRING);
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
 		undoMenuItem = new JMenuItem(undoManager.getUndoPresentationName());
@@ -553,15 +556,16 @@ public class MainWindow {
 		giveClueMenuItem.setEnabled(false);
 		
 		final JMenuItem[] puzzleMenuItems = {new JMenuItem(VERIFY_STRING), solveMenuItem,
-				giveClueMenuItem, flagWrongEntriesMenuItem, new JMenuItem(RESET_STRING)};
+				giveClueMenuItem, checkMenuItem, flagWrongEntriesMenuItem, new JMenuItem(RESET_STRING)};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
 		puzzleMenu.add(puzzleMenuItems[1]);
 		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[2]);
 		puzzleMenu.add(puzzleMenuItems[3]);
-		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[4]);
+		puzzleMenu.addSeparator();
+		puzzleMenu.add(puzzleMenuItems[5]);
 		
 		final ActionListener actionListener = new PuzzleMenuItemListener();
 		
@@ -651,14 +655,13 @@ public class MainWindow {
 		board.setVerified(verified);
 		
 		giveClueMenuItem.setEnabled(verified);
+		checkMenuItem.setEnabled(verified);
 		solveMenuItem.setEnabled(verified);
 		
 		flagWrongEntriesMenuItem.setEnabled(verified);
 		
-		if(!verified) {
-			//Remove all incorrect board entry flags if board is not verified				
-			setBoardFontColor(Board.NORMAL_FONT_COLOR);
-		}
+		//Remove all incorrect board entry flags				
+		setBoardFontColor(Board.NORMAL_FONT_COLOR);
 	}
 	
 	@SuppressWarnings("serial")
@@ -989,6 +992,9 @@ public class MainWindow {
 			case GIVE_CLUE_STRING:
 				handleGiveClueAction();
 				break;
+			case CHECK_STRING:
+				handleCheckAction();
+				break;
 			case FLAG_WRONG_ENTRIES_STRING:
 				handleFlagWrongEntriesAction();
 				break;
@@ -996,6 +1002,37 @@ public class MainWindow {
 				handleResetAction();
 				break;
 			}
+		}
+		
+		private void handleCheckAction() {
+			if(!board.isVerified()) {
+				return;
+			}
+			final String title = "Check puzzle";
+			final int incorrectCount = puzzle.getIncorrectCount();
+			final int filledCount = board.getSymbolsFilledCount();
+			final int leftCount = board.cellCount - filledCount;
+			
+			final StringBuilder sb = new StringBuilder();
+			
+			if(incorrectCount > 0) {
+				sb.append("There are ");
+				sb.append(incorrectCount);
+				sb.append(" wrong entries.\n");
+			}
+			else {
+				sb.append("Everything looks good.\n");
+			}
+			
+			sb.append(board.getSymbolType().getDescription());
+			sb.append(" entered: ");
+			sb.append(filledCount);
+			sb.append("\n");
+			sb.append(leftCount);
+			sb.append(" left to go.");
+			
+			JOptionPane.showMessageDialog(window, sb.toString(), title, 
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 		
 		private void handleFlagWrongEntriesAction() {
@@ -1112,6 +1149,8 @@ public class MainWindow {
 			
 			switch(solutionCount) {
 			case BruteForceSolver.UNIQUE_SOLUTION:
+				//Remove all incorrect board entry flags				
+				setBoardFontColor(Board.NORMAL_FONT_COLOR);
 				board.setPuzzle(puzzle);
 				break;
 			case BruteForceSolver.NO_SOLUTION:

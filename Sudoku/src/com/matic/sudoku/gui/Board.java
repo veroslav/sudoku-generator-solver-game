@@ -90,6 +90,12 @@ public class Board extends JPanel {
 	private static final int PREFERRED_WIDTH = 800;
 	private static final int PREFERRED_HEIGHT = 540;
 	
+	//Size of a region (box, row or column), 9 for a 9x9 board
+	public final int unit;
+	
+	//How many cells this board contains (81 for a 9x9 board)
+	public final int cellCount;
+	
 	//Default value entered in a cell when mouse is clicked
 	private static final String MOUSE_CLICK_DEFAULT_INPUT_VALUE = "1";
 	
@@ -148,9 +154,6 @@ public class Board extends JPanel {
 	//Board size, for a 9x9 board, the dimension is 3
 	private final int dimension;
 	
-	//Size of a region (box, row or column), 9 for a 9x9 board
-	private final int unit;
-	
 	//How many symbols are on the board (givens + entered by the player)
 	private int symbolsFilledCount;
 	
@@ -192,6 +195,7 @@ public class Board extends JPanel {
 	public Board(final int dimension, final SymbolType symbolType) {	
 		this.dimension = dimension;
 		unit = dimension * dimension;
+		cellCount = unit * unit;
 		verified = false;
 		
 		mouseClickInputValue = MOUSE_CLICK_DEFAULT_INPUT_VALUE;
