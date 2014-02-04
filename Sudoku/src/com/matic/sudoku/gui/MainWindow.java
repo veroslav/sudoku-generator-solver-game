@@ -661,7 +661,7 @@ public class MainWindow {
 		solveMenuItem.setEnabled(false);	
 		checkMenuItem.setEnabled(false);
 		
-		undoManager.discardAllEdits();
+		clearUndoableActions();
 		
 		undoMenuItem.setEnabled(false);
 		undoMenuItem.setText(undoManager.getUndoPresentationName());
@@ -671,16 +671,21 @@ public class MainWindow {
 	}
 	
 	private void setPuzzleVerified(final boolean verified) {
-		board.setVerified(verified);
-		
+		solveMenuItem.setEnabled(verified);
 		giveClueMenuItem.setEnabled(verified);
 		checkMenuItem.setEnabled(verified);
-		solveMenuItem.setEnabled(verified);
-		
 		flagWrongEntriesMenuItem.setEnabled(verified);
+		
+		verifyMenuItem.setEnabled(!verified);
+		board.setVerified(verified);
 		
 		//Remove all incorrect board entry flags				
 		board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
+	}
+	
+	private void clearUndoableActions() {
+		undoManager.discardAllEdits();
+		updateUndoControls();
 	}
 	
 	private void handleUndoableAction(final UndoableBoardEntryAction undoableAction) {
@@ -875,21 +880,21 @@ public class MainWindow {
 				}
 				
 				setSymbolInputKeyType(newSymbolType);
-				undoManager.discardAllEdits();
-				updateUndoControls();
+				clearUndoableActions();
 				board.clearColorSelections();
 				board.clear(true);				
 				board.updateSymbolTypeMappings(newSymbolType);
+				verifyMenuItem.setEnabled(true);
 				
 				if(newPuzzleWindowOptions.isFromEmptyBoard()) {
 					board.recordGivens();
-					setPuzzleVerified(false);
+					setPuzzleVerified(false);					
 					puzzle.setSolved(false);
 				}
 				else if(generatorResult != null) {
 					board.setPuzzle(generatorResult.getGeneratedPuzzle());
 					board.recordGivens();
-					setPuzzleVerified(true);
+					setPuzzleVerified(true);					
 					puzzle.setSolution(generatorResult.getPuzzleSolution());
 				}
 			} 
@@ -935,7 +940,7 @@ public class MainWindow {
 				final String message = "Are you sure you want to replace board contents?";
 				final String title = "Confirm replace";
 				final int choice = JOptionPane.showConfirmDialog(window,
-						message, title, JOptionPane.YES_NO_CANCEL_OPTION,
+						message, title, JOptionPane.YES_NO_OPTION,
 						JOptionPane.WARNING_MESSAGE);
 				if (choice != JOptionPane.YES_OPTION) {
 					return;
@@ -949,6 +954,7 @@ public class MainWindow {
 				board.clear(true);
 				board.recordGivens();
 				board.setPuzzle(pastedPuzzle);
+				clearUndoableActions();
 				setPuzzleVerified(false);
 				puzzle.setSolved(false);
 			}
@@ -1131,8 +1137,7 @@ public class MainWindow {
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(choice == JOptionPane.YES_OPTION) {
 				verifyMenuItem.setEnabled(true);
-				undoManager.discardAllEdits();
-				updateUndoControls();
+				clearUndoableActions();
 				
 				board.clearColorSelections();
 				board.clear(false);
@@ -1171,6 +1176,7 @@ public class MainWindow {
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				
 				if(choice == JOptionPane.YES_OPTION) {
+					clearUndoableActions();
 					board.recordGivens();
 					setPuzzleVerified(true);
 					puzzle.setSolution(enteredPuzzle);
