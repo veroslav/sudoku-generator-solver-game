@@ -28,37 +28,55 @@ import com.matic.sudoku.gui.Board;
 public class UndoablePencilmarkEntryAction extends UndoableBoardEntryAction {
 
 	private static final long serialVersionUID = 517831715113903723L;
-	private static final String PRESENTATION_NAME = "pencilmark entry";
-	private final boolean entered;
-	private final int value;
+	
+	public static final String INSERT_PENCILMARK_PRESENTATION_NAME = "add pencilmark";
+	public static final String DELETE_PENCILMARK_PRESENTATION_NAME = "delete pencilmark";
+		
+	private final int[] oldValues;
+	private final boolean deleted;
 
 	/**
 	 * Undoable action generated when a pencilmark is added/removed by the player
-	 * @param board
-	 * @param row
-	 * @param column
-	 * @param value		Pencilmark value
-	 * @param entered	If true, the pencilmark was added to the board, removed otherwise
+	 * @param presentationName Friendly action description name used in menus
+	 * @param board Board that was target of this action
+	 * @param row Action target row index
+	 * @param column Action target column index
+	 * @param deleted true if pencilmarks were deleted, false if a pencilmark was added
+	 * @param oldValues Pencilmark values prior to this modification 
 	 */
-	public UndoablePencilmarkEntryAction(final Board board, int row, int column, int value, boolean entered) {
-		super(PRESENTATION_NAME, board, row, column);
-		this.value = value;
-		this.entered = entered;
+	public UndoablePencilmarkEntryAction(final String presentationName, final Board board, final int row, final int column, 
+			final boolean deleted, final int... oldValues) {
+		super(presentationName, board, row, column);
+		this.deleted = deleted;
+		this.oldValues = oldValues;
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		//TODO: Implement method
-		//board.setPencilmark(row, column, oldValue);
-		System.out.println("Undoing PencilmarkEntry");
+		undoOrRedoAction(true);				
 	}	
 	
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		//TODO: Implement method
-		//board.setPencilmark(row, column, newValue);
-		System.out.println("Redoing PencilmarkEntry");
+		undoOrRedoAction(false);		
+	}
+	
+	private void undoOrRedoAction(final boolean undo) {
+		if(deleted) {
+			if(oldValues.length > 1) {
+				//Undo deletion of all pencilmarks in this cell
+				board.setPencilmarkValues(row, column, undo, true, oldValues);
+			}
+			else {
+				//Undo a single candidate deletion
+				board.setPencilmarkValues(row, column, undo, false, oldValues);
+			}
+		}
+		else {
+			//Undo a single pencilmark entry
+			board.setPencilmarkValues(row, column, !undo, false, oldValues);
+		}
 	}
 }

@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
+import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
 
 /**
  * Representation of a Sudoku game board.
@@ -109,7 +110,10 @@ public class Board extends JPanel {
 	private static final double INNER_LINE_THICKNESS = 0.004;
 	
 	//How big portion of a cell a digit should occupy when drawn (determines the font size)
-	private static final double FONT_SIZE_PERCENT = 0.75; //0.8	
+	private static final double NORMAL_FONT_SIZE_PERCENT = 0.75; //0.8	
+	
+	//How big portion of its allocated piece of a cell a pencilmark should occupy when drawn
+	private static final double PENCILMARK_FONT_SIZE_PERCENT = 0.9;
 	
 	private static final Color THICK_LINE_COLOR = Color.black;
 	private static final Color INNER_LINE_COLOR = Color.black;
@@ -124,11 +128,16 @@ public class Board extends JPanel {
 		
 	static Color NORMAL_FONT_COLOR = Color.black;
 	
+	private static Color PENCILMARK_FONT_COLOR = new Color(0, 43, 54);
+	
 	//Color used to paint cells manually selected by the player
 	private Color cellSelectionBackgroundColor;
 	
 	//Brush used for drawing the picker
 	private BasicStroke pickerStroke;
+	
+	//Font used for drawing pencilmarks
+	private Font pencilmarkFont;
 	
 	//Font used for drawing digits enter by the player
 	private Font playerDigitFont;
@@ -175,6 +184,9 @@ public class Board extends JPanel {
 	//Thickness (in pixels) of the inner grid lines (separating the cells)
 	private int innerLineWidth;
 	
+	//Area within a cell available to a pencilmark to draw itself (cellWidth / dimension)
+	private int pencilmarkWidth;
+	
 	//Distance (in pixels) between two adjacent inner grid lines
 	private int cellWidth;
 	
@@ -201,7 +213,7 @@ public class Board extends JPanel {
 		mouseClickInputValue = MOUSE_CLICK_DEFAULT_INPUT_VALUE;
 		cellSelectionBackgroundColor = BACKGROUND_COLOR;
 		
-		updateSymbolTypeMappings(symbolType);
+		updateSymbolTypeMappings(symbolType);		
 		
 		setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
 		
@@ -248,6 +260,25 @@ public class Board extends JPanel {
 	
 	public void setVerified(final boolean verified) {
 		this.verified = verified;
+	}
+	
+	/**
+	 * Update a cell's pencilmark values
+	 * @param row Row for the cell to be updated
+	 * @param column Column for the cell to be updated
+	 * @param areSet Whether to show or hide the pencilmark
+	 * @param clearOldValues Whether to delete all current pencilmarks in this cell
+	 * @param values Pencilmark value(s) to set
+	 */
+	public void setPencilmarkValues(final int row, final int column, final boolean areSet, 
+			final boolean clearOldValues, final int... values) {
+		if(clearOldValues) {
+			cells[column][row].clearPencilmarks();
+		}
+		for(final int value : values) {
+			cells[column][row].setPencilmark(value, areSet);
+		}
+		repaint();
 	}
 	
 	/**
@@ -413,20 +444,32 @@ public class Board extends JPanel {
 				return null;
 			} 
 			final int oldCellValue = cells[cellPickerCol][cellPickerRow].getDigit();
-			setCellValue(cellPickerRow, cellPickerCol, 0);
-			return new UndoableCellValueEntryAction(
-					UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME, this, cellPickerRow, 
-					cellPickerCol, oldCellValue, 0);
+			
+			if(oldCellValue > 0) {
+				//Delete previously entered cell digit
+				setCellValue(cellPickerRow, cellPickerCol, 0);
+				return new UndoableCellValueEntryAction(
+						UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME, this, cellPickerRow, 
+						cellPickerCol, oldCellValue, 0);
+			}
+			else {
+				//Delete all of the pencilmarks in this cell
+				final int[] oldPencilmarkValues  = cells[cellPickerCol][cellPickerRow].getSetPencilmarks();
+				setPencilmarkValues(cellPickerRow, cellPickerCol, false, true);
+				
+				return new UndoablePencilmarkEntryAction(UndoablePencilmarkEntryAction.DELETE_PENCILMARK_PRESENTATION_NAME, 
+						this, cellPickerRow, cellPickerCol, true, oldPencilmarkValues);
+			}
 		default:
 			//We have (possibly) a symbol to enter on the board
-			return !allowEditing? null : handleDigitEntered(actionKey);
+			return !allowEditing? null : handleDigitEntered(actionKey, false);
 		}
 		repaint();
 		return null;
 	}
 	
 	/**
-	 * A handler for mouse clicks, used when player applies visual aids to the board
+	 * A handler for mouse clicks, used when player applies visual aids or enters digits
 	 * @param event Originating mouse event
 	 * @param allowEditing Whether the player is allowed perform certain mouse actions at this moment
 	 * @return A handle to the undoable action for this mouse event	 
@@ -440,29 +483,23 @@ public class Board extends JPanel {
 			return null;
 		}
 
-		UndoableBoardEntryAction undoableAction = null;
-
 		switch (event.getButton()) {
 		case MouseEvent.BUTTON1:
-			// Left-button click (either digit or color selection entry)			
-			if(event.isControlDown()) {
-				//Ctrl button was down when mouse was clicked, color selection
-				undoableAction = handleColorSelection();
+			// Left-button click (either digit or pencilmark entry)			
+			if(event.isShiftDown()) {
+				//Shift button was down when mouse was clicked, pencilmark entry
+				return allowEditing? handleDigitEntered(mouseClickInputValue, true) : null;				
 			}
 			else {
-				//No Ctrl button was down, a simple digit entry
-				if (!allowEditing || cells[cellPickerCol][cellPickerRow].isGiven()) {
-					return null;
-				}
-				return handleDigitEntered(mouseClickInputValue);
-			}			
-			break;
+				//Shift button was not pressed, a simple digit entry				
+				return allowEditing? handleDigitEntered(mouseClickInputValue, false) : null;
+			}
 		case MouseEvent.BUTTON3:
-			// Right-button click (pencilmark entry)
-			return allowEditing? handlePencilmarkEntered() : null;
+			// Right-button click (color selection entry)
+			return handleColorSelection();
+		default:
+			return null;
 		}
-		repaint();
-		return undoableAction;
 	}
 
 	// Convert the board entries to an int matrix, as this is the input format the logic solver requires
@@ -530,9 +567,22 @@ public class Board extends JPanel {
 					}
 					cells[j][i].setDigit(0);
 				}
+				//Always clear pencilmarks
+				clearPencilmarks();
 			}
 		}
 		repaint();
+	}
+	
+	/**
+	 * Remove all pencilmarks from the board
+	 */
+	public void clearPencilmarks() {
+		for (int i = 0; i < unit; ++i) {
+			for (int j = 0; j < unit; ++j) {
+				cells[j][i].clearPencilmarks();
+			}
+		}
 	}
 	
 	//Convert the board entries to an int array, as this is the input format the solver requires
@@ -610,6 +660,7 @@ public class Board extends JPanel {
 
 		// Area remaining for a cell to be drawn after subtracting grid lines from drawing area
 		cellWidth = (usableDrawArea - totalLineWidth) / unit;
+		pencilmarkWidth = cellWidth / dimension;
 
 		boardWidth = cellWidth * unit + totalLineWidth;
 
@@ -617,8 +668,9 @@ public class Board extends JPanel {
 		boardStartY = this.getHeight() / 2 - (boardWidth / 2);
 
 		boxWidth = dimension * cellWidth + innerLinesWidthInBox;
-		playerDigitFont = new Font("DejaVu Sans", Font.PLAIN, (int)(FONT_SIZE_PERCENT * cellWidth));
-		givenDigitFont = new Font("DejaVu Sans", Font.BOLD, (int)(FONT_SIZE_PERCENT * cellWidth));
+		pencilmarkFont = new Font("Monospaced", Font.BOLD, (int)(PENCILMARK_FONT_SIZE_PERCENT * pencilmarkWidth));
+		playerDigitFont = new Font("DejaVu Sans", Font.PLAIN, (int)(NORMAL_FONT_SIZE_PERCENT * cellWidth));
+		givenDigitFont = new Font("DejaVu Sans", Font.BOLD, (int)(NORMAL_FONT_SIZE_PERCENT * cellWidth));
 	}
 	
 	private void drawBackground(final Graphics2D g2d) {
@@ -671,25 +723,58 @@ public class Board extends JPanel {
 		final int digit = cell.getDigit();
 		
 		if(digit > 0) {		
-			// Set font and font color for this cell
-			if(cell.isGiven()) {
-				g2d.setFont(givenDigitFont);
-			}
-			else {
-				g2d.setFont(playerDigitFont);
-			}
-			g2d.setColor(cell.getFontColor());
-			
-			final String symbol = digitToSymbolMappings.get(digit);
-			
-			final FontMetrics fontMetrics = g2d.getFontMetrics();
-			final Rectangle2D stringBounds = fontMetrics.getStringBounds(symbol, g2d);
-						
-			final int fontWidth = (int)stringBounds.getWidth();
-			final int fontHeight = (int)stringBounds.getHeight();
-			
-			g2d.drawString(symbol, cellX + (int)((cellWidth - fontWidth) / 2.0 + 0.5),
-				cellY + (int)((cellWidth - fontHeight) / 2.0 + 0.5)  + fontMetrics.getAscent());						
+			drawCellDigit(g2d, cell, cellX, cellY, digit);
+		}
+		else if(cell.getPencilmarkCount() > 0) {
+			// Set pencilmark font and color and draw this cell's pencilmarks
+			drawCellPencilmarks(g2d, cell, cellX, cellY);
+		}
+	}
+	
+	private void drawCellDigit(final Graphics2D g2d, final Cell cell, final int cellX, final int cellY, final int digit) {
+		// Set font and font color for this cell and draw entered digit value
+		if(cell.isGiven()) {
+			g2d.setFont(givenDigitFont);
+		} 
+		else {
+			g2d.setFont(playerDigitFont);
+		}
+		g2d.setColor(cell.getFontColor());
+
+		final String symbol = digitToSymbolMappings.get(digit);
+
+		final FontMetrics fontMetrics = g2d.getFontMetrics();
+		final Rectangle2D stringBounds = fontMetrics.getStringBounds(symbol, g2d);
+
+		final int fontWidth = (int)stringBounds.getWidth();
+		final int fontHeight = (int)stringBounds.getHeight();
+
+		g2d.drawString(symbol, cellX + (int) ((cellWidth - fontWidth) / 2.0 + 0.5),
+				cellY + (int)((cellWidth - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
+	}
+	
+	private void drawCellPencilmarks(final Graphics2D g2d, final Cell cell, final int cellX, final int cellY) {		
+		g2d.setFont(pencilmarkFont);
+		g2d.setColor(PENCILMARK_FONT_COLOR);
+		
+		final FontMetrics fontMetrics = g2d.getFontMetrics();
+		
+		int pencilmark = 1;
+		
+		for(int i = 0, y = cellY; i < dimension; ++i, y += pencilmarkWidth) {
+			for(int j = 0, x = cellX; j < dimension; ++j, x += pencilmarkWidth) {
+				if(cell.isPencilmarkSet(pencilmark)) {
+					final String symbol = digitToSymbolMappings.get(pencilmark);
+					final Rectangle2D stringBounds = fontMetrics.getStringBounds(String.valueOf(symbol), g2d);
+					
+					final int fontWidth = (int)stringBounds.getWidth();
+					final int fontHeight = (int)stringBounds.getHeight();
+					
+					g2d.drawString(symbol, x + (int)((pencilmarkWidth - fontWidth) / 2.0 + 0.5), 
+							y + (int)((pencilmarkWidth - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
+				}
+				++pencilmark;
+			}					
 		}
 	}
 	
@@ -739,23 +824,30 @@ public class Board extends JPanel {
 		}
 	}
 	
-	private UndoableBoardEntryAction handlePencilmarkEntered() {
-		// TODO: Implement method
-		return null;
-	}
-	
-	private UndoableBoardEntryAction handleDigitEntered(final String entry) {
+	private UndoableBoardEntryAction handleDigitEntered(final String entry, final boolean isPencilmark) {
 		if(cells[cellPickerCol][cellPickerRow].isGiven()) {
+			//Can't enter digits into cells containing givens, simply return
 			return null;
 		}
 		final Integer digit = symbolToDigitMappings.get(entry);
 		if(digit == null) {
 			return null;				
 		}
-		final UndoableBoardEntryAction undoableAction = new UndoableCellValueEntryAction(
+		UndoableBoardEntryAction undoableAction = null;
+		if(isPencilmark) {
+			final boolean pencilmarkSet = cells[cellPickerCol][cellPickerRow].isPencilmarkSet(digit);
+			final String presentationName = pencilmarkSet? UndoablePencilmarkEntryAction.DELETE_PENCILMARK_PRESENTATION_NAME : 
+				UndoablePencilmarkEntryAction.INSERT_PENCILMARK_PRESENTATION_NAME;
+			undoableAction = new UndoablePencilmarkEntryAction(presentationName, 
+					this, cellPickerRow, cellPickerCol, pencilmarkSet, digit);
+			setPencilmarkValues(cellPickerRow, cellPickerCol, !pencilmarkSet, false, digit);
+		}
+		else {
+			undoableAction = new UndoableCellValueEntryAction(
 				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME, this, cellPickerRow, 
 				cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), digit);		
-		setCellValue(cellPickerRow, cellPickerCol, digit);
+			setCellValue(cellPickerRow, cellPickerCol, digit);
+		}
 		
 		return undoableAction;
 	}
@@ -773,7 +865,8 @@ public class Board extends JPanel {
 			undoableAction = new UndoableColorEntryAction(this, cellPickerRow, cellPickerCol, 
 					cellBackground, cellSelectionBackgroundColor);
 			cells[cellPickerCol][cellPickerRow].setBackgroundColor(cellSelectionBackgroundColor);
-		}		
+		}
+		repaint();
 		return undoableAction;
 	}
 	

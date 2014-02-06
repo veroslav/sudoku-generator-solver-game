@@ -21,6 +21,7 @@
 package com.matic.sudoku.gui;
 
 import java.awt.Color;
+import java.util.BitSet;
 
 /**
  * A class containing various info about a board cell, such as digit value, candidates, pencilmarks and
@@ -36,6 +37,8 @@ public class Cell {
 	//This cell's font color (default black)
 	private Color fontColor = Board.NORMAL_FONT_COLOR;
 	
+	private final BitSet pencilmarks;
+	
 	//Whether the cell holds a given value that can't be changed by the player
 	private boolean given;
 
@@ -43,8 +46,44 @@ public class Cell {
 	private int digit;
 
 	public Cell(int digit) {
+		pencilmarks = new BitSet();
 		this.digit = digit;
 		given = false;
+	}
+	
+	/**
+	 * Set whether a pencilmark is used or not
+	 * @param value Pencilmark value
+	 * @param isSet true, if the pencilmark value is used, false otherwise
+	 */
+	
+	public void setPencilmark(final int value, final boolean isSet) {
+		pencilmarks.set(value - 1, isSet);
+	}
+	
+	public void clearPencilmarks() {
+		pencilmarks.clear();
+	}
+	
+	public boolean isPencilmarkSet(final int value) {
+		return pencilmarks.get(value - 1);
+	}
+	
+	public int[] getSetPencilmarks() {
+		final int setCount = pencilmarks.cardinality();
+		int[] setPencilmarks = new int[setCount];
+		
+		for(int i = 0, j = 0; j < setCount; ++i) {
+			if(pencilmarks.get(i)) {
+				setPencilmarks[j++] = i + 1;
+			}
+		}
+		
+		return setPencilmarks;
+	}
+	
+	public int getPencilmarkCount() {
+		return pencilmarks.cardinality();
 	}
 	
 	public void setBackgroundColor(final Color color) {
