@@ -23,6 +23,7 @@ The following features are planned:
 
 - Save and load puzzles
 - Export puzzles as PDF or image
+- Print puzzles
 - Generate and export multiple puzzles
 - Display possible candidates/entries
 - Focus on a candidate
