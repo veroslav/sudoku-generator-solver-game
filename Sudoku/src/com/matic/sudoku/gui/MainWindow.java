@@ -72,6 +72,7 @@ import com.matic.sudoku.gui.Board.SymbolType;
 import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
+import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
 import com.matic.sudoku.logic.Candidates;
 import com.matic.sudoku.logic.strategy.LogicStrategy;
 import com.matic.sudoku.solver.BruteForceSolver;
@@ -915,6 +916,11 @@ public class MainWindow {
 		
 		private void handleUndoAction() {
 			final UndoableBoardEntryAction undoAction = (UndoableBoardEntryAction)undoManager.editToBeUndone();
+			
+			if(!validatePencilmarkAction(undoAction, true)) {
+				return;
+			}
+			
 			undoManager.undo();
 			updateUndoControls();
 			flagWrongEntriesForBoardAction(undoAction);
@@ -922,9 +928,33 @@ public class MainWindow {
 		
 		private void handleRedoAction() {
 			final UndoableBoardEntryAction redoAction = (UndoableBoardEntryAction)undoManager.editToBeRedone();
+			
+			if(!validatePencilmarkAction(redoAction, false)) {
+				return;
+			}
+			
 			undoManager.redo();
 			updateUndoControls();
 			flagWrongEntriesForBoardAction(redoAction);
+		}
+		
+		private boolean validatePencilmarkAction(final UndoableBoardEntryAction undoAction, final boolean isUndo) {
+			final String actionName = isUndo? "undo" : "redo";
+			final String title = isUndo? "Undo" : "Redo";
+			//Pencilmark edits are only possible when focus is OFF. Ask the player to switch OFF focus mode
+			if(focusButton.isSelected() && undoAction instanceof UndoablePencilmarkEntryAction) {
+				final int choice = JOptionPane.showConfirmDialog(window, "Can't " + actionName + 
+						" pencilmark edit in focus mode.\nLeave focus mode to " + actionName + "?", 
+						title, JOptionPane.YES_NO_OPTION);
+				if(choice != JOptionPane.YES_OPTION) {
+					return false;
+				}
+				else {
+					focusButton.setSelected(false);
+					symbolButtonActionHandler.onFocusDisabled();
+				}
+			}
+			return true;
 		}
 	}
 	
