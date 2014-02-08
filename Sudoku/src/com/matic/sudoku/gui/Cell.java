@@ -37,7 +37,7 @@ public class Cell {
 	//This cell's font color (default black)
 	private Color fontColor = Board.NORMAL_FONT_COLOR;
 	
-	private final BitSet pencilmarks;
+	private BitSet pencilmarks;
 	
 	//Whether the cell holds a given value that can't be changed by the player
 	private boolean given;
@@ -49,6 +49,14 @@ public class Cell {
 		pencilmarks = new BitSet();
 		this.digit = digit;
 		given = false;
+	}
+	
+	public BitSet getPencilmarks( ){
+		return BitSet.valueOf(pencilmarks.toByteArray());
+	}
+	
+	public void setPencilmarks(final BitSet toSet) {
+		pencilmarks = BitSet.valueOf(toSet.toByteArray());
 	}
 	
 	/**

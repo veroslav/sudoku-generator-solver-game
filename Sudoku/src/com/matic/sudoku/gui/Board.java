@@ -31,6 +31,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Rectangle2D;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
 import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
+import com.matic.sudoku.logic.Candidates;
 
 /**
  * Representation of a Sudoku game board.
@@ -98,7 +100,7 @@ public class Board extends JPanel {
 	public final int cellCount;
 	
 	//Default value entered in a cell when mouse is clicked
-	private static final String MOUSE_CLICK_DEFAULT_INPUT_VALUE = "1";
+	private static final String MOUSE_CLICK_DEFAULT_INPUT_VALUE = KEY_NUMBER_ACTIONS[0];
 	
 	//How much space (in percent) around the board we should leave empty
 	private static final double DRAWING_AREA_MARGIN = 0.08;
@@ -194,7 +196,10 @@ public class Board extends JPanel {
 	private int boardStartX;
 	
 	//y-coordinate for the start of the board (including the thick border line)
-	private int boardStartY;	
+	private int boardStartY;
+	
+	//A mask used for determining whether a candidate should be drawn on not (when focus is ON)
+	private int pencilmarkFilterMask;
 	
 	//Whether the board contains a valid puzzle (either manually verified by player or generated)
 	private boolean verified;
@@ -219,6 +224,9 @@ public class Board extends JPanel {
 		
 		recalculateDimensions();
 		addMouseMotionListener(new MouseMotionHandler());
+		
+		//Draw all pencilmarks by default (focus OFF)
+		pencilmarkFilterMask = -1;
 		
 		cellPickerCol = cellPickerRow = 0;
 		symbolsFilledCount = 0;
@@ -260,6 +268,55 @@ public class Board extends JPanel {
 	
 	public void setVerified(final boolean verified) {
 		this.verified = verified;
+	}
+	
+	/**
+	 * Return a copy of all pencilmarks currently entered on the board
+	 * @return
+	 */
+	public BitSet[][] getPencilmarks() {
+		final BitSet[][] pencilmarks = new BitSet[unit][unit];
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				if(cells[i][j].getPencilmarkCount() > 0) {
+					pencilmarks[i][j] = cells[i][j].getPencilmarks();
+				}
+			}
+		}
+		return pencilmarks;
+	}
+	
+	/**
+	 * Update board pencilmarks with previously stored values
+	 * @param pencilmarks Pencilmark values to be restored
+	 */
+	public void setPencilmarks(final BitSet[][] pencilmarks) {
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				if(pencilmarks[i][j] != null) {
+					cells[i][j].setPencilmarks(pencilmarks[i][j]);
+				}
+				else {
+					cells[i][j].clearPencilmarks();
+				}
+			}
+		}
+		repaint();
+	}
+	
+	/**
+	 * Update board pencilmarks with a snapshot of possible candidate values
+	 * @param candidates Candidates from which to populate pencilmarks
+	 */
+	public void setPencilmarks(final Candidates candidates) {
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				for(int k = 1; k <= unit; ++k) {					
+					cells[i][j].setPencilmark(k, candidates.contains(k, j, i)? true : false);
+				}
+			}
+		}
+		repaint();
 	}
 	
 	/**
@@ -423,9 +480,10 @@ public class Board extends JPanel {
 	 * return it, otherwise return null
 	 * @param actionKey
 	 * @param allowEditing Whether the player is allowed to enter or delete symbols at this moment
+	 * @param focusOn If focus is ON, prevent player from deleting pencilmarks
 	 * @return	Undoable key action, or null if no such is possible for given key
 	 */
-	public UndoableBoardEntryAction handleKeyPressed(final String actionKey, final boolean allowEditing) {		
+	public UndoableBoardEntryAction handleKeyPressed(final String actionKey, final boolean allowEditing, final boolean focusOn) {		
 		switch(actionKey) {
 		case KEY_UP_ACTION:			
 			cellPickerRow = cellPickerRow - 1 > -1? --cellPickerRow : unit - 1;			
@@ -453,6 +511,9 @@ public class Board extends JPanel {
 						cellPickerCol, oldCellValue, 0);
 			}
 			else {
+				if(focusOn) {
+					return null;
+				}
 				//Delete all of the pencilmarks in this cell
 				final int[] oldPencilmarkValues  = cells[cellPickerCol][cellPickerRow].getSetPencilmarks();
 				setPencilmarkValues(cellPickerRow, cellPickerCol, false, true);
@@ -472,9 +533,10 @@ public class Board extends JPanel {
 	 * A handler for mouse clicks, used when player applies visual aids or enters digits
 	 * @param event Originating mouse event
 	 * @param allowEditing Whether the player is allowed perform certain mouse actions at this moment
+	 * @param focusOn If focus is ON, prevent player from modifying pencilmark values
 	 * @return A handle to the undoable action for this mouse event	 
 	 */
-	public UndoableBoardEntryAction handleMouseClicked(final MouseEvent event, final boolean allowEditing) {
+	public UndoableBoardEntryAction handleMouseClicked(final MouseEvent event, final boolean allowEditing, final boolean focusOn) {
 		final int mouseX = event.getX();
 		final int mouseY = event.getY();
 
@@ -488,7 +550,9 @@ public class Board extends JPanel {
 			// Left-button click (either digit or pencilmark entry)			
 			if(event.isShiftDown()) {
 				//Shift button was down when mouse was clicked, pencilmark entry
-				return allowEditing? handleDigitEntered(mouseClickInputValue, true) : null;				
+				final boolean pencilmarkAllowed = !focusOn && allowEditing && 
+						cells[cellPickerCol][cellPickerRow].getDigit() == 0;
+				return pencilmarkAllowed? handleDigitEntered(mouseClickInputValue, true) : null;				
 			}
 			else {
 				//Shift button was not pressed, a simple digit entry				
@@ -554,6 +618,16 @@ public class Board extends JPanel {
 	}
 	
 	/**
+	 * Return a digit corresponding to a symbol value (either a letter or a digit)
+	 * @param symbol Letter or a digit
+	 * @return Mapped digit
+	 */
+	public int getMappedDigit(final String symbol) {
+		final Integer value = symbolToDigitMappings.get(symbol);;
+		return value != null? value : 0;
+	}
+	
+	/**
 	 * Remove all symbols/entries from the board
 	 * 
 	 * @param clearGivens Whether given digits should be cleared 
@@ -583,6 +657,15 @@ public class Board extends JPanel {
 				cells[j][i].clearPencilmarks();
 			}
 		}
+	}
+	
+	/**
+	 * Update the mask used for determining which pencilmarks get to be drawn
+	 * @param pencilmarkFilterMask New mask filter value
+	 */
+	public void updatePencilmarkFilterMask(final int pencilmarkFilterMask) {
+		this.pencilmarkFilterMask = pencilmarkFilterMask;
+		repaint();
 	}
 	
 	//Convert the board entries to an int array, as this is the input format the solver requires
@@ -770,12 +853,22 @@ public class Board extends JPanel {
 					final int fontWidth = (int)stringBounds.getWidth();
 					final int fontHeight = (int)stringBounds.getHeight();
 					
-					g2d.drawString(symbol, x + (int)((pencilmarkWidth - fontWidth) / 2.0 + 0.5), 
-							y + (int)((pencilmarkWidth - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
+					if(pencilmarkHasFocus(pencilmark)) {
+						g2d.drawString(symbol, x + (int)((pencilmarkWidth - fontWidth) / 2.0 + 0.5), 
+								y + (int)((pencilmarkWidth - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
+					}
 				}
 				++pencilmark;
 			}					
 		}
+	}
+	
+	/*
+	 * When focus is ON, it is possible to selectively filter pencilmarks to be drawn. In this mode (ON), the method
+	 * below returns true if a pencimark has focus and should be drawn, false otherwise
+	 */
+	private boolean pencilmarkHasFocus(final int pencilmark) {
+		return (pencilmarkFilterMask & (1 << (pencilmark - 1))) != 0;
 	}
 	
 	private void drawPicker(final Graphics2D g2d, final int x, final int y) {
@@ -829,24 +922,39 @@ public class Board extends JPanel {
 			//Can't enter digits into cells containing givens, simply return
 			return null;
 		}
-		final Integer digit = symbolToDigitMappings.get(entry);
-		if(digit == null) {
+		final Integer mappedDigit = symbolToDigitMappings.get(entry);
+		if(mappedDigit == null) {
 			return null;				
 		}
+		final int newValue = mappedDigit.intValue();
+		final int oldValue = cells[cellPickerCol][cellPickerRow].getDigit();
 		UndoableBoardEntryAction undoableAction = null;
+		
 		if(isPencilmark) {
-			final boolean pencilmarkSet = cells[cellPickerCol][cellPickerRow].isPencilmarkSet(digit);
+			final boolean pencilmarkSet = cells[cellPickerCol][cellPickerRow].isPencilmarkSet(newValue);
 			final String presentationName = pencilmarkSet? UndoablePencilmarkEntryAction.DELETE_PENCILMARK_PRESENTATION_NAME : 
 				UndoablePencilmarkEntryAction.INSERT_PENCILMARK_PRESENTATION_NAME;
 			undoableAction = new UndoablePencilmarkEntryAction(presentationName, 
-					this, cellPickerRow, cellPickerCol, pencilmarkSet, digit);
-			setPencilmarkValues(cellPickerRow, cellPickerCol, !pencilmarkSet, false, digit);
+					this, cellPickerRow, cellPickerCol, pencilmarkSet, newValue);
+			setPencilmarkValues(cellPickerRow, cellPickerCol, !pencilmarkSet, false, newValue);
 		}
 		else {
-			undoableAction = new UndoableCellValueEntryAction(
-				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME, this, cellPickerRow, 
-				cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), digit);		
-			setCellValue(cellPickerRow, cellPickerCol, digit);
+			//Check if this value has already been entered; if yes, remove it from cell (simple delete)
+			final boolean equalToOldValue = newValue == oldValue;
+			if(equalToOldValue) {
+				//Delete previous cell value
+				undoableAction = new UndoableCellValueEntryAction(
+						UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME, this, cellPickerRow, 
+						cellPickerCol, oldValue, 0);
+				setCellValue(cellPickerRow, cellPickerCol, 0);
+			}
+			else {
+				//Replace old with a new cell value
+				undoableAction = new UndoableCellValueEntryAction(
+					UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME, this, cellPickerRow, 
+					cellPickerCol, cells[cellPickerCol][cellPickerRow].getDigit(), newValue);		
+				setCellValue(cellPickerRow, cellPickerCol, newValue);
+			}			
 		}
 		
 		return undoableAction;

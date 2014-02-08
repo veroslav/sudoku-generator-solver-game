@@ -41,6 +41,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Enumeration;
 
 import javax.swing.AbstractAction;
@@ -71,6 +72,7 @@ import com.matic.sudoku.gui.Board.SymbolType;
 import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
+import com.matic.sudoku.logic.Candidates;
 import com.matic.sudoku.logic.strategy.LogicStrategy;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.DlxSolver;
@@ -115,6 +117,9 @@ public class MainWindow {
 	private static final String FOCUS_ON_TOOLTIP_TEXT = "Click to focus on this candidate";
 	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = "Enable or disable candidate focus";
 	private static final String FOCUS_BUTTON_TEXT = "Focus";
+	
+	private static final String FOCUS_ALL_BUTTON_TOOLTIP_TEXT = "Click to focus on all or no candidates";
+	private static final String FOCUS_ALL_BUTTON_TEXT = "All";
 		
 	private static final int BOARD_DIMENSION_3x3 = 3;
 	
@@ -132,6 +137,7 @@ public class MainWindow {
 	private final JCheckBoxMenuItem showColorsToolBarMenuItem;
 	private final JCheckBoxMenuItem flagWrongEntriesMenuItem;
 	
+	private final JToggleButton focusAllButton;
 	private final JToggleButton focusButton;
 	private final JToolBar symbolsToolBar;
 	
@@ -144,6 +150,7 @@ public class MainWindow {
 	private final JToolBar colorsToolBar;
 	private final JFrame window;
 	
+	private SymbolButtonActionHandler symbolButtonActionHandler;
 	private JToggleButton[] symbolButtons;
 	
 	private final ButtonGroup symbolButtonsGroup;
@@ -182,6 +189,11 @@ public class MainWindow {
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
 		undoMenuItem = new JMenuItem(undoManager.getUndoPresentationName());
 		
+		focusAllButton = new JToggleButton(FOCUS_ALL_BUTTON_TEXT);
+		focusAllButton.setEnabled(false);
+		focusAllButton.setToolTipText(FOCUS_ALL_BUTTON_TOOLTIP_TEXT);
+		focusAllButton.setFocusable(false);
+		
 		focusButton = new JToggleButton(FOCUS_BUTTON_TEXT);
 		focusButton.setToolTipText(FOCUS_BUTTON_TOOLTIP_TEXT);
 		focusButton.setFocusable(false);
@@ -218,7 +230,8 @@ public class MainWindow {
 		board.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent event) {				
-				final UndoableBoardEntryAction undoableAction = board.handleMouseClicked(event, !puzzle.isSolved());
+				final UndoableBoardEntryAction undoableAction = board.handleMouseClicked(event, 
+						!puzzle.isSolved(), focusButton.isSelected());
 				handleUndoableAction(undoableAction);
 			}
 		});
@@ -298,7 +311,7 @@ public class MainWindow {
 		symbolButtons[0].setSelected(true);
 		
 		//Group the buttons (radio), add action listener, and add them to a panel
-		final ActionListener buttonHandler = new SymbolButtonActionHandler();
+		symbolButtonActionHandler = new SymbolButtonActionHandler();
 		final JPanel buttonPanel = new JPanel(new WrapLayout());
 		
 		//A workaround for buttons not wrapping in some conditions
@@ -309,13 +322,17 @@ public class MainWindow {
 			}
 		});
 		
+		buttonPanel.add(focusAllButton);
 		for(final JToggleButton button : symbolButtons) {
 			symbolButtonsGroup.add(button);
-			button.addActionListener(buttonHandler);
+			button.addActionListener(symbolButtonActionHandler);
 			buttonPanel.add(button);
 		}
 		buttonPanel.add(focusButton);
-		focusButton.addActionListener(buttonHandler);
+		
+		focusAllButton.addActionListener(symbolButtonActionHandler);
+		focusButton.addActionListener(symbolButtonActionHandler);
+		
 		toolBar.add(buttonPanel);
 		
 		//Right padding glue (see above)
@@ -676,6 +693,16 @@ public class MainWindow {
 		checkMenuItem.setEnabled(verified);
 		flagWrongEntriesMenuItem.setEnabled(verified);
 		
+		focusButton.setEnabled(verified);
+		focusButton.setSelected(false);
+		
+		if(verified && focusButton.isSelected()) {			
+			symbolButtonActionHandler.onFocusEnabled();
+		}
+		else {
+			symbolButtonActionHandler.onFocusDisabled();
+		}
+		
 		verifyMenuItem.setEnabled(!verified);
 		board.setVerified(verified);
 		
@@ -709,38 +736,146 @@ public class MainWindow {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			final UndoableBoardEntryAction undoableAction = board.handleKeyPressed(e.getActionCommand(), !puzzle.isSolved());
+			final UndoableBoardEntryAction undoableAction = board.handleKeyPressed(e.getActionCommand(), 
+					!puzzle.isSolved(), focusButton.isSelected());
 			handleUndoableAction(undoableAction);
 		}
 	}
 	
 	private class SymbolButtonActionHandler implements ActionListener {
+		private BitSet[][] userPencilmarks = null;
+		private int buttonSelectionMask = 1;
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			final Object src = e.getSource();
 			//Check whether the focus button was clicked
 			if(src == focusButton) {
-				if(focusButton.isSelected()) {
-					setButtonsToolTipText(symbolButtons, FOCUS_ON_TOOLTIP_TEXT);
-					symbolButtonsGroup.clearSelection();
-					for(final JToggleButton button : symbolButtons) {					
-						symbolButtonsGroup.remove(button);
-					}					
+				if(focusButton.isSelected()) {					
+					onFocusEnabled();
 				}
-				else {
-					for(final JToggleButton button : symbolButtons) {
-						symbolButtonsGroup.add(button);
-						button.setSelected(false);
-					}
-					setButtonsToolTipText(symbolButtons, FOCUS_OFF_TOOLTIP_TEXT);
-					symbolButtons[0].setSelected(true);
-					board.setMouseClickInputValue(symbolButtons[0].getActionCommand());
+				else {					
+					onFocusDisabled();
 				}
+			}
+			//Or whether focus on all candidates button was clicked
+			else if(src == focusAllButton) {
+				onFocusAll();
 			}
 			//Or whether any of the symbol input buttons were clicked
 			else {
-				board.setMouseClickInputValue(e.getActionCommand());
+				onSymbolButton(e.getActionCommand());				
 			}
+		}
+		
+		public void onFocusEnabled() {
+			setButtonsToolTipText(symbolButtons, FOCUS_ON_TOOLTIP_TEXT);
+			symbolButtonsGroup.clearSelection();
+			
+			for(final JToggleButton button : symbolButtons) {					
+				symbolButtonsGroup.remove(button);
+			}
+			
+			//Store user's pencilmarks for later retrieval
+			userPencilmarks = board.getPencilmarks();
+			updateCandidates();
+			
+			focusAllButton.setEnabled(true);
+			focusAllButton.setSelected(true);
+			onFocusAll();			
+		}
+		
+		public void onFocusDisabled() {
+			focusAllButton.setEnabled(false);
+			
+			for(final JToggleButton button : symbolButtons) {
+				symbolButtonsGroup.add(button);
+				button.setSelected(false);
+			}
+			setButtonsToolTipText(symbolButtons, FOCUS_OFF_TOOLTIP_TEXT);
+			symbolButtons[0].setSelected(true);
+			board.setMouseClickInputValue(symbolButtons[0].getActionCommand());
+			
+			//Always draw all pencilmarks, no filtering on player entries
+			board.updatePencilmarkFilterMask(-1);
+			
+			//Restore user's pencilmarks
+			if(userPencilmarks != null) {
+				board.setPencilmarks(userPencilmarks);
+			}
+			userPencilmarks = null;				
+		}
+		
+		private void onSymbolButton(final String actionCommand) {
+			final int buttonValue = board.getMappedDigit(actionCommand);
+			if(focusButton.isSelected()) {
+				if(symbolButtons[buttonValue-1].isSelected()) {
+					//Focus ON for this digit (button down)
+					updateButtonSelectionMask(buttonValue, true);	
+					//Check if all symbols are selected, if yes, select focus all button
+					if(getSelectedSymbolButtonsCount() == symbolButtons.length) {
+						focusAllButton.setSelected(true);
+					}
+				}
+				else {
+					//Focus OFF for this digit (button up)						
+					updateButtonSelectionMask(buttonValue, false);
+					//Check if all symbols are deselected, if yes, deselect focus all button
+					if(getSelectedSymbolButtonsCount() == 0 ||
+							focusAllButton.isSelected()) {
+						focusAllButton.setSelected(false);
+					}
+				}
+				board.updatePencilmarkFilterMask(buttonSelectionMask);
+			}
+			else {
+				board.setMouseClickInputValue(actionCommand);
+			}
+		}
+		
+		private void onFocusAll() {
+			final boolean isFocusAllSelected = focusAllButton.isSelected();
+			setSymbolButtonsSelected(isFocusAllSelected);
+			if(isFocusAllSelected) {
+				buttonSelectionMask = -1;
+			}
+			else {
+				buttonSelectionMask = 0;
+			}
+			board.updatePencilmarkFilterMask(buttonSelectionMask);
+		}
+		
+		private void setSymbolButtonsSelected(final boolean selected) {
+			for(final JToggleButton button : symbolButtons) {
+				button.setSelected(selected);
+			}
+		}
+		
+		private int getSelectedSymbolButtonsCount() {
+			int count = 0;
+			
+			for(final JToggleButton button : symbolButtons) {
+				if(button.isSelected()) {
+					++count;
+				}
+			}
+			
+			return count;
+		}
+		
+		private void updateButtonSelectionMask(final int buttonValue, final boolean enabled) {
+			if(enabled) {
+				buttonSelectionMask |= (1 << (buttonValue-1));			
+			}
+			else {
+				buttonSelectionMask &= ~(1 << (buttonValue-1));
+			}
+		}
+		
+		//Update all unfilled cells with possible candidate values
+		private void updateCandidates() {
+			final Candidates candidates = new Candidates(dimension, board.toIntMatrix());
+			board.setPencilmarks(candidates);
 		}
 	}
 	
