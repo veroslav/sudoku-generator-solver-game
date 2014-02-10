@@ -115,7 +115,7 @@ public class MainWindow {
 	//Other String constants
 	private static final String FOCUS_OFF_TOOLTIP_TEXT = "<html>Click in a cell to assign it this value." +
 			"<br/>Shift-click to enter a pencilmark.</html>";
-	private static final String FOCUS_ON_TOOLTIP_TEXT = "Click to focus on this candidate";
+	private static final String FOCUS_ON_TOOLTIP_TEXT = "Click to toggle focus on this candidate";
 	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = "Enable or disable candidate focus";
 	private static final String FOCUS_BUTTON_TEXT = "Focus";
 	
@@ -726,6 +726,10 @@ public class MainWindow {
 			}
 			//Check whether the player possibly completed the puzzle
 			checkPuzzleSolutionForBoardAction(undoableAction);
+			//Check whether candidates need to be updated when focus is ON
+			if(focusButton.isSelected() && undoableAction instanceof UndoableCellValueEntryAction) {
+				symbolButtonActionHandler.updateCandidates();
+			}
 		}
 	}
 	
@@ -767,6 +771,12 @@ public class MainWindow {
 			else {
 				onSymbolButton(e.getActionCommand());				
 			}
+		}
+		
+		//Update all unfilled cells with possible candidate values
+		public void updateCandidates() {
+			final Candidates candidates = new Candidates(dimension, board.toIntMatrix());
+			board.setPencilmarks(candidates);
 		}
 		
 		public void onFocusEnabled() {
@@ -872,12 +882,6 @@ public class MainWindow {
 				buttonSelectionMask &= ~(1 << (buttonValue-1));
 			}
 		}
-		
-		//Update all unfilled cells with possible candidate values
-		private void updateCandidates() {
-			final Candidates candidates = new Candidates(dimension, board.toIntMatrix());
-			board.setPencilmarks(candidates);
-		}
 	}
 	
 	private class WindowCloseListener extends WindowAdapter {
@@ -922,8 +926,7 @@ public class MainWindow {
 			}
 			
 			undoManager.undo();
-			updateUndoControls();
-			flagWrongEntriesForBoardAction(undoAction);
+			updateGui(undoAction);
 		}
 		
 		private void handleRedoAction() {
@@ -934,8 +937,19 @@ public class MainWindow {
 			}
 			
 			undoManager.redo();
+			updateGui(redoAction);
+		}
+		
+		private void updateGui(final UndoableBoardEntryAction undoAction) {
 			updateUndoControls();
-			flagWrongEntriesForBoardAction(redoAction);
+			flagWrongEntriesForBoardAction(undoAction);
+			checkUpdateCandidatesNeeded(undoAction);
+		}
+		
+		private void checkUpdateCandidatesNeeded(final UndoableBoardEntryAction undoAction) {
+			if(focusButton.isSelected() && undoAction instanceof UndoableCellValueEntryAction) {
+				symbolButtonActionHandler.updateCandidates();
+			}
 		}
 		
 		private boolean validatePencilmarkAction(final UndoableBoardEntryAction undoAction, final boolean isUndo) {
@@ -1290,6 +1304,11 @@ public class MainWindow {
 				registerUndoableAction(undoableAction);				
 				board.setCellValue(clueLocation[1], clueLocation[0], clue);
 				
+				//Update candidates, if focus is ON
+				if(focusButton.isSelected()) {
+					symbolButtonActionHandler.updateCandidates();
+				}
+				
 				//Check whether the player possibly completed the puzzle
 				checkPuzzleSolutionForBoardAction(undoableAction);
 			}
@@ -1314,38 +1333,55 @@ public class MainWindow {
 		
 		private void handleVerifyAction() {			
 			final String title = "Verify puzzle";
-			final int[] enteredPuzzle = board.getPuzzle();
 			
-			if(bruteForceSolver.solve(enteredPuzzle) != BruteForceSolver.UNIQUE_SOLUTION) {
-				JOptionPane.showMessageDialog(window, "Invalid puzzle entered.", title, JOptionPane.INFORMATION_MESSAGE);
+			final int[] enteredPuzzle = board.getPuzzle();
+			final int bruteForceSolution = bruteForceSolver.solve(enteredPuzzle);
+			
+			//TODO: Separate NO_SOLUTION and INVALID_PUZZLE cases (implement boolean LogicSolver.validate(int[] puzzle)
+			//First check if there is a unique solution
+			if(bruteForceSolution == BruteForceSolver.NO_SOLUTION ||
+					bruteForceSolution == BruteForceSolver.INVALID_PUZZLE) {
+				JOptionPane.showMessageDialog(window, "No solution found.", 
+						title, JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 			
+			//Then try to find a logic solution within (logic) solver constraints
 			final int[][] puzzleAsMatrix = board.toIntMatrix();			
-			final int result = logicSolver.solve(puzzleAsMatrix);
+			final int logicSolverSolution = logicSolver.solve(puzzleAsMatrix);
 				
-			if(result != LogicSolver.UNIQUE_SOLUTION) {
-				JOptionPane.showMessageDialog(window, "No logic solution found.", title, JOptionPane.INFORMATION_MESSAGE);
+			if(logicSolverSolution != LogicSolver.UNIQUE_SOLUTION) {
+				//No logic solution could be found, notify player
+				switch(bruteForceSolution) {
+				case BruteForceSolver.UNIQUE_SOLUTION:
+					//A unique solution found but not possible to solve using logic only
+					final int showSolutionChoice = JOptionPane.showConfirmDialog(window, 
+							"A unique solution exists but can't be deducted using logic only. Show solution?", 
+							title, JOptionPane.YES_NO_OPTION);
+					if(showSolutionChoice == JOptionPane.YES_OPTION) {
+						board.setPuzzle(enteredPuzzle);
+					}
+					break;
+				case BruteForceSolver.MULTIPLE_SOLUTIONS:
+					//Multiple solutions were found, show one of these to the player
+					JOptionPane.showMessageDialog(window, "Multiple solutions found.", title, 
+							JOptionPane.INFORMATION_MESSAGE);
+					break;
+				}
 				return;
 			}
 			
 			final Grading grading = logicSolver.getGrading();
 			final String message = "Puzzle has a unique solution, estimated difficulty: " + grading.getDescription();
 			
-			if(board.isVerified()) {
-				JOptionPane.showMessageDialog(window, message, title, JOptionPane.INFORMATION_MESSAGE);
-			}
-			
-			else {
-				final int choice = JOptionPane.showConfirmDialog(window, message + ".\nStart playing?", title, 
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			final int choice = JOptionPane.showConfirmDialog(window, message + ".\nStart playing?", title, 
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				
-				if(choice == JOptionPane.YES_OPTION) {
-					clearUndoableActions();
-					board.recordGivens();
-					setPuzzleVerified(true);
-					puzzle.setSolution(enteredPuzzle);
-				}
+			if(choice == JOptionPane.YES_OPTION) {
+				clearUndoableActions();
+				board.recordGivens();
+				setPuzzleVerified(true);
+				puzzle.setSolution(enteredPuzzle);
 			}
 		}
 		

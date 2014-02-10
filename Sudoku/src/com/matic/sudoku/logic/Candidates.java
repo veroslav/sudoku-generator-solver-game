@@ -84,7 +84,7 @@ public class Candidates {
 	}
 	
 	/**
-	 * Remove all candidates from a cell, when a cell has been assign a value for instance
+	 * Remove all candidates from a cell, when a cell has been assigned a value for instance
 	 * 
 	 * @param rowIndex Cell's row index
 	 * @param colIndex Cell's column index
@@ -208,10 +208,14 @@ public class Candidates {
 	/**
 	 * Remove a candidate from all of the regions it is part of (row, box and column)
 	 * 
+	 * @param candidate Candidate to remove
+	 * @param rowIndex Row index of the candidate's cell
+	 * @param colIndex Column index of the candidate's cell
+	 * 
 	 * @return Whether the candidate was removed
 	 */
-	public boolean removeFromAllRegions(int candidate, int rowIndex,
-			int colIndex) {
+	public boolean removeFromAllRegions(final int candidate, final int rowIndex,
+			final int colIndex) {
 		boolean removed = false;
 
 		removed |= removeFromRow(candidate, rowIndex);
