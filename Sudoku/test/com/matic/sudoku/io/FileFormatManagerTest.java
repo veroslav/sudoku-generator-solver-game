@@ -55,6 +55,24 @@ public class FileFormatManagerTest {
 	private final int[] expectedColors = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 			0,2,1,1,1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	
+	private final int[] expectedGivenIndexes = {0,1,2,3,4,7,8,10,14,15,19,23,27,29,38,42,
+			51,53,57,61,65,66,70,72,73,76,77,78,79,80};
+	
+	private final int[] expectedPencilmarkIndexes = {5,6,9,11,12,13,16,17,
+			18,20,21,22,24,25,26,28,30,31,32,33,34,35,36,37,39,40,41,43,44,
+			45,46,47,48,49,50,52,54,55,56,58,59,60,62,63,64,67,68,69,71,74,75};
+	
+	private final String[] expectedPencilmarks = {
+			"49","4","49","14","45","459","1469","1345",
+			"249","14","4578","4579","14","149","145"
+			,"13459","34578","34579","14789","1347","14","13478",
+			"479","1349","2347","234679","14679","124","1347",
+			"457","1345","1347","234578","23457","1478","124",
+			"457","345","3467","23467","467","1247","147",
+			"478","34","23467","467","247","47",
+			"47","47"	
+	};
 
 	@Before
 	public void setup() {
@@ -214,21 +232,46 @@ public class FileFormatManagerTest {
 		assertEquals(30, givens.cardinality());
 		assertTrue(assertGivens(givens));
 		
-		assertNotNull(actual.getPencilmarks());		
+		final BitSet[][] pencilmarks = actual.getPencilmarks(); 
+		assertNotNull(pencilmarks);		
+		assertTrue(assertPencilmarks(pencilmarks));
 		
 		final int[] colors = actual.getColors();
 		assertNotNull(colors);
-		assertArrayEquals(expectedColors, colors);
-		
-		//TODO: Check contents of pencilmarks , not only != null
+		assertArrayEquals(expectedColors, colors);		
 	}
 	
-	private boolean assertGivens(final BitSet givens) {
-		final int[] givenIndexes = {0,1,2,3,4,7,8,10,14,15,19,23,27,29,38,42,
-				51,53,57,61,65,66,70,72,73,76,77,78,79,80};
-		
-		for(int i = 0; i < givenIndexes.length; ++i) {
-			if(!givens.get(givenIndexes[i])) {
+	private boolean assertPencilmarks(final BitSet[][] pencilmarks) {
+		int expectedIndex = 0;
+		int actualCounter = 0;
+		for(int i = 0; i < pencilmarks.length; ++i) {
+			for(int j = 0; j < pencilmarks[i].length; ++j) {
+				final BitSet cellPencilmarks = pencilmarks[j][i];
+				if(expectedIndex < expectedPencilmarkIndexes.length &&
+						expectedPencilmarkIndexes[expectedIndex] == actualCounter) {					
+					final String expectedPencilmark = expectedPencilmarks[expectedIndex];					
+					if(cellPencilmarks.cardinality() != expectedPencilmark.length()) {
+						return false;
+					}
+					for(int k = 0; k < expectedPencilmark.length(); ++k) {
+						if(!cellPencilmarks.get(Character.getNumericValue(expectedPencilmark.charAt(k)) - 1)) {
+							return false;
+						}
+					}
+					++expectedIndex;
+				}
+				else if(cellPencilmarks.cardinality() != 0) {
+					return false;
+				}
+				++actualCounter;
+			}
+		}
+		return true;
+	}
+	
+	private boolean assertGivens(final BitSet givens) {		
+		for(int i = 0; i < expectedGivenIndexes.length; ++i) {
+			if(!givens.get(expectedGivenIndexes[i])) {
 				return false;
 			}
 		}
@@ -248,7 +291,7 @@ public class FileFormatManagerTest {
 		return true;
 	}
 	
-	private static void assertFilesEqual(File expected, File actual) throws IOException {
+	private void assertFilesEqual(File expected, File actual) throws IOException {
 		BufferedReader expectedReader = null;
 		BufferedReader actualReader = null;
 		

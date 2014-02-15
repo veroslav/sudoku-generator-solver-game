@@ -521,7 +521,7 @@ public class FileFormatManager {
 						if(!(pencilmarkValue > 0 && pencilmarkValue <= puzzleUnit)) {
 							throw new UnsupportedPuzzleFormatException("Invalid pencilmark value: " + pencilmarkValue);
 						}
-						pencilmarks[i][rowIndex].set(pencilmarkValue);
+						pencilmarks[i][rowIndex].set(pencilmarkValue - 1);
 					}
 				}
 			}
