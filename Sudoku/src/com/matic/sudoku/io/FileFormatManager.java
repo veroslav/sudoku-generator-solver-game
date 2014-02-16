@@ -49,6 +49,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileFormatManager {
 	
+	private static final String[] SADMAN_HEADERS = {"A","C","D","B","S","U","L","N","H","T"};
+	private static final String[] SUDOCUE_HEADERS = {"A","D","C","B", "S", "L", "U"};
+	
 	private static final String SADMAN_PENCILMARKS_TAG = "[PencilMarks]";
 	private static final String SADMAN_COLOURS_TAG = "[Colours]";
 	private static final String SADMAN_PUZZLE_TAG = "[Puzzle]";
@@ -56,6 +59,7 @@ public class FileFormatManager {
 		
 	private static final String SIMPLE_SUDOKU_COLUMN_SEPARATOR = "|";
 	private static final String SIMPLE_SUDOKU_ROW_SEPARATOR = "-";	
+	private static final String SPACE_STRING = " ";
 	private static final String EMPTY_STRING = "";	
 	
 	private static final char PENCILMARK_SEPARATOR = ',';
@@ -96,8 +100,10 @@ public class FileFormatManager {
 	 * @param puzzleBean A bean containing the puzzle info to write
 	 * @param formatType Target puzzle file format
 	 * @throws IOException If any write error occurs
+	 * @throws UnsupportedPuzzleFormatException On any invalid or missing puzzle properties
 	 */
-	public void write(final File targetFile, final PuzzleBean puzzleBean, final FormatType formatType) throws IOException {
+	public void write(final File targetFile, final PuzzleBean puzzleBean, final FormatType formatType) 
+			throws IOException, UnsupportedPuzzleFormatException {
 		PrintWriter writer = null;
 		
 		try {
@@ -107,7 +113,7 @@ public class FileFormatManager {
 				writeSadmanFormat(writer, puzzleBean);
 				break;
 			case SUDOCUE_SUDOKU:
-				writeSudocueFormat(writer, puzzleBean);
+				writeSudocueFormat(writer, puzzleBean.getPuzzle(), puzzleBean.getHeaders());
 				break;
 			case SIMPLE_SUDOKU:
 				writeSimpleSudokuFormat(writer, puzzleBean.getPuzzle());
@@ -172,7 +178,11 @@ public class FileFormatManager {
 		return response;
 	}
 	
-	private void writeSimpleFormat(final PrintWriter writer, final int[] puzzle) throws IOException {		
+	private void writeSimpleFormat(final PrintWriter writer, final int[] puzzle) 
+			throws IOException, UnsupportedPuzzleFormatException {
+		if(puzzle == null) {
+			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+		}
 		for(int i = 0; i < puzzle.length; ++i) {
 			if(puzzle[i] > 0) {
 				writer.print(puzzle[i]);
@@ -183,7 +193,11 @@ public class FileFormatManager {
 		}
 	}
 	
-	private void writeSimpleSudokuFormat(final PrintWriter writer, final int[] puzzle) throws IOException {
+	private void writeSimpleSudokuFormat(final PrintWriter writer, final int[] puzzle) 
+			throws IOException, UnsupportedPuzzleFormatException {
+		if(puzzle == null) {
+			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+		}
 		int puzzleIndex = 0;
 		for(int i = 0; i < CLASSIC_PUZZLE_UNIT; ++i) {
 			for(int j = 0; j < CLASSIC_PUZZLE_UNIT; ++j) {
@@ -209,18 +223,83 @@ public class FileFormatManager {
 		}
 	}
 	
-	private void writeSadmanFormat(final PrintWriter writer, final PuzzleBean puzzleBean) {
-		writeSdkHeaders(writer, puzzleBean.getHeaders(), true);
+	private void writeSadmanFormat(final PrintWriter writer, final PuzzleBean puzzleBean) 
+			throws UnsupportedPuzzleFormatException {
+		final BitSet givens = puzzleBean.getGivens();
+		final int[] puzzle = puzzleBean.getPuzzle();		
 		
-		writeSdkPuzzle(writer, puzzleBean.getPuzzle(), true);
+		if(puzzle == null || givens == null) {
+			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+		}
 		
-		writeSdkPencilmarks(writer, puzzleBean.getPencilmarks(), true);
+		final Map<String, String> headers = puzzleBean.getHeaders();
+		final BitSet[][] pencilmarks = puzzleBean.getPencilmarks();
+		final int[] colors = puzzleBean.getColors();
+		
+		if(headers != null) {
+			writeSdkHeaders(writer, headers, true);
+		}
+		
+		writeSdkPuzzle(writer, puzzle, givens);
+		writeSdkState(writer, puzzle, true);
+		
+		if(pencilmarks != null) {
+			writeSdkPencilmarks(writer, pencilmarks, true);
+		}
+		if(colors != null) {
+			writeSdkColours(writer, colors);
+		}
 	}
 	
-	private void writeSudocueFormat(final PrintWriter writer, final PuzzleBean puzzleBean) {
-		writeSdkHeaders(writer, puzzleBean.getHeaders(), false);
+	private void writeSudocueFormat(final PrintWriter writer, final int[] puzzle, 
+			final Map<String, String> headers) 
+			throws UnsupportedPuzzleFormatException {
+		if(puzzle == null) {
+			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+		}
+		if(headers != null) {
+			writeSdkHeaders(writer, headers, false);
+		}
+		writeSdkState(writer, puzzle, false);
+	}
+	
+	private void writeSdkColours(final PrintWriter writer, final int[] colors) {
+		writer.println(SADMAN_COLOURS_TAG);
 		
-		writeSdkPuzzle(writer, puzzleBean.getPuzzle(), false);
+		int colorIndex = 0;
+		for(int i = 0; i < CLASSIC_PUZZLE_UNIT; ++i) {
+			for(int j = 0; j < CLASSIC_PUZZLE_UNIT; ++j) {
+				final int currentValue = colors[colorIndex++];
+				if(currentValue > 0) {
+					writer.print(currentValue);
+				}
+				else {
+					writer.print(DOT_CHAR);
+				}
+			}
+			if(i < CLASSIC_PUZZLE_UNIT - 1) {
+				writer.println();
+			}
+		}
+	}
+	
+	private void writeSdkPuzzle(final PrintWriter writer, final int[] puzzle, final BitSet givens) {
+		writer.println(SADMAN_PUZZLE_TAG);
+		
+		int puzzleIndex = 0;
+		for(int i = 0; i < CLASSIC_PUZZLE_UNIT; ++i) {
+			for(int j = 0; j < CLASSIC_PUZZLE_UNIT; ++j) {
+				final int currentValue = puzzle[puzzleIndex];
+				if(currentValue > 0 && givens.get(puzzleIndex)) {
+					writer.print(currentValue);
+				}
+				else {
+					writer.print(DOT_CHAR);
+				}
+				++puzzleIndex;
+			}
+			writer.println();
+		}
 	}
 	
 	private void writeSdkPencilmarks(final PrintWriter writer, final BitSet[][] pencilmarks, final boolean writePencilmarksHeader) {
@@ -243,9 +322,9 @@ public class FileFormatManager {
 		}
 	}
 	
-	private void writeSdkPuzzle(final PrintWriter writer, final int[] puzzle, final boolean writePuzzleHeader) {
-		if(writePuzzleHeader) {
-			writer.println(SADMAN_PUZZLE_TAG);
+	private void writeSdkState(final PrintWriter writer, final int[] puzzle, final boolean writeStateHeader) {
+		if(writeStateHeader) {
+			writer.println(SADMAN_STATE_TAG);
 		}
 		int puzzleIndex = 0;
 		for(int i = 0; i < CLASSIC_PUZZLE_UNIT; ++i) {
@@ -263,7 +342,25 @@ public class FileFormatManager {
 	}
 	
 	private void writeSdkHeaders(final PrintWriter writer, final Map<String, String> headers, final boolean sadmanFormat) {
-		//TODO: Implement method
+		String[] headerNames = null;
+		
+		if(sadmanFormat) {
+			headerNames = SADMAN_HEADERS;
+		}
+		else {
+			headerNames = SUDOCUE_HEADERS;
+		}
+		for(final String headerName : headerNames) {
+			final String headerValue = headers.get(headerName);
+			if(headerValue != null) {
+				writer.print(SADMAN_HEADER_TAG);
+				writer.print(headerName);
+				if(sadmanFormat) {
+					writer.print(SPACE_STRING);
+				}
+				writer.println(headerValue);
+			}
+		}
 	}
 	
 	private PuzzleBean parse(final BufferedReader reader) throws IOException, UnsupportedPuzzleFormatException {
@@ -369,8 +466,12 @@ public class FileFormatManager {
 			}
 		} while((line = reader.readLine()) != null);
 		
+		if(puzzle == null) {
+			throw new UnsupportedPuzzleFormatException("No puzzle found");
+		}
+		
 		//Update givens if [State] section is found
-		if(state != null && puzzle != null) {
+		if(state != null) {
 			givens = new BitSet();
 			for(int i = 0; i < puzzle.length; ++i) {
 				//Find and set all givens

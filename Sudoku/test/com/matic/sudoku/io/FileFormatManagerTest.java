@@ -88,8 +88,11 @@ public class FileFormatManagerTest {
 		expectedSadmanHeaders.put("T", "30");
 		
 		expectedSudocueHeaders.put("A", "SadMan Software");
+		expectedSudocueHeaders.put("D", "A random puzzle created by SudoCue");
+		expectedSudocueHeaders.put("C", "Just start plugging in the numbers");
 		expectedSudocueHeaders.put("B", "2014-02-10");
 		expectedSudocueHeaders.put("S", "SadMan Software Sudoku");
+		expectedSudocueHeaders.put("L", "Easy");
 		expectedSudocueHeaders.put("U", "http://www.sadmansoftware.com/sudoku/");
 	}
 	
@@ -110,6 +113,20 @@ public class FileFormatManagerTest {
 		final File inputFile = new File("./test/resources/reference_simple_format.txt");
 		
 		final PuzzleBean actual = unitUnderTest.fromFile(inputFile);
+		
+		assertArrayEquals(expectedPuzzle, actual.getPuzzle());
+		assertNull(actual.getPencilmarks());
+		assertNull(actual.getHeaders());	
+		assertNull(actual.getColors());
+		assertNull(actual.getGivens());
+	}
+	
+	@Test
+	public void testParseSimpleFormatFromString() throws Exception {
+		final String input = "38561..72.7...28...6...3...6.2........8..." +
+				"5........9.6...9...8...91...5.12..85639";
+		
+		final PuzzleBean actual = unitUnderTest.fromString(input);
 		
 		assertArrayEquals(expectedPuzzle, actual.getPuzzle());
 		assertNull(actual.getPencilmarks());
@@ -144,6 +161,20 @@ public class FileFormatManagerTest {
 	}
 	
 	@Test
+	public void testWriteSudocueSudoku() throws Exception {
+		final PuzzleBean puzzleBean = new PuzzleBean(expectedPuzzle);
+		puzzleBean.setHeaders(expectedSudocueHeaders);
+		
+		final File actualFile = new File("./target/sudocue_sudoku_output.sdk");
+		final File expectedFile = new File("./test/resources/reference_sudocue_sudoku.sdk");
+		
+		unitUnderTest.write(actualFile, puzzleBean, FormatType.SUDOCUE_SUDOKU);
+		
+		assertFilesEqual(expectedFile, actualFile);		
+		assertTrue(actualFile.delete());
+	}
+	
+	@Test
 	public void testParseSudocueSudoku() throws Exception {
 		final File inputFile = new File("./test/resources/reference_sudocue_sudoku.sdk");
 		
@@ -159,6 +190,23 @@ public class FileFormatManagerTest {
 		assertNull(actual.getPencilmarks());
 		assertNull(actual.getColors());
 		assertNull(actual.getGivens());
+	}
+	
+	@Test
+	public void testWriteFullSadmanSudoku() throws Exception {
+		final PuzzleBean puzzleBean = new PuzzleBean(expectedState);
+		puzzleBean.setHeaders(expectedSadmanHeaders);
+		puzzleBean.setPencilmarks(getPencilmarks());
+		puzzleBean.setColors(expectedColors);
+		puzzleBean.setGivens(getGivens());
+		
+		final File actualFile = new File("./target/sadman_full_sudoku_output.sdk");
+		final File expectedFile = new File("./test/resources/reference_complete_sadman_sudoku.sdk");
+		
+		unitUnderTest.write(actualFile, puzzleBean, FormatType.SADMAN_SUDOKU);
+		
+		assertFilesEqual(expectedFile, actualFile);		
+		assertTrue(actualFile.delete());
 	}
 	
 	@Test
@@ -239,6 +287,36 @@ public class FileFormatManagerTest {
 		final int[] colors = actual.getColors();
 		assertNotNull(colors);
 		assertArrayEquals(expectedColors, colors);		
+	}
+	
+	private BitSet[][] getPencilmarks() {
+		final BitSet[][] pencilmarks = new BitSet[9][9];
+		int pencilmarkIndex = 0;
+		int expectedIndex = 0;
+		
+		for(int i = 0; i < pencilmarks.length; ++i) {
+			for(int j = 0; j < pencilmarks[i].length; ++j) {
+				pencilmarks[j][i] = new BitSet();
+				if(expectedIndex < expectedPencilmarkIndexes.length && 
+						expectedPencilmarkIndexes[expectedIndex] == pencilmarkIndex++) {
+					final String cellPencilmarks = expectedPencilmarks[expectedIndex];
+					for(int k = 0; k < cellPencilmarks.length(); ++k) {
+						pencilmarks[j][i].set(Character.getNumericValue(cellPencilmarks.charAt(k)) - 1);
+					}
+					++expectedIndex;
+				}
+			}
+		}
+		
+		return pencilmarks;
+	}
+	
+	private BitSet getGivens() {
+		final BitSet givens = new BitSet();
+		for(final int givenIndex : expectedGivenIndexes) {
+			givens.set(givenIndex);
+		}
+		return givens;
 	}
 	
 	private boolean assertPencilmarks(final BitSet[][] pencilmarks) {
