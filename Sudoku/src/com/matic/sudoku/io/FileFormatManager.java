@@ -49,6 +49,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileFormatManager {
 	
+	public static final String SDK_SUDOKU_FILTER_NAME = "Sadman and SudoCue Sudoku files";
+	public static final String SADMAN_SUDOKU_FILTER_NAME = "Sadman Sudoku files";
+	public static final String SIMPLE_SUDOKU_FILTER_NAME = "Simple Sudoku files";
+	public static final String SUDOCUE_SUDOKU_FILTER_NAME = "SudoCue files";
+	public static final String EMPTY_STRING = "";
+	
+	private static final String SDK_EXTENSION = "sdk";
+	private static final String SS_EXTENSION = "ss";
+	
 	private static final String[] SADMAN_HEADERS = {"A","C","D","B","S","U","L","N","H","T"};
 	private static final String[] SUDOCUE_HEADERS = {"A","D","C","B", "S", "L", "U"};
 	
@@ -58,12 +67,11 @@ public class FileFormatManager {
 	private static final String SADMAN_STATE_TAG = "[State]";	
 		
 	private static final String SIMPLE_SUDOKU_COLUMN_SEPARATOR = "|";
-	private static final String SIMPLE_SUDOKU_ROW_SEPARATOR = "-";	
-	private static final String SPACE_STRING = " ";
-	private static final String EMPTY_STRING = "";	
+	private static final String SIMPLE_SUDOKU_ROW_SEPARATOR = "-";		
 	
 	private static final char PENCILMARK_SEPARATOR = ',';
 	private static final char SADMAN_HEADER_TAG = '#';
+	private static final char SPACE_CHAR = ' ';
 	private static final char ZERO_CHAR = '0';
 	private static final char DOT_CHAR = '.';
 	
@@ -72,25 +80,37 @@ public class FileFormatManager {
 	private static final int CLASSIC_PUZZLE_UNIT = 9;
 	
 	//All supported Sudoku file formats (read and write)
-	enum FormatType {
+	public enum FormatType {
 		SADMAN_SUDOKU, SUDOCUE_SUDOKU, SIMPLE_SUDOKU, SIMPLE_FORMAT
 	}
 	
 	public static FileFilter[] getSupportedFileSaveFilters() {
 		final FileFilter[] fileFilters = {
-				new FileNameExtensionFilter("Sadman Sudoku files", "sdk"),
-				new FileNameExtensionFilter("Simple Sudoku files", "ss"),
-				new FileNameExtensionFilter("SudoCue files", "sdk")};
+				new FileNameExtensionFilter(SADMAN_SUDOKU_FILTER_NAME, SDK_EXTENSION),
+				new FileNameExtensionFilter(SIMPLE_SUDOKU_FILTER_NAME, SS_EXTENSION),
+				new FileNameExtensionFilter(SUDOCUE_SUDOKU_FILTER_NAME, SDK_EXTENSION)};
 		
 		return fileFilters;
 	}
 	
 	public static FileFilter[] getSupportedFileOpenFilters() {
 		final FileFilter[] fileFilters = {
-				new FileNameExtensionFilter("Sadman and SudoCue Sudoku files", "sdk"),
-				new FileNameExtensionFilter("Simple Sudoku files", "ss")};
+				new FileNameExtensionFilter(SDK_SUDOKU_FILTER_NAME, SDK_EXTENSION),
+				new FileNameExtensionFilter(SIMPLE_SUDOKU_FILTER_NAME, SS_EXTENSION)};
 		
 		return fileFilters;
+	}
+	
+	public static String getFormatTypeExtensionName(final FormatType formatType) {
+		switch(formatType) {
+		case SADMAN_SUDOKU:
+		case SUDOCUE_SUDOKU:
+			return SDK_EXTENSION;
+		case SIMPLE_SUDOKU:
+			return SS_EXTENSION;
+		default:
+			return EMPTY_STRING;	
+		}
 	}
 	
 	/**
@@ -98,17 +118,16 @@ public class FileFormatManager {
 	 * 
 	 * @param targetFile The file to write the puzzle to
 	 * @param puzzleBean A bean containing the puzzle info to write
-	 * @param formatType Target puzzle file format
 	 * @throws IOException If any write error occurs
 	 * @throws UnsupportedPuzzleFormatException On any invalid or missing puzzle properties
 	 */
-	public void write(final File targetFile, final PuzzleBean puzzleBean, final FormatType formatType) 
+	public void write(final File targetFile, final PuzzleBean puzzleBean) 
 			throws IOException, UnsupportedPuzzleFormatException {
 		PrintWriter writer = null;
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(targetFile)));
-			switch(formatType) {
+			switch(puzzleBean.getFormatType()) {
 			case SADMAN_SUDOKU:
 				writeSadmanFormat(writer, puzzleBean);
 				break;
@@ -356,7 +375,7 @@ public class FileFormatManager {
 				writer.print(SADMAN_HEADER_TAG);
 				writer.print(headerName);
 				if(sadmanFormat) {
-					writer.print(SPACE_STRING);
+					writer.print(SPACE_CHAR);
 				}
 				writer.println(headerValue);
 			}
@@ -423,12 +442,14 @@ public class FileFormatManager {
 		}
 		
 		final PuzzleBean response = new PuzzleBean(puzzle);
+		response.setFormatType(FormatType.SIMPLE_FORMAT);
 		
 		return response;
 	}
 	
 	private PuzzleBean parseSdkFormat(final BufferedReader reader, final String firstLine) 
 			throws IOException, UnsupportedPuzzleFormatException {
+		boolean isSadmanPuzzleFormat = false;
 		Map<String, String> headers = null;
 		BitSet[][] pencilmarks = null;
 		BitSet givens = null;
@@ -440,6 +461,7 @@ public class FileFormatManager {
 		
 		do {
 			if(isSdkHeaderSection(line)) {
+				isSadmanPuzzleFormat = line.charAt(1) == SPACE_CHAR;
 				headers = parseSdkHeaderSection(reader, line);
 			}	
 			else if(isSdkPencilmarksSection(line)) {
@@ -483,8 +505,14 @@ public class FileFormatManager {
 			puzzle = state;
 			state = null;
 		}
+		
+		//Check whether we have a SadMan or a SudoCue type of puzzle
+		if(pencilmarks != null || givens != null || colors != null || headers == null) {
+			isSadmanPuzzleFormat = true;
+		}
 				
 		final PuzzleBean response = new PuzzleBean(puzzle);
+		response.setFormatType(isSadmanPuzzleFormat? FormatType.SADMAN_SUDOKU : FormatType.SUDOCUE_SUDOKU);
 		response.setPencilmarks(pencilmarks);
 		response.setHeaders(headers);
 		response.setGivens(givens);
@@ -710,6 +738,7 @@ public class FileFormatManager {
 		}
 		
 		final PuzzleBean response = new PuzzleBean(puzzle);
+		response.setFormatType(FormatType.SIMPLE_SUDOKU);
 		
 		return response;
 	}		

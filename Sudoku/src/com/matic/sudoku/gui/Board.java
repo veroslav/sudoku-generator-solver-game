@@ -218,7 +218,7 @@ public class Board extends JPanel {
 		mouseClickInputValue = MOUSE_CLICK_DEFAULT_INPUT_VALUE;
 		cellSelectionBackgroundColor = BACKGROUND_COLOR;
 		
-		updateSymbolTypeMappings(symbolType);		
+		setSymbolType(symbolType);		
 		
 		setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
 		
@@ -245,15 +245,6 @@ public class Board extends JPanel {
 		renderCells(g2d);
 	}
 	
-	/** Choose whether the entries on the board should be shown as letters or digits or both.
-	Validation of the symbol type is made, depending on the board dimension, certain options
-	are not possible, such as using digits only on a board of dimension 4 (there are simply
-	not enough digits to use in this case.
-	 */
-	public void setSymbolType(final SymbolType symbolType) {
-		updateSymbolTypeMappings(symbolType);
-	}
-	
 	public SymbolType getSymbolType() {
 		return symbolType;
 	}
@@ -276,10 +267,14 @@ public class Board extends JPanel {
 	 */
 	public BitSet[][] getPencilmarks() {
 		final BitSet[][] pencilmarks = new BitSet[unit][unit];
+		final BitSet empty = new BitSet();
 		for(int i = 0; i < unit; ++i) {
 			for(int j = 0; j < unit; ++j) {
 				if(cells[i][j].getPencilmarkCount() > 0) {
 					pencilmarks[i][j] = cells[i][j].getPencilmarks();
+				}
+				else {
+					pencilmarks[i][j] = empty;
 				}
 			}
 		}
@@ -468,6 +463,25 @@ public class Board extends JPanel {
 		repaint();
 	}
 	
+	/**
+	 * Get a copy of all given values for current puzzle
+	 * @return
+	 */
+	public BitSet getGivens() {
+		final BitSet givens = new BitSet();
+		int givenIndex = 0;
+		
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				if(cells[j][i].isGiven()) {
+					givens.set(givenIndex);
+				}
+				++givenIndex;
+			}			
+		}
+		return givens;
+	}
+	
 	/*Notify the board that it needs to re-calculate board dimensions. This happens while the
 	parent window is being resized by the user*/
 	public void handleResized() {
@@ -585,7 +599,7 @@ public class Board extends JPanel {
 	 * even though such a symbol type is requested, it will be set to
 	 * SymbolType.LETTERS in this case
 	 */
-	public void updateSymbolTypeMappings(final SymbolType symbolType) {
+	public void setSymbolType(final SymbolType symbolType) {
 		if(symbolType == this.symbolType) {
 			return;
 		}

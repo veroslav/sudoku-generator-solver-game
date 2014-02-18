@@ -40,6 +40,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.Enumeration;
@@ -54,6 +55,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -64,6 +66,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 
 import com.matic.sudoku.generator.ClassicGenerator;
 import com.matic.sudoku.generator.Generator;
@@ -73,6 +76,10 @@ import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
+import com.matic.sudoku.io.FileFormatManager;
+import com.matic.sudoku.io.FileFormatManager.FormatType;
+import com.matic.sudoku.io.PuzzleBean;
+import com.matic.sudoku.io.UnsupportedPuzzleFormatException;
 import com.matic.sudoku.logic.Candidates;
 import com.matic.sudoku.logic.strategy.LogicStrategy;
 import com.matic.sudoku.solver.BruteForceSolver;
@@ -104,6 +111,9 @@ public class MainWindow {
 	private static final String CLEAR_COLORS_STRING = "Clear color selections";
 	private static final String GIVE_CLUE_STRING = "Give clue";
 	private static final String NEW_STRING = "New...";
+	private static final String OPEN_STRING = "Open...";
+	private static final String SAVE_AS_STRING = "Save As...";
+	private static final String SAVE_STRING = "Save";
 	private static final String VERIFY_STRING = "Verify";
 	private static final String CHECK_STRING = "Check";
 	private static final String RESET_STRING = "Reset";
@@ -506,13 +516,24 @@ public class MainWindow {
 		final JMenuItem newMenuItem = new JMenuItem(NEW_STRING);
 		newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
 		
+		final JMenuItem openMenuItem = new JMenuItem(OPEN_STRING);
+		openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		
+		final JMenuItem saveMenuItem = new JMenuItem(SAVE_STRING);
+		saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		
+		final JMenuItem saveAsMenuItem = new JMenuItem(SAVE_AS_STRING);
 		final JMenuItem quitMenuItem = new JMenuItem(QUIT_STRING);
 		
 		gameMenu.add(newMenuItem);
+		gameMenu.add(openMenuItem);
+		gameMenu.addSeparator();
+		gameMenu.add(saveMenuItem);
+		gameMenu.add(saveAsMenuItem);
 		gameMenu.addSeparator();
 		gameMenu.add(quitMenuItem);
 		
-		final JMenuItem[] menuItems = {newMenuItem, quitMenuItem};
+		final JMenuItem[] menuItems = {newMenuItem, quitMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem};
 		final ActionListener actionListener = new GameMenuItemListener();
 		
 		for(final JMenuItem menuItem : menuItems) {
@@ -1015,9 +1036,132 @@ public class MainWindow {
 			case NEW_STRING:
 				handleNewPuzzle();
 				break;
+			case OPEN_STRING:
+				//handleOpen();
+				break;
+			case SAVE_AS_STRING:
+				//handleSaveAs();
+				break;
+			case SAVE_STRING:
+				//TODO: Call write() with appropriate arguments
+				break;
 			case QUIT_STRING:
 				handleQuit();
 				break;
+			}
+		}
+		
+		private void handleOpen() {
+			final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
+			final JFileChooser openChooser = new JFileChooser();
+			
+			for(final FileFilter fileFilter : fileFilters) {
+				openChooser.addChoosableFileFilter(fileFilter);
+			}
+			
+			final int choice = openChooser.showOpenDialog(window);
+			
+			if(choice != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			
+			final FileFormatManager fileManager = new FileFormatManager();
+			try {
+				final File puzzleFile = openChooser.getSelectedFile();
+				final PuzzleBean result = fileManager.fromFile(puzzleFile);
+				final BitSet[][] pencilmarks = result.getPencilmarks();
+				
+				board.clear(true);
+				board.recordGivens();
+				board.setPuzzle(result.getPuzzle());
+				
+				if(pencilmarks != null) {
+					board.setPencilmarks(pencilmarks);
+				}
+				
+				clearUndoableActions();
+				setPuzzleVerified(false);
+				puzzle.setSolved(false);
+				
+				window.setTitle(Constants.APPLICATION_NAME + " - " + puzzleFile.getName());
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(window, "A read error occured while loading the puzzle.", 
+						"File open error", JOptionPane.ERROR_MESSAGE);
+				return;
+			} catch (UnsupportedPuzzleFormatException e) {
+				JOptionPane.showMessageDialog(window, e.getMessage(), 
+						"File open error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}			
+		}
+		
+		private void handleSaveAs() {
+			final FileFilter[] fileFilters = FileFormatManager.getSupportedFileSaveFilters();
+			final JFileChooser saveAsChooser = new JFileChooser();
+			
+			for(final FileFilter fileFilter : fileFilters) {
+				saveAsChooser.addChoosableFileFilter(fileFilter);
+			}
+			
+			//Save in SadMan Sudoku file format by default
+			saveAsChooser.setFileFilter(fileFilters[0]);
+			
+			final int choice = saveAsChooser.showSaveDialog(window);
+			
+			if(choice != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			
+			File targetFile = saveAsChooser.getSelectedFile();
+			if(targetFile.exists()) {
+				final int overwriteFile = JOptionPane.showConfirmDialog(window, "The file already exists. Overwrite?", 
+						"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if(overwriteFile != JOptionPane.YES_OPTION) {
+					return;
+				}
+			}
+			
+			final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
+			final PuzzleBean puzzleBean = getPuzzleBean(formatType);	
+			final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
+			
+			if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
+			    targetFile = new File(targetFile + "." + fileSuffix);
+			}
+			
+			writeFile(targetFile, puzzleBean);
+		}
+		
+		private PuzzleBean getPuzzleBean(final FormatType formatType) {
+			final PuzzleBean puzzleBean = new PuzzleBean(board.getPuzzle());
+			puzzleBean.setFormatType(formatType);
+			puzzleBean.setPencilmarks(board.getPencilmarks());
+			puzzleBean.setGivens(board.getGivens());
+			
+			return puzzleBean;
+		}
+		
+		private FormatType getFormatType(final FileFilter fileFilter) {
+			switch(fileFilter.getDescription()) {
+			case FileFormatManager.SADMAN_SUDOKU_FILTER_NAME:
+				return FormatType.SADMAN_SUDOKU;
+			case FileFormatManager.SUDOCUE_SUDOKU_FILTER_NAME:
+				return FormatType.SUDOCUE_SUDOKU;
+			case FileFormatManager.SIMPLE_SUDOKU_FILTER_NAME:
+				return FormatType.SIMPLE_SUDOKU;
+			default:
+				return FormatType.SIMPLE_FORMAT;
+			}
+		}
+		
+		private void writeFile(final File targetFile, final PuzzleBean puzzleBean) {
+			final FileFormatManager fileManager = new FileFormatManager();
+			try {
+				fileManager.write(targetFile, puzzleBean);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(window, "An error occured while saving the file", "Write error", JOptionPane.ERROR_MESSAGE);
+			} catch (UnsupportedPuzzleFormatException e) {
+				JOptionPane.showMessageDialog(window, e.getMessage(), "Write error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		
@@ -1062,7 +1206,7 @@ public class MainWindow {
 				clearUndoableActions();
 				board.clearColorSelections();
 				board.clear(true);				
-				board.updateSymbolTypeMappings(newSymbolType);
+				board.setSymbolType(newSymbolType);
 				verifyMenuItem.setEnabled(true);
 				
 				if(newPuzzleWindowOptions.isFromEmptyBoard()) {

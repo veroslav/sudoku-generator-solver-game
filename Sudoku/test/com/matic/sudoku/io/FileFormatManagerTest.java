@@ -99,10 +99,12 @@ public class FileFormatManagerTest {
 	@Test
 	public void testWriteSimpleFormat() throws Exception {
 		final PuzzleBean puzzleBean = new PuzzleBean(expectedPuzzle);
+		puzzleBean.setFormatType(FormatType.SIMPLE_FORMAT);
+		
 		final File actualFile = new File("./target/simple_format_output.txt");
 		final File expectedFile = new File("./test/resources/reference_simple_format.txt");
 		
-		unitUnderTest.write(actualFile, puzzleBean, FormatType.SIMPLE_FORMAT);
+		unitUnderTest.write(actualFile, puzzleBean);
 		
 		assertFilesEqual(expectedFile, actualFile);		
 		assertTrue(actualFile.delete());
@@ -138,10 +140,12 @@ public class FileFormatManagerTest {
 	@Test
 	public void testWriteSimpleSudoku() throws Exception {
 		final PuzzleBean puzzleBean = new PuzzleBean(expectedPuzzle);
+		puzzleBean.setFormatType(FormatType.SIMPLE_SUDOKU);
+		
 		final File actualFile = new File("./target/simple_sudoku_output.ss");
 		final File expectedFile = new File("./test/resources/reference_simple_sudoku.ss");
 		
-		unitUnderTest.write(actualFile, puzzleBean, FormatType.SIMPLE_SUDOKU);
+		unitUnderTest.write(actualFile, puzzleBean);
 		
 		assertFilesEqual(expectedFile, actualFile);		
 		assertTrue(actualFile.delete());
@@ -163,12 +167,14 @@ public class FileFormatManagerTest {
 	@Test
 	public void testWriteSudocueSudoku() throws Exception {
 		final PuzzleBean puzzleBean = new PuzzleBean(expectedPuzzle);
+		puzzleBean.setFormatType(FormatType.SUDOCUE_SUDOKU);
+		
 		puzzleBean.setHeaders(expectedSudocueHeaders);
 		
 		final File actualFile = new File("./target/sudocue_sudoku_output.sdk");
 		final File expectedFile = new File("./test/resources/reference_sudocue_sudoku.sdk");
 		
-		unitUnderTest.write(actualFile, puzzleBean, FormatType.SUDOCUE_SUDOKU);
+		unitUnderTest.write(actualFile, puzzleBean);
 		
 		assertFilesEqual(expectedFile, actualFile);		
 		assertTrue(actualFile.delete());
@@ -195,6 +201,7 @@ public class FileFormatManagerTest {
 	@Test
 	public void testWriteFullSadmanSudoku() throws Exception {
 		final PuzzleBean puzzleBean = new PuzzleBean(expectedState);
+		puzzleBean.setFormatType(FormatType.SADMAN_SUDOKU);
 		puzzleBean.setHeaders(expectedSadmanHeaders);
 		puzzleBean.setPencilmarks(getPencilmarks());
 		puzzleBean.setColors(expectedColors);
@@ -203,7 +210,7 @@ public class FileFormatManagerTest {
 		final File actualFile = new File("./target/sadman_full_sudoku_output.sdk");
 		final File expectedFile = new File("./test/resources/reference_complete_sadman_sudoku.sdk");
 		
-		unitUnderTest.write(actualFile, puzzleBean, FormatType.SADMAN_SUDOKU);
+		unitUnderTest.write(actualFile, puzzleBean);
 		
 		assertFilesEqual(expectedFile, actualFile);		
 		assertTrue(actualFile.delete());

@@ -33,7 +33,7 @@ public class Constants {
 	public static final String APPLICATION_NAME = "SuDonkey";
 	
 	//The version of this application
-	public static final String APPLICATION_VERSION = "0.7.1 (dev)";
+	public static final String APPLICATION_VERSION = "1.0.0";
 	
 	//When used as an array index, represents a board's X coordinate
 	public static final int X = 0;

@@ -23,6 +23,8 @@ package com.matic.sudoku.io;
 import java.util.BitSet;
 import java.util.Map;
 
+import com.matic.sudoku.io.FileFormatManager.FormatType;
+
 /**
  * A simple java bean holding puzzle info read from, or about to be written to, the disk.
  * 
@@ -34,6 +36,7 @@ public class PuzzleBean {
 	private int[] colors;
 	private BitSet givens;
 	private final int[] puzzle;
+	private FormatType formatType;
 	private BitSet[][] pencilmarks;
 	private Map<String, String> headers;
 	
@@ -75,5 +78,13 @@ public class PuzzleBean {
 	
 	public int[] getColors() {
 		return colors;
+	}
+	
+	public FormatType getFormatType() {
+		return formatType;
+	}
+
+	public void setFormatType(FormatType formatType) {
+		this.formatType = formatType;
 	}
 }
