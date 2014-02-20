@@ -18,7 +18,7 @@
 *
 */
 
-package com.matic.sudoku.gui;
+package com.matic.sudoku.gui.mainwindow;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -43,17 +43,19 @@ public class ColoredToggleButton extends JToggleButton {
 	private static final int LABEL_BEGIN_OFFSET = 5;
 	private static final int LABEL_END_OFFSET = 10;	
 	
-	private Color color;
+	private final Color color;
+	private final int index;
 
-	public ColoredToggleButton(final Color color) {
+	public ColoredToggleButton(final Color color, final int index) {
 		super(BUTTON_TEXT);						
 		this.color = color;	
+		this.index = index;
 
 		setFont(FONT);
 	}
 	
-	public Color getColor() {
-		return color;
+	public int getIndex() {
+		return index;
 	}
 
 	public void paintComponent(Graphics g) {

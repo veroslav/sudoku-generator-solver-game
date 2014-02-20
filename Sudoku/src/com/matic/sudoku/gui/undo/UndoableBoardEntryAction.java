@@ -22,7 +22,7 @@ package com.matic.sudoku.gui.undo;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-import com.matic.sudoku.gui.Board;
+import com.matic.sudoku.gui.board.Board;
 
 /**
  * A common class for all board entries that can be undone/redone.

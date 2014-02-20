@@ -18,7 +18,7 @@
 *
 */
 
-package com.matic.sudoku.gui;
+package com.matic.sudoku.gui.board;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -44,13 +44,13 @@ import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
 import com.matic.sudoku.logic.Candidates;
 
 /**
- * Representation of a Sudoku game board.
+ * Representation of a Sudoku game 
  * @author vedran
  *
  */
 public class Board extends JPanel {
 
-	private static final long serialVersionUID = -1713421450354914241L;
+	private static final long serialVersionUID = -1713421450354914241L;	
 
 	public enum SymbolType {
 		DIGITS("Digits"), LETTERS("Letters");
@@ -90,6 +90,10 @@ public class Board extends JPanel {
 	public static final String KEY_UP_ACTION = "KEY_UP";
 	public static final String KEY_DELETE_ACTION = "KEY_DELETE";
 	
+	//Font color used to mark an incorrect board entry
+	public static final Color ERROR_FONT_COLOR = Color.red;	
+	public static final Color NORMAL_FONT_COLOR = Color.black;
+	
 	private static final int PREFERRED_WIDTH = 800;
 	private static final int PREFERRED_HEIGHT = 540;
 	
@@ -125,15 +129,17 @@ public class Board extends JPanel {
 	
 	static Color BACKGROUND_COLOR = Color.white;
 	
-	//Font color used to mark an incorrect board entry
-	static Color ERROR_FONT_COLOR = Color.red;
-		
-	static Color NORMAL_FONT_COLOR = Color.black;
-	
 	private static Color PENCILMARK_FONT_COLOR = new Color(0, 43, 54);
 	
-	//Color used to paint cells manually selected by the player
-	private Color cellSelectionBackgroundColor;
+	//Available colors the player can use for cell selections
+	public static final Color[] CELL_SELECTION_COLORS = {BACKGROUND_COLOR, Color.orange, new Color(46, 245, 39), 
+			new Color(255, 144, 150), new Color(52, 236, 230), Color.yellow};
+	
+	//Color index of the board's default background color (white)
+	private final int defaultBackgroundColorIndex = 0;
+	
+	//Color index of the color used to paint cells' backgrounds
+	private int cellColorSelectionIndex;
 	
 	//Brush used for drawing the picker
 	private BasicStroke pickerStroke;
@@ -216,7 +222,7 @@ public class Board extends JPanel {
 		verified = false;
 		
 		mouseClickInputValue = MOUSE_CLICK_DEFAULT_INPUT_VALUE;
-		cellSelectionBackgroundColor = BACKGROUND_COLOR;
+		cellColorSelectionIndex = defaultBackgroundColorIndex;
 		
 		setSymbolType(symbolType);		
 		
@@ -363,22 +369,39 @@ public class Board extends JPanel {
 	}
 	
 	/**
-	 * Set the background color to be used when user clicks on a cell to select it 
-	 * @param color Cell selection color
+	 * Set the background color index to be used when the player clicks on a cell to apply a color 
+	 * @param colorIndex Cell selection color's index
 	 */
-	public void setCellSelectionBackground(final Color color) {
-		cellSelectionBackgroundColor = color;
+	public void setCellColorInputValue(final int colorIndex) {
+		cellColorSelectionIndex = colorIndex;
 	}
 	
 	/**
 	 * Set the background color of a cell
 	 * @param row Row index of the cell
 	 * @param column Column index of the cell
-	 * @param color The background color to set
+	 * @param colorIndex The index of background color to set
 	 */
-	public void setCellBackgroundColor(final int row, final int column, final Color color) {
-		cells[column][row].setBackgroundColor(color);
+	public void setCellBackgroundColorIndex(final int row, final int column, final int colorIndex) {
+		cells[column][row].setBackgroundColorIndex(colorIndex);
 		repaint();
+	}
+	
+	/**
+	 * Get current cell background color indexes
+	 * @return
+	 */
+	public int[] getColorSelections() {
+		final int[] colors = new int[cellCount];
+		int colorIndex = 0;
+		
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				colors[colorIndex++] = cells[j][i].getBackgroundColorIndex();
+			}
+		}
+		
+		return colors;
 	}
 	
 	/**
@@ -418,7 +441,7 @@ public class Board extends JPanel {
 	public void clearColorSelections() {
 		for(int i = 0; i < unit; ++i) {
 			for(int j = 0; j < unit; ++j) {
-				cells[i][j].setBackgroundColor(Board.BACKGROUND_COLOR);
+				cells[i][j].setBackgroundColorIndex(defaultBackgroundColorIndex);
 			}
 		}
 		repaint();
@@ -594,7 +617,7 @@ public class Board extends JPanel {
 	}
 	
 	/*
-	 * Check if a symbol type is possible to use for this board. For larger
+	 * Check if a symbol type is possible to use for this  For larger
 	 * boards (dimension > 3), there are simply not enough numbers to use, so
 	 * even though such a symbol type is requested, it will be set to
 	 * SymbolType.LETTERS in this case
@@ -684,7 +707,7 @@ public class Board extends JPanel {
 	
 	//Convert the board entries to an int array, as this is the input format the solver requires
 	private int[] toIntArray() {
-		final int[] puzzle = new int[unit * unit];
+		final int[] puzzle = new int[cellCount];
 		int puzzleIndex = 0;
 		
 		for(int i = 0; i < unit; ++i) {
@@ -728,8 +751,8 @@ public class Board extends JPanel {
 		final int usableDrawArea = totalDrawArea
 				- (int) (DRAWING_AREA_MARGIN * totalDrawArea);
 
-		thickLineWidth = (int) (THICK_LINE_THICKNESS * usableDrawArea);
-		innerLineWidth = (int) (INNER_LINE_THICKNESS * usableDrawArea);
+		thickLineWidth = (int)(THICK_LINE_THICKNESS * usableDrawArea);
+		innerLineWidth = (int)(INNER_LINE_THICKNESS * usableDrawArea);
 
 		pickerStroke = new BasicStroke(thickLineWidth + 2);
 
@@ -814,7 +837,7 @@ public class Board extends JPanel {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		// Set the cell's background color and draw it
-		g2d.setColor(cell.getBackgroundColor());
+		g2d.setColor(CELL_SELECTION_COLORS[cell.getBackgroundColorIndex()]);
 		g2d.fillRect(cellX, cellY, cellWidth, cellWidth);
 
 		final int digit = cell.getDigit();
@@ -976,17 +999,17 @@ public class Board extends JPanel {
 
 	private UndoableBoardEntryAction handleColorSelection() {
 		UndoableBoardEntryAction undoableAction = null;
-		final Color cellBackground = cells[cellPickerCol][cellPickerRow].getBackgroundColor();
-		if (cellBackground.equals(cellSelectionBackgroundColor)) {
+		final int cellBackgroundIndex = cells[cellPickerCol][cellPickerRow].getBackgroundColorIndex();
+		if (cellBackgroundIndex == cellColorSelectionIndex) {
 			// Player has deselected the cell, paint it in background/normal color
 			undoableAction = new UndoableColorEntryAction(this, cellPickerRow, cellPickerCol, 
-					cellBackground, BACKGROUND_COLOR);
-			cells[cellPickerCol][cellPickerRow].setBackgroundColor(BACKGROUND_COLOR);
+					cellBackgroundIndex, defaultBackgroundColorIndex);
+			cells[cellPickerCol][cellPickerRow].setBackgroundColorIndex(defaultBackgroundColorIndex);
 		} else {
 			// Player has selected the cell, paint it in selected background color
 			undoableAction = new UndoableColorEntryAction(this, cellPickerRow, cellPickerCol, 
-					cellBackground, cellSelectionBackgroundColor);
-			cells[cellPickerCol][cellPickerRow].setBackgroundColor(cellSelectionBackgroundColor);
+					cellBackgroundIndex, cellColorSelectionIndex);
+			cells[cellPickerCol][cellPickerRow].setBackgroundColorIndex(cellColorSelectionIndex);
 		}
 		repaint();
 		return undoableAction;

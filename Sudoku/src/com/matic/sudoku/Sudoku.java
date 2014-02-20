@@ -24,8 +24,7 @@ import java.awt.EventQueue;
 
 import javax.swing.UIManager;
 
-import com.matic.sudoku.gui.MainWindow;
-import com.matic.sudoku.util.Constants;
+import com.matic.sudoku.gui.mainwindow.MainWindow;
 
 /**
  * The main SuDonkey class, this is where the GUI is initialized.
@@ -59,7 +58,7 @@ public class Sudoku {
 					e.printStackTrace();
 					System.exit(-1);
 				}
-				MainWindow mainWindow = new MainWindow(Constants.APPLICATION_NAME);
+				MainWindow mainWindow = new MainWindow();
 				mainWindow.setVisible(true);				
 			}
 		});

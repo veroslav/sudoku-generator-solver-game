@@ -30,7 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.matic.sudoku.generator.Generator.Symmetry;
-import com.matic.sudoku.gui.Board.SymbolType;
+import com.matic.sudoku.gui.board.Board.SymbolType;
 import com.matic.sudoku.solver.LogicSolver.Grading;
 import com.matic.sudoku.util.Constants;
 

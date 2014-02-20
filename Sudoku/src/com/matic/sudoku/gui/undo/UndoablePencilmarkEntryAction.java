@@ -23,7 +23,7 @@ package com.matic.sudoku.gui.undo;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import com.matic.sudoku.gui.Board;
+import com.matic.sudoku.gui.board.Board;
 
 public class UndoablePencilmarkEntryAction extends UndoableBoardEntryAction {
 

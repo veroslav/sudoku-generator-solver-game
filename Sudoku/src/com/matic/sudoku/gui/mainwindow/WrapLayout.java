@@ -18,7 +18,7 @@
 *
 */
 
-package com.matic.sudoku.gui;
+package com.matic.sudoku.gui.mainwindow;
 
 import java.awt.Component;
 import java.awt.Container;

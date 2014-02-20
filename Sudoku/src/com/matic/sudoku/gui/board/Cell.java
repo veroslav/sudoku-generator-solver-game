@@ -18,7 +18,7 @@
 *
 */
 
-package com.matic.sudoku.gui;
+package com.matic.sudoku.gui.board;
 
 import java.awt.Color;
 import java.util.BitSet;
@@ -31,8 +31,8 @@ import java.util.BitSet;
  */
 public class Cell {
 	
-	//This cell's background color (default white)
-	private Color backgroundColor = Board.BACKGROUND_COLOR;
+	//This cell's background color index (default white)
+	private int backgroundColorIndex = 0;
 		
 	//This cell's font color (default black)
 	private Color fontColor = Board.NORMAL_FONT_COLOR;
@@ -94,12 +94,12 @@ public class Cell {
 		return pencilmarks.cardinality();
 	}
 	
-	public void setBackgroundColor(final Color color) {
-		this.backgroundColor = color;
+	public void setBackgroundColorIndex(final int colorIndex) {
+		this.backgroundColorIndex = colorIndex;
 	}
 	
-	public Color getBackgroundColor() {
-		return backgroundColor;
+	public int getBackgroundColorIndex() {
+		return backgroundColorIndex;
 	}
 	
 	public void setFontColor(final Color color) {

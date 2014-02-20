@@ -20,21 +20,19 @@
 
 package com.matic.sudoku.gui.undo;
 
-import java.awt.Color;
-
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import com.matic.sudoku.gui.Board;
+import com.matic.sudoku.gui.board.Board;
 
 public class UndoableColorEntryAction extends UndoableBoardEntryAction {
 
 	private static final long serialVersionUID = 1795088830616603431L;
 	private static final String PRESENTATION_NAME = "color selection";
-	private final Color oldValue;
-	private final Color newValue;
+	private final int oldValue;
+	private final int newValue;
 
-	public UndoableColorEntryAction(final Board board, int row, int column, Color oldValue, Color newValue) {
+	public UndoableColorEntryAction(final Board board, int row, int column, int oldValue, int newValue) {
 		super(PRESENTATION_NAME, board, row, column);
 		
 		this.oldValue = oldValue;
@@ -44,12 +42,12 @@ public class UndoableColorEntryAction extends UndoableBoardEntryAction {
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		board.setCellBackgroundColor(row, column, oldValue);
+		board.setCellBackgroundColorIndex(row, column, oldValue);
 	}	
 	
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		board.setCellBackgroundColor(row, column, newValue);
+		board.setCellBackgroundColorIndex(row, column, newValue);
 	}
 }
