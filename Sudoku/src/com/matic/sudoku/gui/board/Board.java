@@ -405,6 +405,22 @@ public class Board extends JPanel {
 	}
 	
 	/**
+	 * Set previously stored cell background color indexes
+	 * @param colors Colors to set
+	 */
+	public void setColorSelections(final int[] colorsSelections) {
+		int colorIndex = 0;
+		
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				 cells[j][i].setBackgroundColorIndex(colorsSelections[colorIndex++]);
+			}
+		}
+		
+		repaint();
+	}
+	
+	/**
 	 * Set the font color of a cell
 	 * @param row Row index of the cell
 	 * @param column Column index of the cell
@@ -484,6 +500,16 @@ public class Board extends JPanel {
 			}
 		}
 		repaint();
+	}
+	
+	/**
+	 * Set given state for a previously filled board entry
+	 * @param row Row index of the entry
+	 * @param column Column index of the entry
+	 * @param isGiven Whether the entry should be marked as a given or not
+	 */
+	public void setGiven(final int row, final int column, final boolean isGiven) {
+		cells[column][row].setGiven(isGiven);
 	}
 	
 	/**
@@ -677,6 +703,10 @@ public class Board extends JPanel {
 						--symbolsFilledCount;
 					}
 					cells[j][i].setDigit(0);
+				}
+				//Clear givens if needed
+				if(clearGivens && cells[j][i].isGiven()) {
+					cells[j][i].setGiven(false);
 				}
 				//Always clear pencilmarks
 				clearPencilmarks();
