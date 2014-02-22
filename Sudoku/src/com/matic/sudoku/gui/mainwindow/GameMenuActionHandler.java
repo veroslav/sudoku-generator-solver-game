@@ -226,10 +226,16 @@ class GameMenuActionHandler implements ActionListener {
 					Algorithms.fromIntArrayBoard(puzzle, mainWindow.unit));
 			if(logicSolverSolution == LogicSolver.UNIQUE_SOLUTION) {
 				final Grading grading = mainWindow.logicSolver.getGrading();
-				mainWindow.setPuzzleVerified(true);
-				mainWindow.puzzle.setSolved(true);
+				mainWindow.bruteForceSolver.solve(puzzle);
 				mainWindow.puzzle.setSolution(puzzle);
 				mainWindow.puzzle.setGrading(grading);
+				//Enable aid tools only if puzzle has not already been solved
+				if(mainWindow.puzzle.checkSolution()) {
+					mainWindow.handlePuzzleSolved(false);
+				}
+				else {
+					mainWindow.setPuzzleVerified(true);
+				}
 			} 
 			else {
 				mainWindow.setPuzzleVerified(false);
@@ -242,7 +248,7 @@ class GameMenuActionHandler implements ActionListener {
 			mainWindow.setPuzzleVerified(false);
 			mainWindow.puzzle.setSolved(false);
 		}
-		
+		mainWindow.puzzleMenuActionListener.handleFlagWrongEntriesAction();
 		board.repaint();
 	}
 	

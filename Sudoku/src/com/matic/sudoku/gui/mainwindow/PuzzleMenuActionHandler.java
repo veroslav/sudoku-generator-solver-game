@@ -75,6 +75,33 @@ class PuzzleMenuActionHandler implements ActionListener {
 		}
 	}
 	
+	void handleFlagWrongEntriesAction() {
+		if(!board.isVerified()) {
+			return;
+		}
+		if(mainWindow.flagWrongEntriesMenuItem.isSelected()) {
+			//Flag all incorrect board entries
+			final int[] puzzleSolution = mainWindow.puzzle.getSolution();
+			final int[] boardEntries = board.getPuzzle();		
+			int puzzleIndex = 0;
+			
+			for(int i = 0; i < mainWindow.unit; ++i) {
+				for(int j = 0; j < mainWindow.unit; ++j) {
+					final int cellValue = boardEntries[puzzleIndex];
+					//Only consider non-empty cells
+					if(cellValue > 0 && (puzzleSolution[puzzleIndex] != cellValue)) {
+						board.setCellFontColor(i, j, Board.ERROR_FONT_COLOR);
+					}	
+					++puzzleIndex;
+				}
+			}
+		}
+		else {
+			//Remove all incorrect board entry flags				
+			board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
+		}
+	}
+	
 	private void handleCheckAction() {
 		if(!board.isVerified()) {
 			return;
@@ -105,33 +132,6 @@ class PuzzleMenuActionHandler implements ActionListener {
 		
 		JOptionPane.showMessageDialog(mainWindow.window, sb.toString(), title, 
 				JOptionPane.INFORMATION_MESSAGE);
-	}
-	
-	private void handleFlagWrongEntriesAction() {
-		if(!board.isVerified()) {
-			return;
-		}
-		if(mainWindow.flagWrongEntriesMenuItem.isSelected()) {
-			//Flag all incorrect board entries
-			final int[] puzzleSolution = mainWindow.puzzle.getSolution();
-			final int[] boardEntries = board.getPuzzle();		
-			int puzzleIndex = 0;
-			
-			for(int i = 0; i < mainWindow.unit; ++i) {
-				for(int j = 0; j < mainWindow.unit; ++j) {
-					final int cellValue = boardEntries[puzzleIndex];
-					//Only consider non-empty cells
-					if(cellValue > 0 && (puzzleSolution[puzzleIndex] != cellValue)) {
-						board.setCellFontColor(i, j, Board.ERROR_FONT_COLOR);
-					}	
-					++puzzleIndex;
-				}
-			}
-		}
-		else {
-			//Remove all incorrect board entry flags				
-			board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
-		}
 	}
 	
 	private void handleGiveClueAction() {
@@ -258,7 +258,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 			board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 			board.setPuzzle(enteredPuzzle);
 			mainWindow.puzzle.setSolved(true);
-			mainWindow.handlePuzzleSolved();
+			mainWindow.handlePuzzleSolved(false);
 			break;
 		case BruteForceSolver.NO_SOLUTION:
 			JOptionPane.showMessageDialog(mainWindow.window, "No solution found.", title, JOptionPane.INFORMATION_MESSAGE);

@@ -136,6 +136,7 @@ public class MainWindow {
 	final JFrame window;
 	final Puzzle puzzle;
 	
+	PuzzleMenuActionHandler puzzleMenuActionListener;
 	SymbolButtonActionHandler symbolButtonActionHandler;
 	JToggleButton[] symbolButtons;
 	final JToggleButton focusAllButton;	
@@ -562,10 +563,10 @@ public class MainWindow {
 		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[5]);
 		
-		final ActionListener actionListener = new PuzzleMenuActionHandler(this, board);
+		puzzleMenuActionListener = new PuzzleMenuActionHandler(this, board);
 		
 		for(final JMenuItem menuItem : puzzleMenuItems) {
-			menuItem.addActionListener(actionListener);
+			menuItem.addActionListener(puzzleMenuActionListener);
 		}		
 		
 		return puzzleMenu;
@@ -638,15 +639,17 @@ public class MainWindow {
 		if(UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME.equals(actionName) ||
 				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME.equals(actionName)) {
 			if(puzzle.checkSolution()) {
-				handlePuzzleSolved();
+				handlePuzzleSolved(true);
 			}
 		}
 	}
 	
-	void handlePuzzleSolved() {
-		JOptionPane.showMessageDialog(window,
-				"Congratulations! You solved the puzzle correctly.",
-				"Puzzle solved", JOptionPane.INFORMATION_MESSAGE);
+	void handlePuzzleSolved(final boolean showConfirmationDialog) {
+		if(showConfirmationDialog) {
+			JOptionPane.showMessageDialog(window,
+					"Congratulations! You solved the puzzle correctly.",
+					"Puzzle solved", JOptionPane.INFORMATION_MESSAGE);
+		}
 		//Prevent the player from undoing any moves and using aids, as the puzzle has been solved
 		flagWrongEntriesMenuItem.setEnabled(false);
 		giveClueMenuItem.setEnabled(false);		
