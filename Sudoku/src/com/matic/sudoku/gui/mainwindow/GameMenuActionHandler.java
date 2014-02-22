@@ -93,98 +93,7 @@ class GameMenuActionHandler implements ActionListener {
 		}
 	}
 	
-	private void handleSave() {
-		final File targetFile = mainWindow.puzzle.getFileStorage();
-		if(targetFile == null) {
-			//Puzzle has not been saved before, show "Save as"-dialog
-			handleSaveAs();
-		}
-		else {
-			//Puzzle has been saved previously, write to the existing file
-			writeFile(targetFile, getPuzzleBean(mainWindow.puzzle.getFormatType()));
-		}
-	}
-	
-	private void handleOpen() {
-		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
-		final JFileChooser openChooser = new JFileChooser();
-		
-		for(final FileFilter fileFilter : fileFilters) {
-			openChooser.addChoosableFileFilter(fileFilter);
-		}
-		
-		final int choice = openChooser.showOpenDialog(mainWindow.window);
-		
-		if(choice != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-		
-		final FileFormatManager fileManager = new FileFormatManager();
-		final File puzzleFile = openChooser.getSelectedFile();
-		
-		PuzzleBean result = null;
-		try {				
-			result = fileManager.fromFile(puzzleFile);
-			
-		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
-					"File open error", JOptionPane.ERROR_MESSAGE);
-			return;
-		} catch (final UnsupportedPuzzleFormatException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
-					"File open error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}	
-		
-		updateBoard(result);
-		
-		mainWindow.clearUndoableActions();				
-		mainWindow.puzzle.setFormatType(result.getFormatType());
-		
-		onPuzzleStorageChanged(puzzleFile);
-	}
-	
-	private void handleSaveAs() {
-		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileSaveFilters();
-		final JFileChooser saveAsChooser = new JFileChooser();
-		
-		for(final FileFilter fileFilter : fileFilters) {
-			saveAsChooser.addChoosableFileFilter(fileFilter);
-		}
-		
-		//Save in SadMan Sudoku file format by default
-		saveAsChooser.setFileFilter(fileFilters[0]);
-		
-		final int choice = saveAsChooser.showSaveDialog(mainWindow.window);
-		
-		if(choice != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-		
-		File targetFile = saveAsChooser.getSelectedFile();
-		if(targetFile.exists()) {
-			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
-					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if(overwriteFile != JOptionPane.YES_OPTION) {
-				return;
-			}
-		}
-		
-		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
-		final PuzzleBean puzzleBean = getPuzzleBean(formatType);	
-		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
-		
-		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
-		    targetFile = new File(targetFile + "." + fileSuffix);
-		}
-		
-		writeFile(targetFile, puzzleBean);
-								
-		mainWindow.puzzle.setFormatType(formatType);
-		onPuzzleStorageChanged(targetFile);
-	}
-	
-	private void updateBoard(final PuzzleBean result) {		
+	void updateBoard(final PuzzleBean result) {		
 		final BitSet[][] pencilmarks = result.getPencilmarks();
 		final Map<String, String> headers = result.getHeaders();
 		final int[] colors = result.getColors();
@@ -249,7 +158,96 @@ class GameMenuActionHandler implements ActionListener {
 			mainWindow.puzzle.setSolved(false);
 		}
 		mainWindow.puzzleMenuActionListener.handleFlagWrongEntriesAction();
+		mainWindow.puzzle.setFormatType(result.getFormatType());
+		mainWindow.clearUndoableActions();				
 		board.repaint();
+	}
+	
+	private void handleSave() {
+		final File targetFile = mainWindow.puzzle.getFileStorage();
+		if(targetFile == null) {
+			//Puzzle has not been saved before, show "Save as"-dialog
+			handleSaveAs();
+		}
+		else {
+			//Puzzle has been saved previously, write to the existing file
+			writeFile(targetFile, getPuzzleBean(mainWindow.puzzle.getFormatType()));
+		}
+	}
+	
+	private void handleOpen() {
+		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
+		final JFileChooser openChooser = new JFileChooser();
+		
+		for(final FileFilter fileFilter : fileFilters) {
+			openChooser.addChoosableFileFilter(fileFilter);
+		}
+		
+		final int choice = openChooser.showOpenDialog(mainWindow.window);
+		
+		if(choice != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		
+		final FileFormatManager fileManager = new FileFormatManager();
+		final File puzzleFile = openChooser.getSelectedFile();
+		
+		PuzzleBean result = null;
+		try {				
+			result = fileManager.fromFile(puzzleFile);
+			
+		} catch (final IOException e) {
+			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
+					"File open error", JOptionPane.ERROR_MESSAGE);
+			return;
+		} catch (final UnsupportedPuzzleFormatException e) {
+			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
+					"File open error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}	
+		
+		updateBoard(result);
+		onPuzzleStorageChanged(puzzleFile);
+	}
+	
+	private void handleSaveAs() {
+		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileSaveFilters();
+		final JFileChooser saveAsChooser = new JFileChooser();
+		
+		for(final FileFilter fileFilter : fileFilters) {
+			saveAsChooser.addChoosableFileFilter(fileFilter);
+		}
+		
+		//Save in SadMan Sudoku file format by default
+		saveAsChooser.setFileFilter(fileFilters[0]);
+		
+		final int choice = saveAsChooser.showSaveDialog(mainWindow.window);
+		
+		if(choice != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		
+		File targetFile = saveAsChooser.getSelectedFile();
+		if(targetFile.exists()) {
+			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
+					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(overwriteFile != JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+		
+		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
+		final PuzzleBean puzzleBean = getPuzzleBean(formatType);	
+		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
+		
+		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
+		    targetFile = new File(targetFile + "." + fileSuffix);
+		}
+		
+		writeFile(targetFile, puzzleBean);
+								
+		mainWindow.puzzle.setFormatType(formatType);
+		onPuzzleStorageChanged(targetFile);
 	}
 	
 	private PuzzleBean getPuzzleBean(final FormatType formatType) {

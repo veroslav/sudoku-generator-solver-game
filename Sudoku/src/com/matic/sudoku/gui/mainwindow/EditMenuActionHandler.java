@@ -33,7 +33,9 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 import com.matic.sudoku.gui.board.Board;
-import com.matic.sudoku.util.Constants;
+import com.matic.sudoku.io.FileFormatManager;
+import com.matic.sudoku.io.PuzzleBean;
+import com.matic.sudoku.io.UnsupportedPuzzleFormatException;
 
 /**
  * An action handler for Edit-menu options
@@ -96,42 +98,21 @@ class EditMenuActionHandler implements ActionListener {
 			}
 		}
 		
-		final int[] pastedPuzzle = convertClipboardContents(clipboardContents);
-		
-		//Paste the player's puzzle 
-		if(pastedPuzzle != null) {
-			board.clear(true);
-			board.recordGivens();
-			board.setPuzzle(pastedPuzzle);
-			mainWindow.clearUndoableActions();
-			mainWindow.setPuzzleVerified(false);
-			mainWindow.puzzle.setSolved(false);
-		}
-		else {				
-			JOptionPane.showMessageDialog(mainWindow.window, "Unsupported puzzle format.", "Paste", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	//Convert clipboard contents to simple puzzle format, return null if unknown format
-	private int[] convertClipboardContents(final String clipboardContents) {			
-		if(clipboardContents.length() != mainWindow.unit * mainWindow.unit) {
-			return null;
+		final FileFormatManager fileFormatManager = new FileFormatManager();
+		PuzzleBean puzzleBean = null;
+		try {
+			puzzleBean = fileFormatManager.fromString(clipboardContents);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(mainWindow.window, "Invalid clipboard content", "Paste",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		} catch (UnsupportedPuzzleFormatException e) {
+			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), "Paste",
+					JOptionPane.ERROR_MESSAGE);
+			return;
 		}
 		
-		final int[] puzzle = new int[mainWindow.unit * mainWindow.unit];
-		
-		for(int i = 0; i < clipboardContents.length(); ++i) {
-			if(Character.isDigit(clipboardContents.charAt(i))) {					
-				puzzle[i] = Integer.parseInt(clipboardContents.substring(i, i + 1));
-			}
-			else if(Constants.ZERO_DOT_FORMAT == clipboardContents.charAt(i)) {
-				puzzle[i] = 0;
-			}
-			else {
-				return null;
-			}
-		}
-		return puzzle;
+		mainWindow.gameMenuActionListener.updateBoard(puzzleBean);
 	}
 	
 	private String getClipboardContents() {

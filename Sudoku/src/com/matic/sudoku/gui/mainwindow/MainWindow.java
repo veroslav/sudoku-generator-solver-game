@@ -136,8 +136,10 @@ public class MainWindow {
 	final JFrame window;
 	final Puzzle puzzle;
 	
-	PuzzleMenuActionHandler puzzleMenuActionListener;
 	SymbolButtonActionHandler symbolButtonActionHandler;
+	PuzzleMenuActionHandler puzzleMenuActionListener;
+	GameMenuActionHandler gameMenuActionListener;
+	
 	JToggleButton[] symbolButtons;
 	final JToggleButton focusAllButton;	
 	final JToggleButton focusButton;		
@@ -495,10 +497,10 @@ public class MainWindow {
 		gameMenu.add(quitMenuItem);
 		
 		final JMenuItem[] menuItems = {newMenuItem, quitMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem};
-		final ActionListener actionListener = new GameMenuActionHandler(this, board);
+		gameMenuActionListener = new GameMenuActionHandler(this, board);
 		
 		for(final JMenuItem menuItem : menuItems) {
-			menuItem.addActionListener(actionListener);
+			menuItem.addActionListener(gameMenuActionListener);
 		}
 		
 		return gameMenu;
