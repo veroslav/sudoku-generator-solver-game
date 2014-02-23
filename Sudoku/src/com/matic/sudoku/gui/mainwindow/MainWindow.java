@@ -56,6 +56,7 @@ import com.matic.sudoku.generator.Generator;
 import com.matic.sudoku.gui.Puzzle;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.gui.board.Board.SymbolType;
+import com.matic.sudoku.gui.dnd.DragAndDropHandler;
 import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
@@ -205,6 +206,7 @@ public class MainWindow {
 	private void initWindow(final JFrame window) {
 		final JMenuBar menuBar = buildMenuBar();
 		
+		window.setTransferHandler(new DragAndDropHandler(gameMenuActionListener));
 		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		window.getContentPane().add(board);
 		window.setJMenuBar(menuBar);

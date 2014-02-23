@@ -60,7 +60,7 @@ import com.matic.sudoku.util.Algorithms;
  * @author vedran
  *
  */
-class GameMenuActionHandler implements ActionListener {
+class GameMenuActionHandler implements ActionListener, FileOpenHandler {
 	
 	private final MainWindow mainWindow;
 	private final Board board;
@@ -163,6 +163,27 @@ class GameMenuActionHandler implements ActionListener {
 		board.repaint();
 	}
 	
+	@Override
+	public void openFile(final File file) {
+		final FileFormatManager fileManager = new FileFormatManager();
+		PuzzleBean result = null;
+		try {				
+			result = fileManager.fromFile(file);
+			
+		} catch (final IOException e) {
+			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
+					"File open error", JOptionPane.ERROR_MESSAGE);
+			return;
+		} catch (final UnsupportedPuzzleFormatException e) {
+			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
+					"File open error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}	
+		
+		updateBoard(result);
+		onPuzzleStorageChanged(file);
+	}
+	
 	private void handleSave() {
 		final File targetFile = mainWindow.puzzle.getFileStorage();
 		if(targetFile == null) {
@@ -189,25 +210,8 @@ class GameMenuActionHandler implements ActionListener {
 			return;
 		}
 		
-		final FileFormatManager fileManager = new FileFormatManager();
 		final File puzzleFile = openChooser.getSelectedFile();
-		
-		PuzzleBean result = null;
-		try {				
-			result = fileManager.fromFile(puzzleFile);
-			
-		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
-					"File open error", JOptionPane.ERROR_MESSAGE);
-			return;
-		} catch (final UnsupportedPuzzleFormatException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
-					"File open error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}	
-		
-		updateBoard(result);
-		onPuzzleStorageChanged(puzzleFile);
+		openFile(puzzleFile);
 	}
 	
 	private void handleSaveAs() {
