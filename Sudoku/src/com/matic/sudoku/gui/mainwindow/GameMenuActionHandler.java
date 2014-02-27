@@ -48,8 +48,11 @@ import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.gui.board.Board.SymbolType;
 import com.matic.sudoku.io.FileFormatManager;
 import com.matic.sudoku.io.FileFormatManager.FormatType;
+import com.matic.sudoku.io.FileSaveFilter;
 import com.matic.sudoku.io.PuzzleBean;
+import com.matic.sudoku.io.StorageProperties;
 import com.matic.sudoku.io.UnsupportedPuzzleFormatException;
+import com.matic.sudoku.io.export.ImageExporter;
 import com.matic.sudoku.solver.LogicSolver;
 import com.matic.sudoku.solver.LogicSolver.Grading;
 import com.matic.sudoku.util.Algorithms;
@@ -86,6 +89,9 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler {
 			break;
 		case MainWindow.SAVE_STRING:				
 			handleSave();
+			break;
+		case MainWindow.EXPORT_AS_IMAGE_STRING:
+			handleExportAsImage();
 			break;
 		case MainWindow.QUIT_STRING:
 			mainWindow.handleQuit();
@@ -184,6 +190,22 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler {
 		onPuzzleStorageChanged(file);
 	}
 	
+	private void handleExportAsImage() {			
+		final ImageExporter imageExporter = new ImageExporter();
+		final StorageProperties storageProperties = confirmFileSave(imageExporter);
+		
+		if(storageProperties == null) {
+			return;
+		}
+		
+		try {
+			imageExporter.write(getBoardCopy(board), storageProperties.getFile(), storageProperties.getFileSuffix());
+		} catch (IOException e) {
+			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
+					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
 	private void handleSave() {
 		final File targetFile = mainWindow.puzzle.getFileStorage();
 		if(targetFile == null) {
@@ -252,6 +274,43 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler {
 								
 		mainWindow.puzzle.setFormatType(formatType);
 		onPuzzleStorageChanged(targetFile);
+	}
+	
+	private StorageProperties confirmFileSave(final FileSaveFilter savable) {
+		final FileFilter[] fileFilters = savable.getSupportedFileSaveFilters();
+		final JFileChooser saveAsChooser = new JFileChooser();
+		
+		for(final FileFilter fileFilter : fileFilters) {
+			saveAsChooser.addChoosableFileFilter(fileFilter);
+		}
+		
+		//Set default file save format
+		saveAsChooser.setFileFilter(fileFilters[0]);
+		
+		final int choice = saveAsChooser.showSaveDialog(mainWindow.window);
+		
+		if(choice != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
+		
+		File targetFile = saveAsChooser.getSelectedFile();
+		if(targetFile.exists()) {
+			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
+					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(overwriteFile != JOptionPane.YES_OPTION) {
+				return null;
+			}
+		}
+		
+		final FileFilter selectedFileFilter = saveAsChooser.getFileFilter();
+		final String fileSuffix = savable.getFileSuffix(selectedFileFilter.getDescription());
+		
+		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
+		    targetFile = new File(targetFile + "." + fileSuffix);
+		}
+		
+		final StorageProperties storageProperties = new StorageProperties(targetFile, selectedFileFilter, fileSuffix);		
+		return storageProperties;
 	}
 	
 	private PuzzleBean getPuzzleBean(final FormatType formatType) {
@@ -429,6 +488,23 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler {
             }
         }
 		return null;
+	}
+	
+	private Board getBoardCopy(final Board board) {
+		final Board copy = new Board(board.getDimension(), board.getSymbolType());
+		copy.setPuzzle(board.getPuzzle());
+		copy.setGivens(board.getGivens());
+		copy.setPencilmarks(board.getPencilmarks());
+		copy.setColorSelections(board.getColorSelections());
+		
+		//Copy cell font colors
+		for(int i = 0; i < board.unit; ++i) {
+			for(int j = 0; j < board.unit; ++j) {
+				copy.setCellFontColor(i, j, board.getCellFontColor(i, j));
+			}
+		}
+		
+		return copy;
 	}
 	
 	private Date getDateFromString(final String dateString) {

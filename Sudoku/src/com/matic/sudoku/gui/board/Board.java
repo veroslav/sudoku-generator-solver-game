@@ -94,8 +94,8 @@ public class Board extends JPanel {
 	public static final Color ERROR_FONT_COLOR = Color.red;	
 	public static final Color NORMAL_FONT_COLOR = Color.black;
 	
-	private static final int PREFERRED_WIDTH = 800;
-	private static final int PREFERRED_HEIGHT = 540;
+	public static final int PREFERRED_WIDTH = 800;
+	public static final int PREFERRED_HEIGHT = 540;
 	
 	//Size of a region (box, row or column), 9 for a 9x9 board
 	public final int unit;
@@ -243,12 +243,26 @@ public class Board extends JPanel {
 	public void paintComponent(Graphics g) {
 		final Graphics2D g2d = (Graphics2D)g;		
 		
+		draw(g2d, false);
+	}
+	
+	/**
+	 * Draw the board contents and optionally exclude elements such as picker 
+	 * (for instance when exporting to a PDF or an image)
+	 * @param g2d Graphics used for drawing
+	 * @param isExported Whether to draw everything on the board
+	 */
+	public void draw(final Graphics2D g2d, final boolean isExported) {
 		drawBackground(g2d);
 		
 		drawThickLines(g2d);
 		drawInnerLines(g2d);
 		
-		renderCells(g2d);
+		renderCells(g2d, isExported);
+	}
+	
+	public int getDimension() {
+		return dimension;
 	}
 	
 	public SymbolType getSymbolType() {
@@ -431,6 +445,10 @@ public class Board extends JPanel {
 		repaint();
 	}
 	
+	public Color getCellFontColor(final int row, final int column) {
+		return cells[column][row].getFontColor();
+	}
+	
 	/**
 	 * Set the font color for all board cells
 	 * @param color The font color to set
@@ -510,6 +528,20 @@ public class Board extends JPanel {
 	 */
 	public void setGiven(final int row, final int column, final boolean isGiven) {
 		cells[column][row].setGiven(isGiven);
+	}
+	
+	/**
+	 * Set givens for this board
+	 * @param givens
+	 */
+	public void setGivens(final BitSet givens) {
+		int givenIndex = 0;
+		
+		for(int i = 0; i < unit; ++i) {
+			for(int j = 0; j < unit; ++j) {
+				cells[j][i].setGiven(givens.get(givenIndex++));
+			}
+		}
 	}
 	
 	/**
@@ -828,7 +860,7 @@ public class Board extends JPanel {
 		g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
-	private void renderCells(final Graphics2D g2d) {
+	private void renderCells(final Graphics2D g2d, final boolean isExported) {
 		final int cellDistance = cellWidth + innerLineWidth;
 		final int boxDistance = boxWidth + thickLineWidth;
 		int pickerCellX = 0;
@@ -859,7 +891,9 @@ public class Board extends JPanel {
 			}
 		}
 		
-		drawPicker(g2d, pickerCellX, pickerCellY);
+		if(!isExported) {
+			drawPicker(g2d, pickerCellX, pickerCellY);
+		}
 	}
 	
 	private void renderCellContent(final Graphics2D g2d, final Cell cell, final int cellX, final int cellY) {
