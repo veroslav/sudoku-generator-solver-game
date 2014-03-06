@@ -657,20 +657,20 @@ public class Board extends JPanel {
 
 		switch (event.getButton()) {
 		case MouseEvent.BUTTON1:
-			// Left-button click (either digit or pencilmark entry)			
-			if(event.isShiftDown()) {
-				//Shift button was down when mouse was clicked, pencilmark entry
-				final boolean pencilmarkAllowed = !focusOn && allowEditing && 
-						cells[cellPickerCol][cellPickerRow].getDigit() == 0;
-				return pencilmarkAllowed? handleDigitEntered(mouseClickInputValue, true) : null;				
+			// Left-button click (either digit or color selection entry)			
+			if(event.isControlDown()) {
+				//Control button was down when mouse was clicked, color selection entry
+				return handleColorSelection();				
 			}
 			else {
-				//Shift button was not pressed, a simple digit entry				
+				//Control button was not pressed, a simple digit entry				
 				return allowEditing? handleDigitEntered(mouseClickInputValue, false) : null;
 			}
 		case MouseEvent.BUTTON3:
-			// Right-button click (color selection entry)
-			return handleColorSelection();
+			// Right-button click (pencil mark entry)
+			final boolean pencilmarkAllowed = !focusOn && allowEditing && 
+			cells[cellPickerCol][cellPickerRow].getDigit() == 0;
+			return pencilmarkAllowed? handleDigitEntered(mouseClickInputValue, true) : null;
 		default:
 			return null;
 		}

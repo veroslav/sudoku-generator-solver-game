@@ -104,7 +104,7 @@ public class MainWindow {
 	
 	//Other String constants
 	static final String FOCUS_OFF_TOOLTIP_TEXT = "<html>Click in a cell to assign it this value." +
-			"<br/>Shift-click to enter a pencilmark.</html>";
+			"<br/>Right-click to enter a pencilmark.</html>";
 	static final String FOCUS_ON_TOOLTIP_TEXT = "Click to toggle focus on this candidate";
 	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = "Enable or disable candidate focus";
 	private static final String FOCUS_BUTTON_TEXT = "Focus";
@@ -326,7 +326,7 @@ public class MainWindow {
 	private JToolBar buildColorsToolBar() {		
 		final ToolBarPropertyChangeHandler toolBarPropertyChangeHandler = new ToolBarPropertyChangeHandler();
 		final ActionListener colorHandler = new ColorSelectionActionHandler();
-		final String toolTipText = "Right click on a cell to apply this color";
+		final String toolTipText = "Ctrl-click on a cell to apply this color";
 		
 		final JToggleButton[] colorButtons = new ColoredToggleButton[Board.CELL_SELECTION_COLORS.length - 1];		
 		final ButtonGroup colorButtonsGroup = new ButtonGroup();
