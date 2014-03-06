@@ -135,11 +135,6 @@ public class NakedSubset extends Subset {
 		
 		if (success) {
 			setValuesAndLocations(toArray(subsetCandidates), subset);
-			
-			/*START TEST OUTPUT
-			System.out.println("Naked Subset found " + subsetCandidates
-					+ " in column " + column + " [" + getName() + "]");
-			// END TEST OUTPUT*/
 		}
 
 		return success;

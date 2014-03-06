@@ -75,6 +75,10 @@ public class LogicSolver {
 			}
 			throw new IllegalArgumentException("No grading with description " + grading + " found");
 		}
+		
+		public static Grading getRandom() {
+			return values()[(int)(Math.random() * values().length)];
+		}
 	}
 	
 	//TODO: Determine real grading scores for Expert and Diabolic puzzles

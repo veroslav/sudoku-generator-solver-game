@@ -10,6 +10,8 @@ The following features are currently implemented:
 - Generate standard 9x9 Sudoku puzzles of five different difficulty grades (Easy, Moderate, Hard, Expert and Diabolic)
 - Solve any puzzle, check whether a puzzle has a unique, multiple or no solution
 - Save and load puzzles in following formats: SadMan Sudoku and SudoCue Sudoku (sdk files), and Simple Sudoku (ss files)
+- Export current puzzle as an image (PNG, JPEG and GIF) or to a PDF file
+- Generate and export multiple puzzles to a PDF file
 - Undo and redo
 - Reveal clues (next digit) on player's request
 - Flag wrong entries
@@ -25,9 +27,7 @@ The following features are currently implemented:
 
 The following features are planned:
 
-- Export puzzles as PDF or image
 - Print puzzles
-- Generate and export multiple puzzles
 - User guide
 - Show time taken to solve a puzzle
 - Explain how the next solution step can be revealed

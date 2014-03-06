@@ -186,13 +186,8 @@ public abstract class LogicStrategy {
 	protected void singleFound(final int[][] puzzle, int rowIndex, int colIndex, int single) {
 		puzzle[colIndex][rowIndex] = single;
 		singleFound = true;
-
-		//System.out.println("Single Found: " + single + ", at row " + rowIndex + " and col " + colIndex);
-		
+	
 		candidates.clear(rowIndex, colIndex);
 		candidates.removeFromAllRegions(single, rowIndex, colIndex);
-
-		/*System.out.println("Found single " + single + " at (row: "
-				+ rowIndex + ", col: " + colIndex + ") [" + getName() + "]");*/
 	}
 }

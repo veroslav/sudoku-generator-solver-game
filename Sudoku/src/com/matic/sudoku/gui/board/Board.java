@@ -76,6 +76,10 @@ public class Board extends JPanel {
 			throw new IllegalArgumentException("No symbol type with description "
 					+ symbols + " found");
 		}
+		
+		public static SymbolType getRandom() {
+			return values()[(int)(Math.random() * values().length)];
+		}
 	}
 	
 	public static final String[] KEY_NUMBER_ACTIONS = {"1", "2", "3", "4",
@@ -253,7 +257,9 @@ public class Board extends JPanel {
 	 * @param isExported Whether to draw everything on the board
 	 */
 	public void draw(final Graphics2D g2d, final boolean isExported) {
-		drawBackground(g2d);
+		if(!isExported) {
+			drawBackground(g2d);
+		}
 		
 		drawThickLines(g2d);
 		drawInnerLines(g2d);
@@ -261,8 +267,17 @@ public class Board extends JPanel {
 		renderCells(g2d, isExported);
 	}
 	
+	public void setDrawingOrigin(final int boardStartX, final int boardStartY) {
+		this.boardStartX = boardStartX;
+		this.boardStartY = boardStartY;
+	}
+	
 	public int getDimension() {
 		return dimension;
+	}
+	
+	public int getPuzzleWidth() {
+		return boardWidth;
 	}
 	
 	public SymbolType getSymbolType() {

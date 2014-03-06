@@ -56,6 +56,10 @@ public abstract class Generator {
 			throw new IllegalArgumentException("No symmetry type with description "
 					+ symmetry + " found");
 		}
+		
+		public static Symmetry getRandom() {
+			return values()[(int)(Math.random() * values().length)];
+		}
 	}
 	
 	public static final int MAX_ITERATIONS = 20;

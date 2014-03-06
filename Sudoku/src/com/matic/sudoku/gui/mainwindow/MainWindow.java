@@ -82,6 +82,8 @@ public class MainWindow {
 	private static final String VIEW_MENU = "View";
 	
 	//Menu options strings
+	static final String GENERATE_AND_EXPORT_STRING = "Generate and Export...";
+	static final String EXPORT_TO_PDF_STRING = "Export to PDF...";
 	static final String EXPORT_AS_IMAGE_STRING = "Export as Image...";
 	static final String SHOW_COLORS_TOOLBAR_STRING = "Color selection toolbar";
 	static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
@@ -488,7 +490,9 @@ public class MainWindow {
 		saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		saveMenuItem.setEnabled(puzzle.isSaved());
 		
+		final JMenuItem generateAndExportMenuItem = new JMenuItem(GENERATE_AND_EXPORT_STRING);
 		final JMenuItem exportAsImageMenuItem = new JMenuItem(EXPORT_AS_IMAGE_STRING);
+		final JMenuItem exportToPdfMenuItem = new JMenuItem(EXPORT_TO_PDF_STRING);
 		final JMenuItem saveAsMenuItem = new JMenuItem(SAVE_AS_STRING);
 		final JMenuItem quitMenuItem = new JMenuItem(QUIT_STRING);
 		
@@ -499,11 +503,14 @@ public class MainWindow {
 		gameMenu.add(saveAsMenuItem);
 		gameMenu.addSeparator();
 		gameMenu.add(exportAsImageMenuItem);
+		gameMenu.add(exportToPdfMenuItem);
+		gameMenu.addSeparator();
+		gameMenu.add(generateAndExportMenuItem);
 		gameMenu.addSeparator();
 		gameMenu.add(quitMenuItem);
 		
 		final JMenuItem[] menuItems = {newMenuItem, quitMenuItem, openMenuItem, saveMenuItem, 
-				saveAsMenuItem, exportAsImageMenuItem};
+				saveAsMenuItem, exportAsImageMenuItem, exportToPdfMenuItem, generateAndExportMenuItem};
 		gameMenuActionListener = new GameMenuActionHandler(this, board);
 		
 		for(final JMenuItem menuItem : menuItems) {

@@ -116,24 +116,13 @@ public abstract class Fish extends LogicStrategy {
 				sectionIndexes[i] = subsetValues[i] - 1;
 			}
 			
-			final StringBuilder sb = new StringBuilder();
-			sb.append("n-Fish [");
-			sb.append(candidate);
-			sb.append("] located in ");
-			sb.append(rows? "rows" : "columns");
-			sb.append("[");
-			
 			final boolean[] dontFilterMask = new boolean[unit];			
 			for(final int[] row : locationPoints) {
-				sb.append(row[Constants.X]);
 				dontFilterMask[row[Constants.X]] = true;
 			}
-			sb.append("] ");
-			sb.append(getName());
 									
 			final boolean success = remove(candidate, sectionIndexes, dontFilterMask, !rows);
 			if(success) {
-				System.out.println(sb.toString());
 				//Store the found value and it's locations
 				setValuesAndLocations(new int[] {candidate}, locationPoints);
 				return true;

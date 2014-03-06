@@ -41,7 +41,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileFilter;
 
+import com.lowagie.text.DocumentException;
 import com.matic.sudoku.generator.GeneratorResult;
+import com.matic.sudoku.gui.GenerateAndExportWindow;
 import com.matic.sudoku.gui.NewPuzzleWindowOptions;
 import com.matic.sudoku.gui.Puzzle;
 import com.matic.sudoku.gui.board.Board;
@@ -52,7 +54,10 @@ import com.matic.sudoku.io.FileSaveFilter;
 import com.matic.sudoku.io.PuzzleBean;
 import com.matic.sudoku.io.StorageProperties;
 import com.matic.sudoku.io.UnsupportedPuzzleFormatException;
+import com.matic.sudoku.io.export.ExportManager;
+import com.matic.sudoku.io.export.ExporterParameters;
 import com.matic.sudoku.io.export.ImageExporter;
+import com.matic.sudoku.io.export.PdfExporter;
 import com.matic.sudoku.solver.LogicSolver;
 import com.matic.sudoku.solver.LogicSolver.Grading;
 import com.matic.sudoku.util.Algorithms;
@@ -63,7 +68,7 @@ import com.matic.sudoku.util.Algorithms;
  * @author vedran
  *
  */
-class GameMenuActionHandler implements ActionListener, FileOpenHandler {
+class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportManager {
 	
 	private final MainWindow mainWindow;
 	private final Board board;
@@ -93,9 +98,29 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler {
 		case MainWindow.EXPORT_AS_IMAGE_STRING:
 			handleExportAsImage();
 			break;
+		case MainWindow.EXPORT_TO_PDF_STRING:
+			handleExportToPdf();
+			break;
+		case MainWindow.GENERATE_AND_EXPORT_STRING:
+			new GenerateAndExportWindow(mainWindow.window, this);
+			break;
 		case MainWindow.QUIT_STRING:
 			mainWindow.handleQuit();
 			break;
+		}
+	}
+	
+	@Override
+	public void export(final ExporterParameters exporterParameters) {
+		final PdfExporter pdfExporter = new PdfExporter();
+		try {
+			pdfExporter.write(exporterParameters, mainWindow.generator, board.getDimension());
+		} catch (IOException e) {
+			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
+					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+		} catch (DocumentException e) {
+			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while creating the PDF file", "Export error", 
+					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -188,6 +213,25 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler {
 		
 		updateBoard(result);
 		onPuzzleStorageChanged(file);
+	}
+	
+	private void handleExportToPdf() {		
+		final PdfExporter pdfExporter = new PdfExporter();
+		final StorageProperties storageProperties = confirmFileSave(pdfExporter);
+		
+		if(storageProperties == null) {
+			return;
+		}
+		
+		try {
+			pdfExporter.write(getBoardCopy(board), storageProperties.getFile());
+		} catch (DocumentException e) {
+			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while creating the PDF file", "Export error", 
+					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+		} catch (IOException e) {
+			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
+					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	private void handleExportAsImage() {			

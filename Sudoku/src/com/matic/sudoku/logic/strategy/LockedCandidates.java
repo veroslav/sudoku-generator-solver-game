@@ -48,13 +48,9 @@ public class LockedCandidates extends LogicStrategy {
 				//Iterate through candidates
 				for(int k = 1; k <= unit; ++k) {
 					if(checkColumns(k, boxX, boxY)) {
-						//System.out.println("Candidate " + k + " eliminated (Box-Column) in (boxX: " +
-							//boxX + ", boxY: " + boxY + ") [Locked Candidates]");
 						return true;
 					}
 					if(checkRows(k, boxX, boxY)) {
-						//System.out.println("Candidate " + k + " eliminated (Box-Row) in (boxX: " +
-							//boxX + ", boxY: " + boxY + ") [Locked Candidates]");
 						return true;
 					}								
 				}				
@@ -67,8 +63,6 @@ public class LockedCandidates extends LogicStrategy {
 				for(int k = boxX; k < boxX + dimension; ++k) {
 					int lockedInBoxY = getLockedInBoxY(i,k);
 					if(lockedInBoxY != NOT_LOCKED_IN && filterBoxForColumn(i, k, boxX, lockedInBoxY)) {
-						//System.out.println("Candidate " + i + " eliminated (Box-Box: COL) in (boxX: " +
-							//boxX + ", boxY: " + lockedInBoxY + ", col: " + k + ") [Locked Candidates]");
 						return true;
 					}
 				}
@@ -81,8 +75,6 @@ public class LockedCandidates extends LogicStrategy {
 				for(int k = boxY; k < boxY + dimension; ++k) {
 					int lockedInBoxX = getLockedInBoxX(i,k);					
 					if(lockedInBoxX != NOT_LOCKED_IN && filterBoxForRow(i, k, lockedInBoxX, boxY)) {
-						//System.out.println("Candidate " + i + " eliminated (Box-Box: ROW) in (boxX: " +
-							//lockedInBoxX + ", boxY: " + boxY + ", row: " + k + ") [Locked Candidates]");
 						return true;
 					}
 				}
@@ -146,12 +138,10 @@ public class LockedCandidates extends LogicStrategy {
 	}
 	
 	private int getLockedInBoxY(int candidate, int column) {
-		//System.out.println("getLockedInBoxY(" + candidate + ", " + column + ")");
 		int lockedInCount = 0;
 		int lockedInY = 0;
 		for(int i = 0; i < unit; i += dimension) {
 			for(int j = i; j < i + dimension; ++j) {
-				//System.out.println("i = " + i + ", j = " + j);
 				if(candidates.contains(candidate, j, column)) {
 					++lockedInCount;
 					lockedInY = i;
