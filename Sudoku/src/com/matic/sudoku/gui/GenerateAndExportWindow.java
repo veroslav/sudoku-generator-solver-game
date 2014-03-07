@@ -133,6 +133,7 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setContentPane(optionPane);
 		pack();
+		setLocationRelativeTo(parent);
 		setVisible(true);
 	} 
 
