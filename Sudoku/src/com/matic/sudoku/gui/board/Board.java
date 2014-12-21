@@ -244,27 +244,29 @@ public class Board extends JPanel {
 	}
 	
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paintComponent(final Graphics g) {
+		super.paintComponent(g);
 		final Graphics2D g2d = (Graphics2D)g;		
 		
-		draw(g2d, false);
+		draw(g2d, true, true);
 	}
 	
 	/**
 	 * Draw the board contents and optionally exclude elements such as picker 
 	 * (for instance when exporting to a PDF or an image)
 	 * @param g2d Graphics used for drawing
-	 * @param isExported Whether to draw everything on the board
+	 * @param paintBackground Whether to paint the board background
+	 * @param drawPicker Whether to draw cell selection picker
 	 */
-	public void draw(final Graphics2D g2d, final boolean isExported) {
-		if(!isExported) {
+	public void draw(final Graphics2D g2d, final boolean paintBackground, final boolean drawPicker) {
+		if(paintBackground) {
 			drawBackground(g2d);
 		}
 		
 		drawThickLines(g2d);
 		drawInnerLines(g2d);
 		
-		renderCells(g2d, isExported);
+		renderCells(g2d, drawPicker);
 	}
 	
 	public void setDrawingOrigin(final int boardStartX, final int boardStartY) {
@@ -875,7 +877,7 @@ public class Board extends JPanel {
 		g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
-	private void renderCells(final Graphics2D g2d, final boolean isExported) {
+	private void renderCells(final Graphics2D g2d, final boolean drawPicker) {
 		final int cellDistance = cellWidth + innerLineWidth;
 		final int boxDistance = boxWidth + thickLineWidth;
 		int pickerCellX = 0;
@@ -906,7 +908,7 @@ public class Board extends JPanel {
 			}
 		}
 		
-		if(!isExported) {
+		if(drawPicker) {
 			drawPicker(g2d, pickerCellX, pickerCellY);
 		}
 	}

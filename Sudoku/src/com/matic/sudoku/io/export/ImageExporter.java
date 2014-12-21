@@ -86,7 +86,7 @@ public class ImageExporter implements FileSaveFilter {
 				BufferedImage.TYPE_INT_RGB);
 		final Graphics2D g2d = bufferedImage.createGraphics();
 		
-		board.draw(g2d, true);
+		board.draw(g2d, true, false);
 		
 		ImageIO.write(bufferedImage, imageType, targetFile);
 		

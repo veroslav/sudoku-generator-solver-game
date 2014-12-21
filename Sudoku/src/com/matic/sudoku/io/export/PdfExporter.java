@@ -116,7 +116,7 @@ public class PdfExporter implements FileSaveFilter {
 		final int originY = (int)((pageHeight / 2) - (puzzleWidth / 2));
 		
 		board.setDrawingOrigin(originX, originY);
-		board.draw(g2d, true);
+		board.draw(g2d, true, false);
 		
 		contentByte.restoreState();
 		
@@ -194,7 +194,7 @@ public class PdfExporter implements FileSaveFilter {
 					
 					board.setSymbolType(getSymbolType(exporterParameters.getSymbolType()));
 					board.setDrawingOrigin(originX, originY);
-					board.draw(g2d, true);
+					board.draw(g2d, false, false);
 					
 					drawLegend(g2d, getLegendString(exporterParameters.isShowNumbering(), 
 							exporterParameters.isShowGrading(), puzzlesPrinted+1, selectedGrading), originX, originY, puzzleWidth);
