@@ -656,6 +656,10 @@ public class Board extends JPanel {
 			// Mouse pointer outside of the board, don't do anything
 			return null;
 		}
+		
+		// Mouse pointer inside the board, find underlying cell and let cell picker select it
+		setCellPickerCell(mouseX, mouseY);
+		repaint();		
 
 		switch (event.getButton()) {
 		case MouseEvent.BUTTON1:
@@ -1101,6 +1105,36 @@ public class Board extends JPanel {
 				|| (mouseY < boardStartY || mouseY > boardStartY + boardWidth);
 	}
 	
+	private void setCellPickerCell(final int mouseX, final int mouseY) {
+		final int boxDistance = boxWidth + thickLineWidth;
+		//Find the correct column index
+		for (int i = 0, x = boardStartX + boxDistance; i < dimension; ++i, x += boxDistance) {
+			if(mouseX < x) {
+				//We found the right box, look for right cell's column index
+				cellPickerCol = getColIndexForCell(mouseX, x - boxWidth, i);					
+				break;
+			}
+		}
+		//Find the correct row index
+		for (int i = 0, y = boardStartY + boxDistance; i < dimension; ++i, y += boxDistance) {
+			if(mouseY < y) {
+				//We found the right box, look for right cell's row index
+				cellPickerRow = getRowIndexForCell(mouseY, y - boxWidth, i);					
+				break;
+			}
+		}			
+	}
+	
+	private int getColIndexForCell(final int mouseX, final int boxBeginX, final int boxIndex) {
+		final int index = boxIndex * dimension + ((mouseX - boxBeginX) / (cellWidth + innerLineWidth));
+		return index >= unit? unit - 1 : index;
+	}
+	
+	private int getRowIndexForCell(final int mouseY, final int boxBeginY, final int boxIndex) {
+		final int index = boxIndex * dimension + ((mouseY - boxBeginY) / (cellWidth + innerLineWidth));
+		return index >= unit? unit - 1 : index;
+	}
+	
 	/**
 	 * A handler for mouse motion events, used for selecting underlying board
 	 * cells
@@ -1118,36 +1152,6 @@ public class Board extends JPanel {
 			// Mouse pointer inside the board, find underlying cell and let cell picker select it
 			setCellPickerCell(mouseX, mouseY);
 			repaint();		
-		}
-		
-		private void setCellPickerCell(final int mouseX, final int mouseY) {
-			final int boxDistance = boxWidth + thickLineWidth;
-			//Find the correct column index
-			for (int i = 0, x = boardStartX + boxDistance; i < dimension; ++i, x += boxDistance) {
-				if(mouseX < x) {
-					//We found the right box, look for right cell's column index
-					cellPickerCol = getColIndexForCell(mouseX, x - boxWidth, i);					
-					break;
-				}
-			}
-			//Find the correct row index
-			for (int i = 0, y = boardStartY + boxDistance; i < dimension; ++i, y += boxDistance) {
-				if(mouseY < y) {
-					//We found the right box, look for right cell's row index
-					cellPickerRow = getRowIndexForCell(mouseY, y - boxWidth, i);					
-					break;
-				}
-			}			
-		}
-		
-		private int getColIndexForCell(final int mouseX, final int boxBeginX, final int boxIndex) {
-			final int index = boxIndex * dimension + ((mouseX - boxBeginX) / (cellWidth + innerLineWidth));
-			return index >= unit? unit - 1 : index;
-		}
-		
-		private int getRowIndexForCell(final int mouseY, final int boxBeginY, final int boxIndex) {
-			final int index = boxIndex * dimension + ((mouseY - boxBeginY) / (cellWidth + innerLineWidth));
-			return index >= unit? unit - 1 : index;
 		}
 	}
 }

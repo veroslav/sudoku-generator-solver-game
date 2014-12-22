@@ -224,7 +224,7 @@ public class MainWindow {
 		board.addComponentListener(new BoardResizeListener());
 		board.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent event) {				
+			public void mouseClicked(final MouseEvent event) {				
 				final UndoableBoardEntryAction undoableAction = board.handleMouseClicked(event, 
 						!puzzle.isSolved(), focusButton.isSelected());
 				handleUndoableAction(undoableAction);
