@@ -341,7 +341,7 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 	private JPanel buildGeneratorOptionsPanel() {
 		final JPanel panel = new JPanel(new GridLayout(5,2));
 		
-		panel.add(new JLabel("Create: "));
+		panel.add(new JLabel("Grid type: "));
 		panel.add(puzzleTypeCombo);
 		panel.add(new JLabel("Number of puzzles to create: "));
 		panel.add(puzzleCountField);
