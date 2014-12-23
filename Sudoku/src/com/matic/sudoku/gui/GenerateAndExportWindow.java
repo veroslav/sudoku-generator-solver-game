@@ -61,9 +61,7 @@ import com.matic.sudoku.solver.LogicSolver.Grading;
  *
  */
 
-public class GenerateAndExportWindow extends JDialog implements ActionListener, PropertyChangeListener {
-
-	private static final long serialVersionUID = 1L;
+public class GenerateAndExportWindow implements ActionListener, PropertyChangeListener {
 	
 	private static final String RANDOM_STRING = "Random";
 	
@@ -87,9 +85,11 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 	
 	private final String exportButtonLabel = "Export";
     private final String cancelButtonLabel = "Cancel";
+    
+    private final JDialog dialog;
 
 	public GenerateAndExportWindow(final JFrame parent, final ExportManager exportManager) {		
-		super(parent, "Generate and Export", true);
+		dialog = new JDialog(parent, "Generate and Export", true);
 		this.exportManager = exportManager;
 		puzzleCountField = new JTextField();
 		puzzleCountField.setText("10");
@@ -123,18 +123,18 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 				null, optionPaneOptions, optionPaneOptions[0]);
 		optionPane.addPropertyChangeListener(this);
 		
-		addWindowListener(new WindowAdapter() {
+		dialog.addWindowListener(new WindowAdapter() {
 			@Override
             public void windowClosing(final WindowEvent windowEvent) {
                 optionPane.setValue(JOptionPane.CLOSED_OPTION);
 			}
 		});
 		
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setContentPane(optionPane);
-		pack();
-		setLocationRelativeTo(parent);
-		setVisible(true);
+		dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		dialog.setContentPane(optionPane);
+		dialog.pack();
+		dialog.setLocationRelativeTo(parent);
+		dialog.setVisible(true);
 	} 
 
 	@Override
@@ -151,7 +151,7 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		final String propertyName = event.getPropertyName();
-		if(isVisible() && event.getSource() == optionPane && (JOptionPane.VALUE_PROPERTY.equals(propertyName) ||
+		if(dialog.isVisible() && event.getSource() == optionPane && (JOptionPane.VALUE_PROPERTY.equals(propertyName) ||
 	             JOptionPane.INPUT_VALUE_PROPERTY.equals(propertyName))) {
 			final Object selectedValue = optionPane.getValue();
 			
@@ -164,13 +164,13 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 			if(exportButtonLabel.equals(selectedValue)) {
 				//Validate player input before closing and notifying the listener(s)
 				if(validateInput()) {
-					dispose();
+					dialog.dispose();
 					exportManager.export(collectExporterParameters());
 				}
 			}
 			else {
 				//Player closed the window				
-				dispose();
+				dialog.dispose();
 			}
 		}
 	}
@@ -227,7 +227,7 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 		//Set default file save format
 		saveAsChooser.setFileFilter(pdfFileFilter);
 		
-		final int choice = saveAsChooser.showSaveDialog(this);
+		final int choice = saveAsChooser.showSaveDialog(dialog);
 		
 		if(choice != JFileChooser.APPROVE_OPTION) {
 			return;
@@ -254,14 +254,14 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 		//Validate output file path
 		final String outputPath = outputPathField.getText();
 		if(outputPath == null || outputPath.trim().length() == 0) {
-			JOptionPane.showMessageDialog(this, "An output file must be selected.", "Missing input", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(dialog, "An output file must be selected.", "Missing input", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		
 		//Check if it is ok to overwrite an existing file
 		final File targetFile = new File(outputPath);
 		if(targetFile.exists()) {
-			final int overwriteFile = JOptionPane.showConfirmDialog(this, "The file already exists. Overwrite?", 
+			final int overwriteFile = JOptionPane.showConfirmDialog(dialog, "The file already exists. Overwrite?", 
 					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(overwriteFile != JOptionPane.YES_OPTION) {
 				return false;
@@ -271,13 +271,13 @@ public class GenerateAndExportWindow extends JDialog implements ActionListener, 
 		try {
 			final int puzzleCount = Integer.parseInt(puzzleCountField.getText());
 			if(puzzleCount < 1) {
-				JOptionPane.showMessageDialog(this, "Number of puzzles to generate must be greater than zero.", 
+				JOptionPane.showMessageDialog(dialog, "Number of puzzles to generate must be greater than zero.", 
 						"Invalid input", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 		}
 		catch(final NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(this, "Number of puzzles to generate must be an integer.", 
+			JOptionPane.showMessageDialog(dialog, "Number of puzzles to generate must be an integer.", 
 					"Invalid input", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
