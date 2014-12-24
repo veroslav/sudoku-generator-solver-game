@@ -65,9 +65,23 @@ class EditMenuActionHandler implements ActionListener {
 			handlePasteAction();
 			break;	
 		case MainWindow.CLEAR_COLORS_STRING:
-			board.clearColorSelections();
+			handleClearColorsAction();
 			break;
 		}
+	}
+	
+	private void handleClearColorsAction() {
+		final String message = "Are you sure you want to clear all cells' colors?";
+		final String title = "Confirm color edit";
+		final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
+				message, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if (choice != JOptionPane.YES_OPTION) {
+			return;
+		}
+		board.clearColorSelections();
+		mainWindow.undoManager.undoColorEntries();			
+		mainWindow.updateUndoControls();
 	}
 		
 	private void handleCopyAction() {

@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
+import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
 import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
 
 /**
@@ -78,13 +79,20 @@ class UndoActionHandler implements ActionListener {
 	
 	private void updateGui(final UndoableBoardEntryAction undoAction) {
 		mainWindow.updateUndoControls();
-		mainWindow.flagWrongEntriesForBoardAction(undoAction);
-		checkUpdateCandidatesNeeded(undoAction);
-	}
-	
-	private void checkUpdateCandidatesNeeded(final UndoableBoardEntryAction undoAction) {
-		if(mainWindow.focusButton.isSelected() && undoAction instanceof UndoableCellValueEntryAction) {
-			mainWindow.symbolButtonActionHandler.updateCandidates();
+		
+		//If flagging wrong entries is on, set appropriate font color of the target cell
+		if(undoAction instanceof UndoableCellValueEntryAction) {
+			final String actionName = undoAction.getPresentationName();
+			if(mainWindow.flagWrongEntriesMenuItem.isSelected() &&
+				!UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME.equals(actionName)) {
+				mainWindow.flagWrongEntriesForBoardAction(undoAction);
+			}
+			if(mainWindow.focusButton.isSelected() && undoAction instanceof UndoableCellValueEntryAction) {
+				mainWindow.symbolButtonActionHandler.updateCandidates();
+			}
+		}			
+		else if(undoAction instanceof UndoableColorEntryAction) {
+			mainWindow.clearColorsMenuItem.setEnabled(UndoableColorEntryAction.hasInstances());
 		}
 	}
 	

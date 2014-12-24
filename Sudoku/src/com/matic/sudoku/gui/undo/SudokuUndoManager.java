@@ -33,7 +33,7 @@ public class SudokuUndoManager extends UndoManager {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public UndoableEdit editToBeRedone() {
+	public UndoableEdit editToBeRedone() {		
 		return super.editToBeRedone();
 	}
 
@@ -42,5 +42,18 @@ public class SudokuUndoManager extends UndoManager {
 		return super.editToBeUndone();
 	}
 
-	
+	/**
+	 * Remove all UndoableColorEntryAction edits from undo queue.
+	 */
+	public void undoColorEntries() {		
+		for(int i = 0; i < edits.size(); ++i) {
+			final UndoableEdit edit = edits.elementAt(i);
+			
+			if(edit instanceof UndoableColorEntryAction) {
+				super.trimEdits(i, i);
+				--i;
+			}
+		}
+		UndoableColorEntryAction.resetInstanceCounter();
+	}
 }

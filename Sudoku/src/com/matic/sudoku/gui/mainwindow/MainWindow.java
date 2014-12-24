@@ -60,6 +60,7 @@ import com.matic.sudoku.gui.dnd.DragAndDropHandler;
 import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
+import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.DlxSolver;
 import com.matic.sudoku.solver.LogicSolver;
@@ -85,10 +86,10 @@ public class MainWindow {
 	static final String GENERATE_AND_EXPORT_STRING = "Generate and Export...";
 	static final String EXPORT_TO_PDF_STRING = "Export to PDF...";
 	static final String EXPORT_AS_IMAGE_STRING = "Export as Image...";
-	static final String SHOW_COLORS_TOOLBAR_STRING = "Color selection toolbar";
+	static final String SHOW_COLORS_TOOLBAR_STRING = "Cell colors toolbar";
 	static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
 	static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
-	static final String CLEAR_COLORS_STRING = "Clear color selections";
+	static final String CLEAR_COLORS_STRING = "Clear cell colors";
 	static final String GIVE_CLUE_STRING = "Give clue";
 	static final String NEW_STRING = "New...";
 	static final String OPEN_STRING = "Open...";
@@ -136,6 +137,7 @@ public class MainWindow {
 	final JMenuItem saveMenuItem;
 	final JMenuItem undoMenuItem;
 	final JMenuItem redoMenuItem;
+	final JMenuItem clearColorsMenuItem;
 	final JToolBar colorsToolBar;
 	final JFrame window;
 	final Puzzle puzzle;
@@ -177,11 +179,12 @@ public class MainWindow {
 		
 		undoManager = new SudokuUndoManager();				
 		
+		clearColorsMenuItem = new JMenuItem(CLEAR_COLORS_STRING);
 		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
 		verifyMenuItem = new JMenuItem(VERIFY_STRING);
 		checkMenuItem = new JMenuItem(CHECK_STRING);
 		solveMenuItem = new JMenuItem(SOLVE_STRING);
-		saveMenuItem = new JMenuItem(SAVE_STRING);
+		saveMenuItem = new JMenuItem(SAVE_STRING);		
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
 		undoMenuItem = new JMenuItem(undoManager.getUndoPresentationName());
 		
@@ -541,7 +544,7 @@ public class MainWindow {
 		final JMenuItem pasteMenuItem = new JMenuItem(PASTE_STRING);
 		pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
 		
-		final JMenuItem clearColorsMenuItem = new JMenuItem(CLEAR_COLORS_STRING);
+		clearColorsMenuItem.setEnabled(false);
 		
 		final JMenuItem[] editMenuItems = {copyMenuItem, pasteMenuItem, clearColorsMenuItem};		
 		
@@ -625,28 +628,27 @@ public class MainWindow {
 		
 		undoMenuItem.setText(undoManager.getUndoPresentationName());
 		redoMenuItem.setText(undoManager.getRedoPresentationName());
+		
+		clearColorsMenuItem.setEnabled(UndoableColorEntryAction.hasInstances());
 	}
 	
 	void flagWrongEntriesForBoardAction(final UndoableBoardEntryAction boardAction) {
-		if(!board.isVerified() || !flagWrongEntriesMenuItem.isSelected()) {
+		if(!board.isVerified()) {
 			return;
 		}
-		final String actionName = boardAction.getPresentationName();
-		if(UndoableCellValueEntryAction.DELETE_SYMBOL_PRESENTATION_NAME.equals(actionName) ||
-				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME.equals(actionName)) {
-			final int columnIndex = boardAction.getColumn();
-			final int rowIndex = boardAction.getRow();
-			final int cellIndex = rowIndex * unit + columnIndex;
-			final int newCellValue = board.getCellValue(rowIndex, columnIndex);
-			if(newCellValue != 0 && puzzle.getSolution()[cellIndex] != newCellValue) {
-				//A wrong symbol has been entered
-				board.setCellFontColor(rowIndex, columnIndex, Board.ERROR_FONT_COLOR);
-			}
-			else {
-				//Either a correct new value was entered or previous cell value was deleted
-				board.setCellFontColor(rowIndex, columnIndex, Board.NORMAL_FONT_COLOR);
-			}
+		
+		final int columnIndex = boardAction.getColumn();
+		final int rowIndex = boardAction.getRow();
+		final int cellIndex = rowIndex * unit + columnIndex;
+		final int newCellValue = board.getCellValue(rowIndex, columnIndex);
+		if(newCellValue != 0 && puzzle.getSolution()[cellIndex] != newCellValue) {
+			//A wrong symbol has been entered
+			board.setCellFontColor(rowIndex, columnIndex, Board.ERROR_FONT_COLOR);
 		}
+		else {
+			//Either a correct new value was entered or previous cell value was deleted
+			board.setCellFontColor(rowIndex, columnIndex, Board.NORMAL_FONT_COLOR);
+		}		
 	}
 	
 	//Check if player has solved a puzzle on each cell value modification (keyboard and mouse actions)
@@ -705,8 +707,9 @@ public class MainWindow {
 		board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 	}
 	
-	void clearUndoableActions() {
-		undoManager.discardAllEdits();
+	void clearUndoableActions() {		
+		UndoableColorEntryAction.resetInstanceCounter();
+		undoManager.discardAllEdits();		
 		updateUndoControls();
 	}
 	
@@ -714,15 +717,24 @@ public class MainWindow {
 		if(undoableAction != null) {
 			//Possible to undo this key action, add it to the undo manager
 			registerUndoableAction(undoableAction);
-			//If flagging wrong entries is on, set appropriate font color of the target cell
-			if(flagWrongEntriesMenuItem.isSelected()) {
-				flagWrongEntriesForBoardAction(undoableAction);
-			}
-			//Check whether the player possibly completed the puzzle
-			checkPuzzleSolutionForBoardAction(undoableAction);
-			//Check whether candidates need to be updated when focus is ON
-			if(focusButton.isSelected() && undoableAction instanceof UndoableCellValueEntryAction) {
-				symbolButtonActionHandler.updateCandidates();
+						
+			if(undoableAction instanceof UndoableCellValueEntryAction) {
+				final String actionName = undoableAction.getPresentationName();
+				
+				//If flagging wrong entries is on, set appropriate font color of the target cell
+				if(!UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME.equals(actionName) && 
+						flagWrongEntriesMenuItem.isSelected()) {
+					flagWrongEntriesForBoardAction(undoableAction);
+				}
+				//Check whether the player possibly completed the puzzle
+				checkPuzzleSolutionForBoardAction(undoableAction);
+				//Check whether candidates need to be updated when focus is ON
+				if(focusButton.isSelected()) {
+					symbolButtonActionHandler.updateCandidates();
+				}
+			}	
+			else if(undoableAction instanceof UndoableColorEntryAction) {
+				clearColorsMenuItem.setEnabled(true);
 			}
 		}
 	}
