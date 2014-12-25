@@ -438,17 +438,24 @@ public class Board extends JPanel {
 	/**
 	 * Set previously stored cell background color indexes
 	 * @param colors Colors to set
+	 * @return Whether any cell color differs from default color (white)
 	 */
-	public void setColorSelections(final int[] colorsSelections) {
+	public boolean setColorSelections(final int[] colorsSelections) {
 		int colorIndex = 0;
+		boolean colorsApplied = false;
 		
 		for(int i = 0; i < unit; ++i) {
 			for(int j = 0; j < unit; ++j) {
-				 cells[j][i].setBackgroundColorIndex(colorsSelections[colorIndex++]);
+				final int currentColorIndex = colorsSelections[colorIndex++]; 
+				cells[j][i].setBackgroundColorIndex(currentColorIndex);
+				if(currentColorIndex != Cell.DEFAULT_BACKGROUND_COLOR_INDEX) {
+					colorsApplied = true;
+				}
 			}
 		}
 		
 		repaint();
+		return colorsApplied;
 	}
 	
 	/**
@@ -666,7 +673,7 @@ public class Board extends JPanel {
 			// Left-button click (either digit or color selection entry)			
 			if(event.isControlDown()) {
 				//Control button was down when mouse was clicked, color selection entry
-				return handleColorSelection();				
+				return allowEditing? handleColorSelection() : null;				
 			}
 			else {
 				//Control button was not pressed, a simple digit entry				

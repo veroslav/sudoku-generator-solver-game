@@ -31,8 +31,10 @@ import java.util.BitSet;
  */
 public class Cell {
 	
+	protected static final int DEFAULT_BACKGROUND_COLOR_INDEX = 0;
+	
 	//This cell's background color index (default white)
-	private int backgroundColorIndex = 0;
+	private int backgroundColorIndex = Cell.DEFAULT_BACKGROUND_COLOR_INDEX;
 		
 	//This cell's font color (default black)
 	private Color fontColor = Board.NORMAL_FONT_COLOR;

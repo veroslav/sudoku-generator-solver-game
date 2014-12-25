@@ -48,6 +48,7 @@ import com.matic.sudoku.gui.NewPuzzleWindowOptions;
 import com.matic.sudoku.gui.Puzzle;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.gui.board.Board.SymbolType;
+import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
 import com.matic.sudoku.io.FileFormatManager;
 import com.matic.sudoku.io.FileFormatManager.FormatType;
 import com.matic.sudoku.io.FileSaveFilter;
@@ -141,9 +142,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			board.setPencilmarks(pencilmarks);
 		}	
 		
-		if(colors != null) {
-			board.setColorSelections(colors);
-		}
+		final boolean hasColorsApplied = colors != null? board.setColorSelections(colors) : false;		
 		
 		final BitSet givens = result.getGivens(); 
 		if(givens != null && givens.cardinality() > 0) {
@@ -190,7 +189,11 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		mainWindow.puzzleMenuActionListener.handleFlagWrongEntriesAction();
 		mainWindow.puzzle.setFormatType(result.getFormatType());
-		mainWindow.clearUndoableActions();				
+		
+		final boolean enableColorReset = hasColorsApplied || UndoableColorEntryAction.hasInstances();
+		
+		mainWindow.clearUndoableActions();			
+		mainWindow.clearColorsMenuItem.setEnabled(enableColorReset);
 		board.repaint();
 	}
 	

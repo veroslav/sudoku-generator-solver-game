@@ -101,7 +101,7 @@ class EditMenuActionHandler implements ActionListener {
 		}	
 		
 		// Warn player about board contents being replaced
-		if (board.isVerified()) {
+		if(board.isVerified()) {
 			final String message = "Are you sure you want to replace board contents?";
 			final String title = "Confirm replace";
 			final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
@@ -116,11 +116,11 @@ class EditMenuActionHandler implements ActionListener {
 		PuzzleBean puzzleBean = null;
 		try {
 			puzzleBean = fileFormatManager.fromString(clipboardContents);
-		} catch (IOException e) {
+		} catch(final IOException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, "Invalid clipboard content", "Paste",
 					JOptionPane.ERROR_MESSAGE);
 			return;
-		} catch (UnsupportedPuzzleFormatException e) {
+		} catch(final UnsupportedPuzzleFormatException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), "Paste",
 					JOptionPane.ERROR_MESSAGE);
 			return;
@@ -144,7 +144,7 @@ class EditMenuActionHandler implements ActionListener {
 		try {
 			result = ((String)contents.getTransferData(DataFlavor.stringFlavor)).trim();
 		}
-		catch(UnsupportedFlavorException | IOException ex) {
+		catch(final UnsupportedFlavorException | IOException ex) {
 			//Should never occur, as we check contents for stringFlavor before casting
 			System.err.println("An exception occured while getting the clipboard contents");
 			ex.printStackTrace();

@@ -676,6 +676,7 @@ public class MainWindow {
 		checkMenuItem.setEnabled(false);
 		
 		clearUndoableActions();
+		clearColorsMenuItem.setEnabled(false);
 		
 		undoMenuItem.setEnabled(false);
 		undoMenuItem.setText(undoManager.getUndoPresentationName());
