@@ -25,9 +25,18 @@ The following features are currently implemented:
 - Copy a puzzle from and paste to the board
 - Resizable game board
 
-The following features are planned:
+The following features are planned for version 1.1:
 
+- Always offer to save changes when a puzzle has been modified
+- Any combination of difficulty and symmetry settings when generating and exporting
+- Show progress when generating and exporting puzzles
+- Display legend below puzzles when exporting to PDF
+- Export grids with pencilmarks already filled in
+- Offer to also print solutions when generating and exporting puzzles
+- Show hints for how the next solution step can be revealed
+- Show time taken to solve a puzzle
+- Autofill candidates for a puzzle
+- Candidate focus color highlighting
+- Add about window
 - Print puzzles
 - User guide
-- Show time taken to solve a puzzle
-- Explain how the next solution step can be revealed
