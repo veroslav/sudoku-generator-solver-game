@@ -125,7 +125,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 	}
 	
-	void updateBoard(final PuzzleBean result) {		
+	protected void updateBoard(final PuzzleBean result) {		
 		final BitSet[][] pencilmarks = result.getPencilmarks();
 		final Map<String, String> headers = result.getHeaders();
 		final int[] colors = result.getColors();
@@ -253,7 +253,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 	}
 	
-	private void handleSave() {
+	protected void handleSave() {
 		final File targetFile = mainWindow.puzzle.getFileStorage();
 		if(targetFile == null) {
 			//Puzzle has not been saved before, show "Save as"-dialog
@@ -391,7 +391,17 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		mainWindow.puzzle.setCreationDate(creationDate.getTime());
 		mainWindow.puzzle.setUrlSource(headers.get("U"));
 		mainWindow.puzzle.setCreationSource(headers.get("S"));
-		mainWindow.puzzle.setGrading(Grading.fromString(headers.get("L")));
+		
+		final String gradingString = headers.get("L");
+		if(gradingString != null) {
+			try {
+				mainWindow.puzzle.setGrading(Grading.fromString(gradingString));
+			}
+			catch(final IllegalArgumentException iae) {
+				mainWindow.puzzle.setGrading(null);
+			}
+		}
+		
 		mainWindow.puzzle.setPlayTime(playTime);
 	}
 	
@@ -407,7 +417,11 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			headers.put("C", mainWindow.puzzle.getComment());			
 			headers.put("U", mainWindow.puzzle.getUrlSource());
 			headers.put("S", mainWindow.puzzle.getCreationSource());
-			headers.put("L", mainWindow.puzzle.getGrading().getDescription());
+			
+			final Grading grading = mainWindow.puzzle.getGrading();
+			if(grading != null) {
+				headers.put("L", grading.getDescription());
+			}
 			
 			if(formatType == FormatType.SUDOCUE_SUDOKU) {
 				headers.put("H", String.valueOf(board.getGivens().cardinality()));
