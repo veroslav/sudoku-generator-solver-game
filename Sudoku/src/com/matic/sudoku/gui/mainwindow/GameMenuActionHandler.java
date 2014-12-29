@@ -253,16 +253,17 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 	}
 	
-	protected void handleSave() {
+	protected boolean handleSave() {
 		final File targetFile = mainWindow.puzzle.getFileStorage();
 		if(targetFile == null) {
 			//Puzzle has not been saved before, show "Save as"-dialog
-			handleSaveAs();
+			return handleSaveAs();
 		}
 		else {
 			//Puzzle has been saved previously, write to the existing file
 			writeFile(targetFile, getPuzzleBean(mainWindow.puzzle.getFormatType()));
 		}
+		return true;
 	}
 	
 	private void handleOpen() {
@@ -283,7 +284,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		openFile(puzzleFile);
 	}
 	
-	private void handleSaveAs() {
+	private boolean handleSaveAs() {
 		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileSaveFilters();
 		final JFileChooser saveAsChooser = new JFileChooser();
 		
@@ -297,7 +298,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		final int choice = saveAsChooser.showSaveDialog(mainWindow.window);
 		
 		if(choice != JFileChooser.APPROVE_OPTION) {
-			return;
+			return false;
 		}
 		
 		File targetFile = saveAsChooser.getSelectedFile();
@@ -305,7 +306,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
 					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(overwriteFile != JOptionPane.YES_OPTION) {
-				return;
+				return false;
 			}
 		}
 		
@@ -321,6 +322,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 								
 		mainWindow.puzzle.setFormatType(formatType);
 		onPuzzleStorageChanged(targetFile);
+		return true;
 	}
 	
 	private StorageProperties confirmFileSave(final FileSaveFilter savable) {
@@ -456,7 +458,13 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 	}
 	
-	private void handleNewPuzzle() {
+	private void handleNewPuzzle() {	
+		//Check whether previous puzzle, if any, needs to be saved
+		final boolean modificationSaved = handleOldPuzzleModifications();
+		if(!modificationSaved) {
+			return;
+		}
+		
 		final NewPuzzleWindowOptions newPuzzleWindowOptions = new NewPuzzleWindowOptions();
 		final String title = "New puzzle";
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, newPuzzleWindowOptions.getOptionsPanel(), 
@@ -480,7 +488,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 				return;
 			}
 		}
-		if(generatorResult != null || newPuzzleWindowOptions.isFromEmptyBoard()) {
+		if(generatorResult != null || newPuzzleWindowOptions.isFromEmptyBoard()) {						
 			final SymbolType currentSymbolType = board.getSymbolType();
 			final SymbolType newSymbolType = newPuzzleWindowOptions.getSelectedSymbolType();
 			
@@ -520,16 +528,27 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			mainWindow.puzzle.setComment(null);			
 			mainWindow.puzzle.setCreationDate(new Date());
 			mainWindow.puzzle.setUrlSource(Puzzle.DEFAULT_URL_SOURCE);			
-			mainWindow.puzzle.setCreationSource(Puzzle.DEFAULT_AUTHOR);			
+			mainWindow.puzzle.setCreationSource(Puzzle.DEFAULT_AUTHOR);	
+			mainWindow.puzzle.setModified(false);
 			
 			onPuzzleStorageChanged(null);
 		} 
 	}
 	
+	private boolean handleOldPuzzleModifications() {		
+		if(mainWindow.puzzle.isModified()) {
+			final boolean modificationsSaved = mainWindow.handlePuzzleModification("Save changes?");
+			mainWindow.updateWindowTitle();
+			return modificationsSaved;
+		}
+		
+		return true;
+	}
+	
 	private void onPuzzleStorageChanged(final File fileStorage) {
 		mainWindow.puzzle.setFileStorage(fileStorage);
 		mainWindow.saveMenuItem.setEnabled(mainWindow.puzzle.isSaved());
-		mainWindow.window.setTitle(mainWindow.getWindowTitle());
+		mainWindow.updateWindowTitle();
 	}
 	
 	private void setSymbolButtonNames(final JToggleButton[] buttons, final String[] labels) {

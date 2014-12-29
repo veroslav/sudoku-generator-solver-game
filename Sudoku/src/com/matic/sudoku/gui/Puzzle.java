@@ -59,12 +59,14 @@ public class Puzzle {
 		
 	private final Board board;
 	private int[] solution;
+	private boolean modified;
 	private boolean solved;
 	
 	public Puzzle(final Board board) {
 		this.board = board;
 		solution = null;
 		fileStorage = null;
+		modified = false;
 		solved = false;
 		playTime = 0;
 						
@@ -77,6 +79,14 @@ public class Puzzle {
 		grading = null;
 	}	
 	
+	public boolean isModified() {
+		return modified;
+	}
+
+	public void setModified(final boolean modified) {
+		this.modified = modified;
+	}
+
 	public long getPlayTime() {
 		return playTime;
 	}

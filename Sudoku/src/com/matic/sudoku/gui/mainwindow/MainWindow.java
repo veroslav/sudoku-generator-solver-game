@@ -83,28 +83,28 @@ public class MainWindow {
 	private static final String VIEW_MENU = "View";
 	
 	//Menu options strings
-	static final String GENERATE_AND_EXPORT_STRING = "Generate and Export...";
-	static final String EXPORT_TO_PDF_STRING = "Export to PDF...";
-	static final String EXPORT_AS_IMAGE_STRING = "Export as Image...";
-	static final String SHOW_COLORS_TOOLBAR_STRING = "Cell colors toolbar";
-	static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
-	static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
-	static final String CLEAR_COLORS_STRING = "Clear cell colors";
-	static final String GIVE_CLUE_STRING = "Give clue";
-	static final String NEW_STRING = "New...";
-	static final String OPEN_STRING = "Open...";
-	static final String SAVE_AS_STRING = "Save As...";
-	static final String SAVE_STRING = "Save";
-	static final String VERIFY_STRING = "Verify";
-	static final String CHECK_STRING = "Check";
-	static final String RESET_STRING = "Reset";
-	static final String COPY_STRING = "Copy";
-	static final String PASTE_STRING = "Paste";
-	static final String QUIT_STRING = "Quit";
-	static final String SOLVE_STRING = "Solve";
+	protected static final String GENERATE_AND_EXPORT_STRING = "Generate and Export...";
+	protected static final String EXPORT_TO_PDF_STRING = "Export to PDF...";
+	protected static final String EXPORT_AS_IMAGE_STRING = "Export as Image...";
+	protected static final String SHOW_COLORS_TOOLBAR_STRING = "Cell colors toolbar";
+	protected static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
+	protected static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
+	protected static final String CLEAR_COLORS_STRING = "Clear cell colors";
+	protected static final String GIVE_CLUE_STRING = "Give clue";
+	protected static final String NEW_STRING = "New...";
+	protected static final String OPEN_STRING = "Open...";
+	protected static final String SAVE_AS_STRING = "Save As...";
+	protected static final String SAVE_STRING = "Save";
+	protected static final String VERIFY_STRING = "Verify";
+	protected static final String CHECK_STRING = "Check";
+	protected static final String RESET_STRING = "Reset";
+	protected static final String COPY_STRING = "Copy";
+	protected static final String PASTE_STRING = "Paste";
+	protected static final String QUIT_STRING = "Quit";
+	protected static final String SOLVE_STRING = "Solve";
 	
 	//Other String constants
-	static final String FOCUS_OFF_TOOLTIP_TEXT = "<html>Click in a cell to assign it this value." +
+	protected static final String FOCUS_OFF_TOOLTIP_TEXT = "<html>Click in a cell to assign it this value." +
 			"<br/>Right-click to enter a pencilmark.</html>";
 	static final String FOCUS_ON_TOOLTIP_TEXT = "Click to toggle focus on this candidate";
 	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = "Enable or disable candidate focus";
@@ -114,48 +114,49 @@ public class MainWindow {
 	private static final String FOCUS_ALL_BUTTON_TEXT = "All";
 	
 	private static final String WINDOW_TITLE_SEPARATOR = " - ";
+	private static final String PUZZLE_MODIFIED_INDICATOR = "*";
 		
 	private static final int BOARD_DIMENSION_3x3 = 3;
 	
 	//How many times we let the generator try to create a new puzzle before failing
 	private static final int MAX_GENERATOR_ITERATIONS = 100;
 			
-	final BruteForceSolver bruteForceSolver;
-	final LogicSolver logicSolver;
-	final Generator generator;
+	protected final BruteForceSolver bruteForceSolver;
+	protected final LogicSolver logicSolver;
+	protected final Generator generator;
 	
-	final JCheckBoxMenuItem showSymbolsToolBarMenuItem;
-	final JCheckBoxMenuItem showColorsToolBarMenuItem;
-	final JCheckBoxMenuItem flagWrongEntriesMenuItem;
+	protected final JCheckBoxMenuItem showSymbolsToolBarMenuItem;
+	protected final JCheckBoxMenuItem showColorsToolBarMenuItem;
+	protected final JCheckBoxMenuItem flagWrongEntriesMenuItem;
 		
-	final JToolBar symbolsToolBar;
+	protected final JToolBar symbolsToolBar;
 	
 	private final JMenuItem giveClueMenuItem;
-	final JMenuItem verifyMenuItem;
-	final JMenuItem checkMenuItem;	
-	final JMenuItem solveMenuItem;
-	final JMenuItem saveMenuItem;
-	final JMenuItem undoMenuItem;
-	final JMenuItem redoMenuItem;
-	final JMenuItem clearColorsMenuItem;
-	final JToolBar colorsToolBar;
-	final JFrame window;
-	final Puzzle puzzle;
+	protected final JMenuItem verifyMenuItem;
+	protected final JMenuItem checkMenuItem;	
+	protected final JMenuItem solveMenuItem;
+	protected final JMenuItem saveMenuItem;
+	protected final JMenuItem undoMenuItem;
+	protected final JMenuItem redoMenuItem;
+	protected final JMenuItem clearColorsMenuItem;
+	protected final JToolBar colorsToolBar;
+	protected final JFrame window;
+	protected final Puzzle puzzle;
 	
-	SymbolButtonActionHandler symbolButtonActionHandler;
-	PuzzleMenuActionHandler puzzleMenuActionListener;
-	GameMenuActionHandler gameMenuActionListener;
+	protected SymbolButtonActionHandler symbolButtonActionHandler;
+	protected PuzzleMenuActionHandler puzzleMenuActionListener;
+	protected GameMenuActionHandler gameMenuActionListener;
 	
-	JToggleButton[] symbolButtons;
-	final JToggleButton focusAllButton;	
-	final JToggleButton focusButton;		
-	final ButtonGroup symbolButtonsGroup;
+	protected JToggleButton[] symbolButtons;
+	protected final JToggleButton focusAllButton;	
+	protected final JToggleButton focusButton;		
+	protected final ButtonGroup symbolButtonsGroup;
 	
-	final SudokuUndoManager undoManager;	
+	protected final SudokuUndoManager undoManager;	
 	private final Board board;
 		
-	int dimension;
-	int unit;		
+	protected int dimension;
+	protected int unit;		
 	
 	public MainWindow() {
 		dimension = BOARD_DIMENSION_3x3;
@@ -197,7 +198,7 @@ public class MainWindow {
 		
 		setPuzzleVerified(false);
 		
-		window = new JFrame(getWindowTitle());
+		window = new JFrame();
 		initWindow(window);
 	}
 	
@@ -205,8 +206,9 @@ public class MainWindow {
 		window.setVisible(visible);
 	}
 	
-	String getWindowTitle() {
-		return Constants.APPLICATION_NAME + WINDOW_TITLE_SEPARATOR + puzzle.getName();
+	protected void updateWindowTitle() {
+		window.setTitle(Constants.APPLICATION_NAME + MainWindow.WINDOW_TITLE_SEPARATOR + puzzle.getName() +
+				(puzzle.isModified()? MainWindow.PUZZLE_MODIFIED_INDICATOR : ""));
 	}
 	
 	private void initWindow(final JFrame window) {
@@ -221,6 +223,8 @@ public class MainWindow {
 		window.setLocationRelativeTo(null);
 		window.addWindowListener(new WindowCloseListener());
 		window.pack();
+		
+		updateWindowTitle();
 	}
 	
 	private void initBoard(final Board board) {
@@ -247,7 +251,7 @@ public class MainWindow {
 		return buttons;
 	}
 	
-	String[] getSymbolButtonLabels(final SymbolType symbolType, int buttonCount) {
+	protected String[] getSymbolButtonLabels(final SymbolType symbolType, int buttonCount) {
 		final String[] buttonLabels = new String[buttonCount];
 		switch(symbolType) {
 		case DIGITS:
@@ -395,7 +399,7 @@ public class MainWindow {
 		actionMap.put(Board.KEY_DELETE_ACTION, keyDeleteAction);
 	}
 	
-	void setSymbolInputKeyType(final SymbolType symbolType) {
+	protected void setSymbolInputKeyType(final SymbolType symbolType) {
 		final int condition = JComponent.WHEN_IN_FOCUSED_WINDOW;
 		
 		if(symbolType == SymbolType.DIGITS) {
@@ -606,23 +610,50 @@ public class MainWindow {
 		return viewMenu;
 	}
 	
-	void handleQuit() {
-		final String message = "Do you really want to quit?";
-		final String title = "Confirm quit";
-		
-		final int choice = JOptionPane.showConfirmDialog(window, message,
-				title, JOptionPane.YES_NO_OPTION);
-		if(choice == JOptionPane.YES_OPTION) {
+	protected void handleQuit() {
+		if(puzzle.isModified()) {
+			final boolean handledByPlayer = handlePuzzleModification("Save changes before exiting?");
+			if(!handledByPlayer) {
+				return;
+			}
 			System.exit(0);
+		}
+		else {
+			final String message = "Do you really want to quit?";
+			final String title = "Confirm quit";
+			
+			final int choice = JOptionPane.showConfirmDialog(window, message,
+					title, JOptionPane.YES_NO_OPTION);
+			if(choice == JOptionPane.YES_OPTION) {
+				System.exit(0);			
+			}
 		}
 	}
 	
-	void registerUndoableAction(final UndoableBoardEntryAction undoableAction) {
+	protected boolean handlePuzzleModification(final String playerMessage) {
+		final String title = "Puzzle modified";
+		final String message = "Puzzle has been modified." + (playerMessage != null? 
+				" " + playerMessage : "");		
+		
+		final int choice = JOptionPane.showConfirmDialog(window, message,
+				title, JOptionPane.YES_NO_CANCEL_OPTION);
+		
+		if(choice == JOptionPane.YES_OPTION) {
+			final boolean puzzleSaved = gameMenuActionListener.handleSave();
+			if(puzzleSaved) {
+				puzzle.setModified(false);
+			}
+		}
+		
+		return choice != JOptionPane.CANCEL_OPTION;
+	}
+	
+	protected void registerUndoableAction(final UndoableBoardEntryAction undoableAction) {
 		undoManager.addEdit(undoableAction);
 		updateUndoControls();
 	}
 	
-	void updateUndoControls() {
+	protected void updateUndoControls() {
 		undoMenuItem.setEnabled(undoManager.canUndo());
 		redoMenuItem.setEnabled(undoManager.canRedo());
 		
@@ -632,7 +663,7 @@ public class MainWindow {
 		clearColorsMenuItem.setEnabled(UndoableColorEntryAction.hasInstances());
 	}
 	
-	void flagWrongEntriesForBoardAction(final UndoableBoardEntryAction boardAction) {
+	protected void flagWrongEntriesForBoardAction(final UndoableBoardEntryAction boardAction) {
 		if(!board.isVerified()) {
 			return;
 		}
@@ -652,7 +683,7 @@ public class MainWindow {
 	}
 	
 	//Check if player has solved a puzzle on each cell value modification (keyboard and mouse actions)
-	void checkPuzzleSolutionForBoardAction(final UndoableBoardEntryAction boardAction) {
+	protected void checkPuzzleSolutionForBoardAction(final UndoableBoardEntryAction boardAction) {
 		final String actionName = boardAction.getPresentationName();
 		if(UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME.equals(actionName) ||
 				UndoableCellValueEntryAction.INSERT_VALUE_PRESENTATION_NAME.equals(actionName)) {
@@ -662,7 +693,7 @@ public class MainWindow {
 		}
 	}
 	
-	void handlePuzzleSolved(final boolean showConfirmationDialog) {
+	protected void handlePuzzleSolved(final boolean showConfirmationDialog) {
 		if(showConfirmationDialog) {
 			JOptionPane.showMessageDialog(window,
 					"Congratulations! You solved the puzzle correctly.",
@@ -685,7 +716,7 @@ public class MainWindow {
 		redoMenuItem.setText(undoManager.getRedoPresentationName());
 	}
 	
-	void setPuzzleVerified(final boolean verified) {
+	protected void setPuzzleVerified(final boolean verified) {
 		solveMenuItem.setEnabled(verified);
 		giveClueMenuItem.setEnabled(verified);
 		checkMenuItem.setEnabled(verified);
@@ -708,16 +739,21 @@ public class MainWindow {
 		board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 	}
 	
-	void clearUndoableActions() {		
+	protected void clearUndoableActions() {		
 		UndoableColorEntryAction.resetInstanceCounter();
 		undoManager.discardAllEdits();		
 		updateUndoControls();
 	}
 	
-	void handleUndoableAction(final UndoableBoardEntryAction undoableAction) {
+	protected void handleUndoableAction(final UndoableBoardEntryAction undoableAction) {
 		if(undoableAction != null) {
 			//Possible to undo this key action, add it to the undo manager
 			registerUndoableAction(undoableAction);
+			
+			if(!puzzle.isModified()) {
+				puzzle.setModified(true);
+				updateWindowTitle();
+			}
 						
 			if(undoableAction instanceof UndoableCellValueEntryAction) {
 				final String actionName = undoableAction.getPresentationName();
