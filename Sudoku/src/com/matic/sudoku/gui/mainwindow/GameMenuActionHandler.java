@@ -48,7 +48,6 @@ import com.matic.sudoku.gui.NewPuzzleWindowOptions;
 import com.matic.sudoku.gui.Puzzle;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.gui.board.Board.SymbolType;
-import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
 import com.matic.sudoku.io.FileFormatManager;
 import com.matic.sudoku.io.FileFormatManager.FormatType;
 import com.matic.sudoku.io.FileSaveFilter;
@@ -142,7 +141,9 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			board.setPencilmarks(pencilmarks);
 		}	
 		
-		final boolean hasColorsApplied = colors != null? board.setColorSelections(colors) : false;		
+		if(colors != null) {
+			board.setColorSelections(colors);
+		}
 		
 		final BitSet givens = result.getGivens(); 
 		if(givens != null && givens.cardinality() > 0) {
@@ -188,12 +189,10 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			mainWindow.puzzle.setSolved(false);
 		}
 		mainWindow.puzzleMenuActionListener.handleFlagWrongEntriesAction();
-		mainWindow.puzzle.setFormatType(result.getFormatType());
-		
-		final boolean enableColorReset = hasColorsApplied || UndoableColorEntryAction.hasInstances();
+		mainWindow.puzzle.setFormatType(result.getFormatType());		
 		
 		mainWindow.clearUndoableActions();			
-		mainWindow.clearColorsMenuItem.setEnabled(enableColorReset);
+		mainWindow.clearColorsMenuItem.setEnabled(board.colorsApplied());
 		board.repaint();
 	}
 	
@@ -214,6 +213,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			return;
 		}	
 		
+		mainWindow.board.clearColorSelections();
 		updateBoard(result);
 		onPuzzleStorageChanged(file);
 	}
@@ -262,6 +262,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		else {
 			//Puzzle has been saved previously, write to the existing file
 			writeFile(targetFile, getPuzzleBean(mainWindow.puzzle.getFormatType()));
+			mainWindow.puzzle.setModified(false);
+			mainWindow.updateWindowTitle();
 		}
 		return true;
 	}
@@ -508,6 +510,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			board.clear(true);				
 			board.setSymbolType(newSymbolType);
 			mainWindow.verifyMenuItem.setEnabled(true);
+			mainWindow.clearColorsMenuItem.setEnabled(false);
 			
 			if(newPuzzleWindowOptions.isFromEmptyBoard()) {
 				mainWindow.setPuzzleVerified(false);

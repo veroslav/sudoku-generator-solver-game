@@ -82,6 +82,7 @@ class EditMenuActionHandler implements ActionListener {
 		board.clearColorSelections();
 		mainWindow.undoManager.undoColorEntries();			
 		mainWindow.updateUndoControls();
+		mainWindow.clearColorsMenuItem.setEnabled(false);
 	}
 		
 	private void handleCopyAction() {

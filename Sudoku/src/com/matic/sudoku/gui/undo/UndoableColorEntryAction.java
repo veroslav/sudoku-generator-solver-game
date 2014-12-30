@@ -30,7 +30,6 @@ public class UndoableColorEntryAction extends UndoableBoardEntryAction {
 	private static final String PRESENTATION_NAME = "cell color";
 		
 	private static final long serialVersionUID = 1L;
-	private static int INSTANCE_COUNTER = 0;
 	private final int oldValue;
 	private final int newValue;
 
@@ -39,29 +38,17 @@ public class UndoableColorEntryAction extends UndoableBoardEntryAction {
 		
 		this.oldValue = oldValue;
 		this.newValue = newValue;
-		
-		++UndoableColorEntryAction.INSTANCE_COUNTER;
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
 		board.setCellBackgroundColorIndex(row, column, oldValue);
-		--UndoableColorEntryAction.INSTANCE_COUNTER;
 	}	
 	
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
 		board.setCellBackgroundColorIndex(row, column, newValue);
-		++UndoableColorEntryAction.INSTANCE_COUNTER;
-	}
-	
-	public static boolean hasInstances() {
-		return UndoableColorEntryAction.INSTANCE_COUNTER > 0;
-	}
-	
-	public static void resetInstanceCounter() {
-		UndoableColorEntryAction.INSTANCE_COUNTER = 0;
-	}
+	}	
 }

@@ -92,7 +92,7 @@ class UndoActionHandler implements ActionListener {
 			}
 		}			
 		else if(undoAction instanceof UndoableColorEntryAction) {
-			mainWindow.clearColorsMenuItem.setEnabled(UndoableColorEntryAction.hasInstances());
+			mainWindow.clearColorsMenuItem.setEnabled(mainWindow.board.colorsApplied());
 		}
 	}
 	

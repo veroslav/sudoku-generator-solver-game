@@ -153,7 +153,7 @@ public class MainWindow {
 	protected final ButtonGroup symbolButtonsGroup;
 	
 	protected final SudokuUndoManager undoManager;	
-	private final Board board;
+	protected final Board board;
 		
 	protected int dimension;
 	protected int unit;		
@@ -658,9 +658,7 @@ public class MainWindow {
 		redoMenuItem.setEnabled(undoManager.canRedo());
 		
 		undoMenuItem.setText(undoManager.getUndoPresentationName());
-		redoMenuItem.setText(undoManager.getRedoPresentationName());
-		
-		clearColorsMenuItem.setEnabled(UndoableColorEntryAction.hasInstances());
+		redoMenuItem.setText(undoManager.getRedoPresentationName());		
 	}
 	
 	protected void flagWrongEntriesForBoardAction(final UndoableBoardEntryAction boardAction) {
@@ -707,7 +705,6 @@ public class MainWindow {
 		checkMenuItem.setEnabled(false);
 		
 		clearUndoableActions();
-		clearColorsMenuItem.setEnabled(false);
 		
 		undoMenuItem.setEnabled(false);
 		undoMenuItem.setText(undoManager.getUndoPresentationName());
@@ -739,8 +736,7 @@ public class MainWindow {
 		board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 	}
 	
-	protected void clearUndoableActions() {		
-		UndoableColorEntryAction.resetInstanceCounter();
+	protected void clearUndoableActions() {
 		undoManager.discardAllEdits();		
 		updateUndoControls();
 	}

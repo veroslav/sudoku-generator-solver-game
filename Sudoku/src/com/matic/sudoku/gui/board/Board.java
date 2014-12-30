@@ -145,6 +145,9 @@ public class Board extends JPanel {
 	//Color index of the color used to paint cells' backgrounds
 	private int cellColorSelectionIndex;
 	
+	//How many cells have their background color changed
+	private int colorCount;
+	
 	//Brush used for drawing the picker
 	private BasicStroke pickerStroke;
 	
@@ -240,6 +243,7 @@ public class Board extends JPanel {
 		
 		cellPickerCol = cellPickerRow = 0;
 		symbolsFilledCount = 0;
+		colorCount = 0;
 		initCells(dimension);		
 	}
 	
@@ -414,8 +418,25 @@ public class Board extends JPanel {
 	 * @param colorIndex The index of background color to set
 	 */
 	public void setCellBackgroundColorIndex(final int row, final int column, final int colorIndex) {
+		final int currentColor = cells[column][row].getBackgroundColorIndex();
+		
+		if(currentColor == defaultBackgroundColorIndex && colorIndex != defaultBackgroundColorIndex) {
+			++colorCount;
+		}
+		else if(currentColor != defaultBackgroundColorIndex && colorIndex == defaultBackgroundColorIndex) {
+			--colorCount;
+		}
+		
 		cells[column][row].setBackgroundColorIndex(colorIndex);
 		repaint();
+	}
+	
+	/**
+	 * Check whether any cells had their background color changed
+	 * @return true if any colors has been applied, false otherwise
+	 */
+	public boolean colorsApplied() {
+		return colorCount > 0;
 	}
 	
 	/**
@@ -438,24 +459,22 @@ public class Board extends JPanel {
 	/**
 	 * Set previously stored cell background color indexes
 	 * @param colors Colors to set
-	 * @return Whether any cell color differs from default color (white)
 	 */
-	public boolean setColorSelections(final int[] colorsSelections) {
+	public void setColorSelections(final int[] colorsSelections) {
 		int colorIndex = 0;
-		boolean colorsApplied = false;
+		colorCount = 0;
 		
 		for(int i = 0; i < unit; ++i) {
 			for(int j = 0; j < unit; ++j) {
 				final int currentColorIndex = colorsSelections[colorIndex++]; 
 				cells[j][i].setBackgroundColorIndex(currentColorIndex);
 				if(currentColorIndex != Cell.DEFAULT_BACKGROUND_COLOR_INDEX) {
-					colorsApplied = true;
+					++colorCount;
 				}
 			}
 		}
 		
 		repaint();
-		return colorsApplied;
 	}
 	
 	/**
@@ -502,6 +521,7 @@ public class Board extends JPanel {
 				cells[i][j].setBackgroundColorIndex(defaultBackgroundColorIndex);
 			}
 		}
+		colorCount = 0;
 		repaint();
 	}
 	
@@ -1092,18 +1112,18 @@ public class Board extends JPanel {
 	private UndoableBoardEntryAction handleColorSelection() {
 		UndoableBoardEntryAction undoableAction = null;
 		final int cellBackgroundIndex = cells[cellPickerCol][cellPickerRow].getBackgroundColorIndex();
+
 		if (cellBackgroundIndex == cellColorSelectionIndex) {
 			// Player has deselected the cell, paint it in background/normal color
 			undoableAction = new UndoableColorEntryAction(this, cellPickerRow, cellPickerCol, 
-					cellBackgroundIndex, defaultBackgroundColorIndex);
-			cells[cellPickerCol][cellPickerRow].setBackgroundColorIndex(defaultBackgroundColorIndex);
+					cellBackgroundIndex, defaultBackgroundColorIndex);			
+			setCellBackgroundColorIndex(cellPickerRow, cellPickerCol, defaultBackgroundColorIndex);
 		} else {
 			// Player has selected the cell, paint it in selected background color
 			undoableAction = new UndoableColorEntryAction(this, cellPickerRow, cellPickerCol, 
 					cellBackgroundIndex, cellColorSelectionIndex);
-			cells[cellPickerCol][cellPickerRow].setBackgroundColorIndex(cellColorSelectionIndex);
+			setCellBackgroundColorIndex(cellPickerRow, cellPickerCol, cellColorSelectionIndex);
 		}
-		repaint();
 		return undoableAction;
 	}
 	

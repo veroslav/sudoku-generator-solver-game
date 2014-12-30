@@ -54,6 +54,5 @@ public class SudokuUndoManager extends UndoManager {
 				--i;
 			}
 		}
-		UndoableColorEntryAction.resetInstanceCounter();
 	}
 }
