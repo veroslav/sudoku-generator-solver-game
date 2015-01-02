@@ -328,6 +328,13 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		File targetFile = saveAsChooser.getSelectedFile();
 		currentPath = targetFile.getParent();
 		
+		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
+		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
+		
+		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
+		    targetFile = new File(targetFile + "." + fileSuffix);
+		}
+		
 		if(targetFile.exists()) {
 			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
 					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -335,8 +342,6 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 				return false;
 			}
 		}
-		
-		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
 		
 		//Warn player when saving to formats other than SadMan Sudoku
 		if(formatType != FormatType.SADMAN_SUDOKU) {
@@ -350,11 +355,6 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		final PuzzleBean puzzleBean = getPuzzleBean(formatType);	
-		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
-		
-		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
-		    targetFile = new File(targetFile + "." + fileSuffix);
-		}
 		
 		writeFile(targetFile, puzzleBean);		
 								
