@@ -33,6 +33,12 @@ import com.matic.sudoku.gui.mainwindow.MainWindow;
  */
 public class Sudoku {
 	
+	//The name of this application
+	private static final String APPLICATION_NAME = "SuDonkey";
+	
+	//The version of this application
+	private static final String APPLICATION_VERSION = "1.0.2-SNAPSHOT";
+	
 	private static final String OS_NAME_KEY = "os.name";
 	private static final String LINUX_OS_NAME = "Linux";
 
@@ -62,5 +68,9 @@ public class Sudoku {
 				mainWindow.setVisible(true);				
 			}
 		});
+	}
+	
+	public static String getNameAndVersion() {
+		return Sudoku.APPLICATION_NAME + " " + Sudoku.APPLICATION_VERSION;
 	}
 }

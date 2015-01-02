@@ -51,6 +51,7 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
+import com.matic.sudoku.Sudoku;
 import com.matic.sudoku.generator.ClassicGenerator;
 import com.matic.sudoku.generator.Generator;
 import com.matic.sudoku.gui.Puzzle;
@@ -64,7 +65,6 @@ import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.DlxSolver;
 import com.matic.sudoku.solver.LogicSolver;
-import com.matic.sudoku.util.Constants;
 
 /**
  * The main window of the application.
@@ -207,7 +207,7 @@ public class MainWindow {
 	}
 	
 	protected void updateWindowTitle() {
-		window.setTitle(Constants.APPLICATION_NAME + MainWindow.WINDOW_TITLE_SEPARATOR + puzzle.getName() +
+		window.setTitle(Sudoku.getNameAndVersion() + MainWindow.WINDOW_TITLE_SEPARATOR + puzzle.getName() +
 				(puzzle.isModified()? MainWindow.PUZZLE_MODIFIED_INDICATOR : ""));
 	}
 	
