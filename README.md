@@ -27,7 +27,7 @@ The following features are currently implemented:
 
 The following features are planned for version 1.1:
 
-- Always offer to save changes when a puzzle has been modified
+- [IMPLEMENTED] Always offer to save changes when a puzzle has been modified
 - Any combination of difficulty and symmetry settings when generating and exporting
 - Show progress when generating and exporting puzzles
 - Display legend below puzzles when exporting to PDF
@@ -37,6 +37,8 @@ The following features are planned for version 1.1:
 - Show time taken to solve a puzzle
 - Autofill candidates for a puzzle
 - Candidate focus color highlighting
+- Recent puzzles list
+- Toolbar buttons
 - Add about window
 - Print puzzles
 - User guide
