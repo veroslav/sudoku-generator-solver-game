@@ -326,6 +326,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		File targetFile = saveAsChooser.getSelectedFile();
+		currentPath = targetFile.getParent();
+		
 		if(targetFile.exists()) {
 			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
 					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -354,8 +356,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		    targetFile = new File(targetFile + "." + fileSuffix);
 		}
 		
-		writeFile(targetFile, puzzleBean);
-		currentPath = targetFile.getParent();
+		writeFile(targetFile, puzzleBean);		
 								
 		mainWindow.puzzle.setFormatType(formatType);		
 		onPuzzleStorageChanged(targetFile);
