@@ -254,10 +254,18 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleSolveAction() {	
+		final String title = "Solve puzzle";
+		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, 
+				"This will reveal puzzle's solution.\n" +
+				"Are you sure you want to continue?", title, 
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		
+		if(choice != JOptionPane.YES_OPTION) {
+			return;
+		}
+		
 		final int[] enteredPuzzle = board.getPuzzle();
 		final int solutionCount = mainWindow.bruteForceSolver.solve(enteredPuzzle);
-		
-		final String title = "Solve puzzle";
 		
 		switch(solutionCount) {
 		case BruteForceSolver.UNIQUE_SOLUTION:
