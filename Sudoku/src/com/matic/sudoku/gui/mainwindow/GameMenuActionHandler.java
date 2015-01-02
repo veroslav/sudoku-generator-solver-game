@@ -94,7 +94,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			handleNewPuzzle();
 			break;
 		case MainWindow.OPEN_STRING:			
-			handleOpen();
+			openFile(null);
 			break;
 		case MainWindow.SAVE_AS_STRING:
 			handleSaveAs();
@@ -204,18 +204,17 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		board.repaint();
 	}
 	
-	@Override
-	public void openFile(final File file) {
+	public void populateFromFile(final File file) {
 		final FileFormatManager fileManager = new FileFormatManager();
 		PuzzleBean result = null;
 		try {				
 			result = fileManager.fromFile(file);
 			
-		} catch (final IOException e) {
+		} catch(final IOException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
 					"File open error", JOptionPane.ERROR_MESSAGE);
 			return;
-		} catch (final UnsupportedPuzzleFormatException e) {
+		} catch(final UnsupportedPuzzleFormatException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
 					"File open error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -280,30 +279,37 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		return true;
 	}
 	
-	private void handleOpen() {
+	@Override
+	public void openFile(final File file) {
 		//Check whether previous puzzle, if any, needs to be saved
 		final boolean modificationSaved = handleOldPuzzleModifications();
 		if(!modificationSaved) {
 			return;
 		}
 		
-		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
-		final JFileChooser openChooser = new JFileChooser(currentPath);
+		File puzzleFile = null;
 		
-		for(final FileFilter fileFilter : fileFilters) {
-			openChooser.addChoosableFileFilter(fileFilter);
+		if(file == null) {
+			final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
+			final JFileChooser openChooser = new JFileChooser(currentPath);
+			
+			for(final FileFilter fileFilter : fileFilters) {
+				openChooser.addChoosableFileFilter(fileFilter);
+			}
+			
+			final int choice = openChooser.showOpenDialog(mainWindow.window);
+			
+			if(choice != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			
+			puzzleFile = openChooser.getSelectedFile();
 		}
-		
-		final int choice = openChooser.showOpenDialog(mainWindow.window);
-		
-		if(choice != JFileChooser.APPROVE_OPTION) {
-			return;
+		else {
+			puzzleFile = file;
 		}
-		
-		
-		final File puzzleFile = openChooser.getSelectedFile();
 		currentPath = puzzleFile.getParent();
-		openFile(puzzleFile);
+		populateFromFile(puzzleFile);
 		
 		onPuzzleStateChanged(false);
 	}
