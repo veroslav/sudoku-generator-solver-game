@@ -232,7 +232,9 @@ public class FileFormatManager {
 					writer.print(SIMPLE_SUDOKU_COLUMN_SEPARATOR);
 				}
 			}
-			writer.println();
+			if(i < CLASSIC_PUZZLE_UNIT - 1) {
+				writer.println();
+			}
 			if((i + 1) % CLASSIC_PUZZLE_DIMENSION == 0 && i < CLASSIC_PUZZLE_UNIT - 1) {
 				for(int k = 0; k < CLASSIC_PUZZLE_UNIT + CLASSIC_PUZZLE_DIMENSION - 1; ++k) {
 					writer.print(SIMPLE_SUDOKU_ROW_SEPARATOR);
@@ -341,8 +343,8 @@ public class FileFormatManager {
 		}
 	}
 	
-	private void writeSdkState(final PrintWriter writer, final int[] puzzle, final boolean writeStateHeader) {
-		if(writeStateHeader) {
+	private void writeSdkState(final PrintWriter writer, final int[] puzzle, final boolean isSadmanFormat) {
+		if(isSadmanFormat) {
 			writer.println(SADMAN_STATE_TAG);
 		}
 		int puzzleIndex = 0;
@@ -356,7 +358,9 @@ public class FileFormatManager {
 					writer.print(DOT_CHAR);
 				}
 			}
-			writer.println();
+			if((i < CLASSIC_PUZZLE_UNIT - 1 && !isSadmanFormat) || isSadmanFormat) {
+				writer.println();
+			}
 		}
 	}
 	
