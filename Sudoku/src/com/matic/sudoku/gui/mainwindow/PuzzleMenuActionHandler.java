@@ -168,6 +168,9 @@ class PuzzleMenuActionHandler implements ActionListener {
 				mainWindow.symbolButtonActionHandler.updateCandidates();
 			}
 			
+			//Update puzzle modification states
+			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
+			
 			//Check whether the player possibly completed the puzzle
 			mainWindow.checkPuzzleSolutionForBoardAction(undoableAction);
 		}
@@ -188,6 +191,8 @@ class PuzzleMenuActionHandler implements ActionListener {
 			
 			mainWindow.puzzle.setSolved(false);
 			mainWindow.setPuzzleVerified(board.isVerified());
+			
+			//Update puzzle modification states
 			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 		}
 	}
@@ -259,6 +264,10 @@ class PuzzleMenuActionHandler implements ActionListener {
 			//Remove all incorrect board entry flags				
 			board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
 			board.setPuzzle(enteredPuzzle);
+			
+			//Update puzzle modification states
+			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
+			
 			mainWindow.puzzle.setSolved(true);
 			mainWindow.handlePuzzleSolved(false);
 			break;

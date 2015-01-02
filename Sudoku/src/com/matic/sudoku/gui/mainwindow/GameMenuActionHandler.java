@@ -329,9 +329,10 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		writeFile(targetFile, puzzleBean);
 								
-		mainWindow.puzzle.setFormatType(formatType);
-		onPuzzleStateChanged(false);
+		mainWindow.puzzle.setFormatType(formatType);		
 		onPuzzleStorageChanged(targetFile);
+		onPuzzleStateChanged(false);
+		
 		return true;
 	}
 	
