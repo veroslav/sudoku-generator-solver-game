@@ -204,7 +204,12 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		board.repaint();
 	}
 	
-	public void populateFromFile(final File file) {
+	/**
+	 * Read input puzzle file and populate game board from it 
+	 * @param file Target puzzle file to read from
+	 * @return Whether file read was successful 
+	 */
+	private boolean populateFromFile(final File file) {
 		final FileFormatManager fileManager = new FileFormatManager();
 		PuzzleBean result = null;
 		try {				
@@ -213,16 +218,18 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		} catch(final IOException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
 					"File open error", JOptionPane.ERROR_MESSAGE);
-			return;
+			return false;
 		} catch(final UnsupportedPuzzleFormatException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
+			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage() + ".", 
 					"File open error", JOptionPane.ERROR_MESSAGE);
-			return;
+			return false;
 		}	
 		
 		mainWindow.board.clearColorSelections();
 		updateBoard(result);
 		onPuzzleStorageChanged(file);
+		
+		return true;
 	}
 	
 	private void handleExportToPdf() {		
@@ -309,9 +316,9 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			puzzleFile = file;
 		}
 		currentPath = puzzleFile.getParent();
-		populateFromFile(puzzleFile);
-		
-		onPuzzleStateChanged(false);
+		if(populateFromFile(puzzleFile)) {
+			onPuzzleStateChanged(false);
+		}
 	}
 	
 	private boolean handleSaveAs() {
