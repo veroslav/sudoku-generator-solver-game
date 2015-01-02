@@ -21,7 +21,7 @@
 package com.matic.sudoku.gui;
 
 import java.io.File;
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.matic.sudoku.gui.board.Board;
@@ -41,6 +41,7 @@ public class Puzzle {
 	public static final String DEFAULT_AUTHOR = "SuDonkey Software";
 	
 	private static final String UNSAVED_PUZZLE_NAME = "Unsaved";
+	private static final String DATE_FORMAT = "yyyy-MM-dd";
 		
 	//The file on the disk where the puzzle resides, or null if not yet saved
 	private File fileStorage;
@@ -167,21 +168,9 @@ public class Puzzle {
 		if(currentDate == null) {
 			return null;
 		}
-		final Calendar calendar = Calendar.getInstance();
-		calendar.setTime(currentDate);
 		
-		final char dateSeparator = '-';
-		final int monthValue = calendar.get(Calendar.MONTH) + 1;
-		final String month = monthValue < 10? "0" + monthValue : String.valueOf(monthValue); 
-		
-		final StringBuilder sb = new StringBuilder();
-		sb.append(calendar.get(Calendar.YEAR));
-		sb.append(dateSeparator);
-		sb.append(month);
-		sb.append(dateSeparator);
-		sb.append(calendar.get(Calendar.DAY_OF_MONTH));
-		
-		return sb.toString();
+		final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+		return dateFormat.format(currentDate);
 	}
 
 	public void setCreationDate(final Date creationDate) {
