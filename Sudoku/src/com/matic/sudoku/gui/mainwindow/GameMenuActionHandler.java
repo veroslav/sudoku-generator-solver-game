@@ -262,13 +262,18 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		else {
 			//Puzzle has been saved previously, write to the existing file
 			writeFile(targetFile, getPuzzleBean(mainWindow.puzzle.getFormatType()));
-			mainWindow.puzzle.setModified(false);
-			mainWindow.updateWindowTitle();
+			onPuzzleStateChanged(false);
 		}
 		return true;
 	}
 	
 	private void handleOpen() {
+		//Check whether previous puzzle, if any, needs to be saved
+		final boolean modificationSaved = handleOldPuzzleModifications();
+		if(!modificationSaved) {
+			return;
+		}
+		
 		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
 		final JFileChooser openChooser = new JFileChooser();
 		
@@ -284,6 +289,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		final File puzzleFile = openChooser.getSelectedFile();
 		openFile(puzzleFile);
+		
+		onPuzzleStateChanged(false);
 	}
 	
 	private boolean handleSaveAs() {
@@ -323,6 +330,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		writeFile(targetFile, puzzleBean);
 								
 		mainWindow.puzzle.setFormatType(formatType);
+		onPuzzleStateChanged(false);
 		onPuzzleStorageChanged(targetFile);
 		return true;
 	}
@@ -531,10 +539,10 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			mainWindow.puzzle.setComment(null);			
 			mainWindow.puzzle.setCreationDate(new Date());
 			mainWindow.puzzle.setUrlSource(Puzzle.DEFAULT_URL_SOURCE);			
-			mainWindow.puzzle.setCreationSource(Puzzle.DEFAULT_AUTHOR);	
-			mainWindow.puzzle.setModified(false);
-			
+			mainWindow.puzzle.setCreationSource(Puzzle.DEFAULT_AUTHOR);				
+						
 			onPuzzleStorageChanged(null);
+			onPuzzleStateChanged(false);
 		} 
 	}
 	
@@ -548,10 +556,14 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		return true;
 	}
 	
-	private void onPuzzleStorageChanged(final File fileStorage) {
-		mainWindow.puzzle.setFileStorage(fileStorage);
-		mainWindow.saveMenuItem.setEnabled(mainWindow.puzzle.isSaved());
+	protected void onPuzzleStateChanged(final boolean modified) {
+		mainWindow.saveMenuItem.setEnabled(mainWindow.puzzle.isSaved() && modified);
+		mainWindow.puzzle.setModified(modified);
 		mainWindow.updateWindowTitle();
+	}
+	
+	private void onPuzzleStorageChanged(final File fileStorage) {
+		mainWindow.puzzle.setFileStorage(fileStorage);				
 	}
 	
 	private void setSymbolButtonNames(final JToggleButton[] buttons, final String[] labels) {

@@ -188,6 +188,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 			
 			mainWindow.puzzle.setSolved(false);
 			mainWindow.setPuzzleVerified(board.isVerified());
+			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 		}
 	}
 	

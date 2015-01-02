@@ -101,16 +101,14 @@ class EditMenuActionHandler implements ActionListener {
 			return;
 		}	
 		
-		// Warn player about board contents being replaced
-		if(board.isVerified()) {
-			final String message = "Are you sure you want to replace board contents?";
-			final String title = "Confirm replace";
-			final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
-					message, title, JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE);
-			if (choice != JOptionPane.YES_OPTION) {
-				return;
-			}
+		// Warn player about board contents being replaced		
+		final String message = "Are you sure you want to replace board contents?";
+		final String title = "Confirm replace";
+		final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
+				message, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if (choice != JOptionPane.YES_OPTION) {
+			return;
 		}
 		
 		final FileFormatManager fileFormatManager = new FileFormatManager();
@@ -128,6 +126,7 @@ class EditMenuActionHandler implements ActionListener {
 		}
 		
 		mainWindow.gameMenuActionListener.updateBoard(puzzleBean);
+		mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 	}
 	
 	private String getClipboardContents() {

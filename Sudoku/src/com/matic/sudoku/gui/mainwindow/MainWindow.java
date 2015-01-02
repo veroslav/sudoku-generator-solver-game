@@ -641,7 +641,10 @@ public class MainWindow {
 		if(choice == JOptionPane.YES_OPTION) {
 			final boolean puzzleSaved = gameMenuActionListener.handleSave();
 			if(puzzleSaved) {
-				puzzle.setModified(false);
+				gameMenuActionListener.onPuzzleStateChanged(false);
+			}
+			else {
+				return false;
 			}
 		}
 		
@@ -749,6 +752,9 @@ public class MainWindow {
 			if(!puzzle.isModified()) {
 				puzzle.setModified(true);
 				updateWindowTitle();
+				if(puzzle.isSaved()) {
+					saveMenuItem.setEnabled(true);
+				}
 			}
 						
 			if(undoableAction instanceof UndoableCellValueEntryAction) {
