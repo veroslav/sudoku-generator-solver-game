@@ -320,6 +320,18 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
+		
+		//Warn player when saving to formats other than SadMan Sudoku
+		if(formatType != FormatType.SADMAN_SUDOKU) {
+			final int saveInSimpleFormat = JOptionPane.showConfirmDialog(mainWindow.window, 
+					"When saving in this format, color and pencilmark information might get lost.\n" +
+							"Save anyway?", 
+					"File format", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(saveInSimpleFormat != JOptionPane.YES_OPTION) {
+				return false;
+			}
+		}
+		
 		final PuzzleBean puzzleBean = getPuzzleBean(formatType);	
 		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
 		
