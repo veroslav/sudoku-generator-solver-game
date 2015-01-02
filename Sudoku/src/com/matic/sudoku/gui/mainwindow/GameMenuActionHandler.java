@@ -70,12 +70,19 @@ import com.matic.sudoku.util.Algorithms;
  */
 class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportManager {
 	
+	private static final String USER_HOME_PROPERTY_NAME = "user.home";
+	
 	private final MainWindow mainWindow;
 	private final Board board;
+	
+	//Store last path location after saving and opening files
+	private String currentPath;
 	
 	public GameMenuActionHandler(final MainWindow mainWindow, final Board board) {
 		this.mainWindow = mainWindow;
 		this.board = board;
+		
+		currentPath = System.getProperty(USER_HOME_PROPERTY_NAME);
 	}
 	
 	@Override
@@ -102,7 +109,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			handleExportToPdf();
 			break;
 		case MainWindow.GENERATE_AND_EXPORT_STRING:
-			new GenerateAndExportWindow(mainWindow.window, this);
+			new GenerateAndExportWindow(mainWindow.window, this, currentPath);
 			break;
 		case MainWindow.QUIT_STRING:
 			mainWindow.handleQuit();
@@ -114,11 +121,12 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 	public void export(final ExporterParameters exporterParameters) {
 		final PdfExporter pdfExporter = new PdfExporter();
 		try {
+			currentPath = new File(exporterParameters.getOutputPath()).getParent();
 			pdfExporter.write(exporterParameters, mainWindow.generator, board.getDimension());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
-		} catch (DocumentException e) {
+		} catch (final DocumentException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while creating the PDF file", "Export error", 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
@@ -227,11 +235,13 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		try {
-			pdfExporter.write(getBoardCopy(board), storageProperties.getFile());
-		} catch (DocumentException e) {
+			final File targetFile = storageProperties.getFile();
+			currentPath = targetFile.getParent();
+			pdfExporter.write(getBoardCopy(board), targetFile);
+		} catch (final DocumentException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while creating the PDF file", "Export error", 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
@@ -246,8 +256,11 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		try {
-			imageExporter.write(getBoardCopy(board), storageProperties.getFile(), storageProperties.getFileSuffix());
-		} catch (IOException e) {
+			final File targetFile = storageProperties.getFile();
+			currentPath = targetFile.getParent();
+			imageExporter.write(getBoardCopy(board), targetFile, storageProperties.getFileSuffix());
+			
+		} catch (final IOException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
@@ -275,7 +288,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileOpenFilters();
-		final JFileChooser openChooser = new JFileChooser();
+		final JFileChooser openChooser = new JFileChooser(currentPath);
 		
 		for(final FileFilter fileFilter : fileFilters) {
 			openChooser.addChoosableFileFilter(fileFilter);
@@ -287,7 +300,9 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			return;
 		}
 		
+		
 		final File puzzleFile = openChooser.getSelectedFile();
+		currentPath = puzzleFile.getParent();
 		openFile(puzzleFile);
 		
 		onPuzzleStateChanged(false);
@@ -295,7 +310,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 	
 	private boolean handleSaveAs() {
 		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileSaveFilters();
-		final JFileChooser saveAsChooser = new JFileChooser();
+		final JFileChooser saveAsChooser = new JFileChooser(currentPath);
 		
 		for(final FileFilter fileFilter : fileFilters) {
 			saveAsChooser.addChoosableFileFilter(fileFilter);
@@ -340,6 +355,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		writeFile(targetFile, puzzleBean);
+		currentPath = targetFile.getParent();
 								
 		mainWindow.puzzle.setFormatType(formatType);		
 		onPuzzleStorageChanged(targetFile);
@@ -350,7 +366,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 	
 	private StorageProperties confirmFileSave(final FileSaveFilter savable) {
 		final FileFilter[] fileFilters = savable.getSupportedFileSaveFilters();
-		final JFileChooser saveAsChooser = new JFileChooser();
+		final JFileChooser saveAsChooser = new JFileChooser(currentPath);
 		
 		for(final FileFilter fileFilter : fileFilters) {
 			saveAsChooser.addChoosableFileFilter(fileFilter);
@@ -620,7 +636,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		Date date = null;
 		try {
 			date = dateFormat.parse(dateString);
-		} catch (ParseException e) {
+		} 
+		catch(final ParseException e) {
 			//No need to do anything here, date is already set to null
 		}
 		return date;

@@ -85,12 +85,16 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	
 	private final String exportButtonLabel = "Export";
     private final String cancelButtonLabel = "Cancel";
+    private final String currentPath;
     
-    private final JDialog dialog;
+    private final JDialog dialog;    
 
-	public GenerateAndExportWindow(final JFrame parent, final ExportManager exportManager) {		
+	public GenerateAndExportWindow(final JFrame parent, final ExportManager exportManager,
+			final String currentPath) {			
 		dialog = new JDialog(parent, "Generate and Export", true);
 		this.exportManager = exportManager;
+		this.currentPath = currentPath;
+		
 		puzzleCountField = new JTextField();
 		puzzleCountField.setText("10");
 		
@@ -138,7 +142,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	} 
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(final ActionEvent e) {
 		final Object source = e.getSource();
 		if(source == puzzleTypeCombo) {
 			setComponentsEnabled(puzzleTypeCombo.getSelectedIndex() == 0);
@@ -149,13 +153,13 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent event) {
+	public void propertyChange(final PropertyChangeEvent event) {
 		final String propertyName = event.getPropertyName();
 		if(dialog.isVisible() && event.getSource() == optionPane && (JOptionPane.VALUE_PROPERTY.equals(propertyName) ||
 	             JOptionPane.INPUT_VALUE_PROPERTY.equals(propertyName))) {
 			final Object selectedValue = optionPane.getValue();
 			
-			if (selectedValue == JOptionPane.UNINITIALIZED_VALUE) {
+			if(selectedValue == JOptionPane.UNINITIALIZED_VALUE) {
                 return;
             }
 			
@@ -222,7 +226,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	private void handleBrowse() {		
 		final FileFilter pdfFileFilter = new FileNameExtensionFilter(
 				PdfExporter.PDF_FILTER_NAME, PdfExporter.PDF_SUFFIX);
-		final JFileChooser saveAsChooser = new JFileChooser();				
+		final JFileChooser saveAsChooser = new JFileChooser(currentPath);				
 		
 		//Set default file save format
 		saveAsChooser.setFileFilter(pdfFileFilter);
