@@ -27,7 +27,6 @@ import java.util.BitSet;
 import javax.swing.JToggleButton;
 
 import com.matic.sudoku.gui.board.Board;
-import com.matic.sudoku.logic.Candidates;
 
 /**
  * An action handler for symbol buttons used to enter symbols or focus on candidates
@@ -48,7 +47,7 @@ class SymbolButtonActionHandler implements ActionListener {
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(final ActionEvent e) {
 		final Object src = e.getSource();
 		//Check whether the focus button was clicked
 		if(src == mainWindow.focusButton) {
@@ -69,12 +68,6 @@ class SymbolButtonActionHandler implements ActionListener {
 		}
 	}
 	
-	//Update all unfilled cells with possible candidate values
-	public void updateCandidates() {
-		final Candidates candidates = new Candidates(mainWindow.dimension, board.toIntMatrix());
-		board.setPencilmarks(candidates);
-	}
-	
 	public void onFocusEnabled() {
 		setButtonsToolTipText(mainWindow.symbolButtons, MainWindow.FOCUS_ON_TOOLTIP_TEXT);
 		mainWindow.symbolButtonsGroup.clearSelection();
@@ -85,7 +78,7 @@ class SymbolButtonActionHandler implements ActionListener {
 		
 		//Store user's pencilmarks for later retrieval
 		userPencilmarks = board.getPencilmarks();
-		updateCandidates();
+		mainWindow.puzzleMenuActionListener.updatePencilmarks();
 		
 		mainWindow.focusAllButton.setEnabled(true);
 		mainWindow.focusAllButton.setSelected(true);

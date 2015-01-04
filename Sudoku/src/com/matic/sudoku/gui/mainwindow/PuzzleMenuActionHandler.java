@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
+import com.matic.sudoku.logic.Candidates;
 import com.matic.sudoku.logic.strategy.LogicStrategy;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.LogicSolver;
@@ -72,10 +73,21 @@ class PuzzleMenuActionHandler implements ActionListener {
 		case MainWindow.RESET_STRING:
 			handleResetAction();
 			break;
+		case MainWindow.FILL_PENCILMARKS_STRING:
+			handleFillPencilmarks();
+			break;
 		}
 	}
 	
-	void handleFlagWrongEntriesAction() {
+	/**
+	 * Update all unfilled cells with possible candidate values for the currect puzzle
+	 */
+	protected void updatePencilmarks() {		
+		final Candidates candidates = new Candidates(mainWindow.dimension, board.toIntMatrix());
+		board.setPencilmarks(candidates);		
+	}
+	
+	protected void handleFlagWrongEntriesAction() {
 		if(!board.isVerified()) {
 			return;
 		}
@@ -99,6 +111,16 @@ class PuzzleMenuActionHandler implements ActionListener {
 		else {
 			//Remove all incorrect board entry flags				
 			board.setBoardFontColor(Board.NORMAL_FONT_COLOR);
+		}
+	}
+	
+	private void handleFillPencilmarks() {
+		final String message = "This will replace already entered pencilmarks.\nContinue?";
+		final String title = "Confirm pencilmark replacement";
+		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message, title, 
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		if(choice == JOptionPane.YES_OPTION) {
+			updatePencilmarks();
 		}
 	}
 	
@@ -165,7 +187,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 			
 			//Update candidates, if focus is ON
 			if(mainWindow.focusButton.isSelected()) {
-				mainWindow.symbolButtonActionHandler.updateCandidates();
+				updatePencilmarks();
 			}
 			
 			//Update puzzle modification states

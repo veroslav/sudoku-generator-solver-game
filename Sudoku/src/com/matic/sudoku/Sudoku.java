@@ -37,7 +37,7 @@ public class Sudoku {
 	private static final String APPLICATION_NAME = "SuDonkey";
 	
 	//The version of this application
-	private static final String APPLICATION_VERSION = "1.0.2";
+	private static final String APPLICATION_VERSION = "1.1-SNAPSHOT";
 	
 	private static final String OS_NAME_KEY = "os.name";
 	private static final String LINUX_OS_NAME = "Linux";

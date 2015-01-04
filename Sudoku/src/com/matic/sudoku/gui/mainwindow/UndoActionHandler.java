@@ -88,7 +88,7 @@ class UndoActionHandler implements ActionListener {
 				mainWindow.flagWrongEntriesForBoardAction(undoAction);
 			}
 			if(mainWindow.focusButton.isSelected() && undoAction instanceof UndoableCellValueEntryAction) {
-				mainWindow.symbolButtonActionHandler.updateCandidates();
+				mainWindow.puzzleMenuActionListener.updatePencilmarks();
 			}
 		}			
 		else if(undoAction instanceof UndoableColorEntryAction) {

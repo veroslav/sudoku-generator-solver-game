@@ -88,6 +88,7 @@ public class MainWindow {
 	protected static final String EXPORT_AS_IMAGE_STRING = "Export as Image...";
 	protected static final String SHOW_COLORS_TOOLBAR_STRING = "Cell colors toolbar";
 	protected static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
+	protected static final String FILL_PENCILMARKS_STRING = "Fill pencilmarks";
 	protected static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
 	protected static final String CLEAR_COLORS_STRING = "Clear cell colors";
 	protected static final String GIVE_CLUE_STRING = "Give clue";
@@ -131,7 +132,8 @@ public class MainWindow {
 		
 	protected final JToolBar symbolsToolBar;
 	
-	private final JMenuItem giveClueMenuItem;
+	protected final JMenuItem fillPencilmarksMenuItem; 
+	protected final JMenuItem giveClueMenuItem;
 	protected final JMenuItem verifyMenuItem;
 	protected final JMenuItem checkMenuItem;	
 	protected final JMenuItem solveMenuItem;
@@ -176,10 +178,11 @@ public class MainWindow {
 		
 		showSymbolsToolBarMenuItem = new JCheckBoxMenuItem(SHOW_SYMBOLS_TOOLBAR_STRING);
 		showColorsToolBarMenuItem = new JCheckBoxMenuItem(SHOW_COLORS_TOOLBAR_STRING);
-		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);
+		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);		
 		
 		undoManager = new SudokuUndoManager();				
 		
+		fillPencilmarksMenuItem = new JMenuItem(FILL_PENCILMARKS_STRING);
 		clearColorsMenuItem = new JMenuItem(CLEAR_COLORS_STRING);
 		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
 		verifyMenuItem = new JMenuItem(VERIFY_STRING);
@@ -574,17 +577,21 @@ public class MainWindow {
 		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
 		giveClueMenuItem.setEnabled(false);
 		
-		final JMenuItem[] puzzleMenuItems = {verifyMenuItem, solveMenuItem,
-				giveClueMenuItem, checkMenuItem, flagWrongEntriesMenuItem, new JMenuItem(RESET_STRING)};
+		fillPencilmarksMenuItem.setEnabled(false);
+		
+		final JMenuItem[] puzzleMenuItems = {verifyMenuItem, checkMenuItem, solveMenuItem, 
+				new JMenuItem(RESET_STRING), giveClueMenuItem, fillPencilmarksMenuItem,
+				flagWrongEntriesMenuItem};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
-		puzzleMenu.add(puzzleMenuItems[1]);
 		puzzleMenu.addSeparator();
+		puzzleMenu.add(puzzleMenuItems[1]);		
 		puzzleMenu.add(puzzleMenuItems[2]);
 		puzzleMenu.add(puzzleMenuItems[3]);
-		puzzleMenu.add(puzzleMenuItems[4]);
 		puzzleMenu.addSeparator();
+		puzzleMenu.add(puzzleMenuItems[4]);
 		puzzleMenu.add(puzzleMenuItems[5]);
+		puzzleMenu.add(puzzleMenuItems[6]);
 		
 		puzzleMenuActionListener = new PuzzleMenuActionHandler(this, board);
 		
@@ -702,7 +709,8 @@ public class MainWindow {
 		}
 		//Prevent the player from undoing any moves and using aids, as the puzzle has been solved
 		flagWrongEntriesMenuItem.setEnabled(false);
-		giveClueMenuItem.setEnabled(false);		
+		fillPencilmarksMenuItem.setEnabled(false);
+		giveClueMenuItem.setEnabled(false);				
 		verifyMenuItem.setEnabled(false);		
 		solveMenuItem.setEnabled(false);	
 		checkMenuItem.setEnabled(false);
@@ -717,9 +725,10 @@ public class MainWindow {
 	}
 	
 	protected void setPuzzleVerified(final boolean verified) {
-		solveMenuItem.setEnabled(verified);
+		solveMenuItem.setEnabled(verified);		
 		giveClueMenuItem.setEnabled(verified);
 		checkMenuItem.setEnabled(verified);
+		fillPencilmarksMenuItem.setEnabled(verified);
 		flagWrongEntriesMenuItem.setEnabled(verified);
 		
 		focusButton.setEnabled(verified);
@@ -769,7 +778,7 @@ public class MainWindow {
 				checkPuzzleSolutionForBoardAction(undoableAction);
 				//Check whether candidates need to be updated when focus is ON
 				if(focusButton.isSelected()) {
-					symbolButtonActionHandler.updateCandidates();
+					puzzleMenuActionListener.updatePencilmarks();
 				}
 			}	
 			else if(undoableAction instanceof UndoableColorEntryAction) {
