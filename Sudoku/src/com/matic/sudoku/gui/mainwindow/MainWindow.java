@@ -62,6 +62,7 @@ import com.matic.sudoku.gui.undo.SudokuUndoManager;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
+import com.matic.sudoku.gui.undo.UndoablePencilmarkEntryAction;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.DlxSolver;
 import com.matic.sudoku.solver.LogicSolver;
@@ -91,6 +92,7 @@ public class MainWindow {
 	protected static final String FILL_PENCILMARKS_STRING = "Fill pencilmarks";
 	protected static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
 	protected static final String CLEAR_COLORS_STRING = "Clear cell colors";
+	protected static final String CLEAR_PENCILMARKS_STRING = "Clear pencilmarks";
 	protected static final String GIVE_CLUE_STRING = "Give clue";
 	protected static final String NEW_STRING = "New...";
 	protected static final String OPEN_STRING = "Open...";
@@ -140,6 +142,7 @@ public class MainWindow {
 	protected final JMenuItem saveMenuItem;
 	protected final JMenuItem undoMenuItem;
 	protected final JMenuItem redoMenuItem;
+	protected final JMenuItem clearPencilmarksMenuItem;
 	protected final JMenuItem clearColorsMenuItem;
 	protected final JToolBar colorsToolBar;
 	protected final JFrame window;
@@ -182,8 +185,9 @@ public class MainWindow {
 		
 		undoManager = new SudokuUndoManager();				
 		
+		clearPencilmarksMenuItem = new JMenuItem(CLEAR_PENCILMARKS_STRING);
 		fillPencilmarksMenuItem = new JMenuItem(FILL_PENCILMARKS_STRING);
-		clearColorsMenuItem = new JMenuItem(CLEAR_COLORS_STRING);
+		clearColorsMenuItem = new JMenuItem(CLEAR_COLORS_STRING);		
 		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
 		verifyMenuItem = new JMenuItem(VERIFY_STRING);
 		checkMenuItem = new JMenuItem(CHECK_STRING);
@@ -551,9 +555,11 @@ public class MainWindow {
 		final JMenuItem pasteMenuItem = new JMenuItem(PASTE_STRING);
 		pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
 		
-		clearColorsMenuItem.setEnabled(false);
+		clearPencilmarksMenuItem.setEnabled(false);
+		clearColorsMenuItem.setEnabled(false);		
 		
-		final JMenuItem[] editMenuItems = {copyMenuItem, pasteMenuItem, clearColorsMenuItem};		
+		final JMenuItem[] editMenuItems = {copyMenuItem, pasteMenuItem, clearColorsMenuItem,
+				clearPencilmarksMenuItem};		
 		
 		editMenu.add(undoMenuItem);
 		editMenu.add(redoMenuItem);
@@ -562,6 +568,7 @@ public class MainWindow {
 		editMenu.add(pasteMenuItem);
 		editMenu.addSeparator();
 		editMenu.add(clearColorsMenuItem);
+		editMenu.add(clearPencilmarksMenuItem);
 		
 		for(final JMenuItem menuItem : editMenuItems) {
 			menuItem.addActionListener(actionListener);			
@@ -792,6 +799,9 @@ public class MainWindow {
 			}	
 			else if(undoableAction instanceof UndoableColorEntryAction) {
 				clearColorsMenuItem.setEnabled(true);
+			}
+			else if(undoableAction instanceof UndoablePencilmarkEntryAction) {
+				clearPencilmarksMenuItem.setEnabled(true);
 			}
 		}
 	}

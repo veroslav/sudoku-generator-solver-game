@@ -201,6 +201,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		mainWindow.clearUndoableActions();			
 		mainWindow.clearColorsMenuItem.setEnabled(board.colorsApplied());
+		mainWindow.clearPencilmarksMenuItem.setEnabled(pencilmarks != null);
 		board.repaint();
 	}
 	
@@ -562,6 +563,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			board.setSymbolType(newSymbolType);
 			mainWindow.verifyMenuItem.setEnabled(true);
 			mainWindow.clearColorsMenuItem.setEnabled(false);
+			mainWindow.clearPencilmarksMenuItem.setEnabled(false);
 			
 			if(newPuzzleWindowOptions.isFromEmptyBoard()) {
 				mainWindow.setPuzzleVerified(false);
@@ -599,6 +601,11 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		return true;
 	}
 	
+	/**
+	 * Appropriately update GUI according to whether the puzzle has been modified
+	 * 
+	 * @param modified Puzzle modification state
+	 */
 	protected void onPuzzleStateChanged(final boolean modified) {
 		mainWindow.saveMenuItem.setEnabled(mainWindow.puzzle.isSaved() && modified);
 		mainWindow.puzzle.setModified(modified);

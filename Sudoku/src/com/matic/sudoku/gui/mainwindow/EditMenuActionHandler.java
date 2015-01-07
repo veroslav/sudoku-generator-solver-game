@@ -67,7 +67,25 @@ class EditMenuActionHandler implements ActionListener {
 		case MainWindow.CLEAR_COLORS_STRING:
 			handleClearColorsAction();
 			break;
+		case MainWindow.CLEAR_PENCILMARKS_STRING:
+			handleClearPencilmarksAction();
+			break;
 		}
+	}
+	
+	private void handleClearPencilmarksAction() {
+		final String message = "Are you sure you want to clear all pencilmarks?";
+		final String title = "Confirm pencilmarks edit";
+		final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
+				message, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+		if (choice != JOptionPane.YES_OPTION) {
+			return;
+		}
+		board.clearPencilmarks(true);
+		mainWindow.undoManager.undoPencilmarksEntries();
+		mainWindow.updateUndoControls();
+		mainWindow.clearPencilmarksMenuItem.setEnabled(false);
 	}
 	
 	private void handleClearColorsAction() {

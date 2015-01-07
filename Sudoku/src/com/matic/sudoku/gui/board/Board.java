@@ -303,6 +303,16 @@ public class Board extends JPanel {
 	}
 	
 	/**
+	 * Check whether any cells contain pencilmarks
+	 * @return true if pencilmarks have been used, false otherwise
+	 */
+	public boolean hasPencilmarks() {
+		//return pencilmarkCount > 0;
+		//TODO: Implement method
+		return true;
+	}
+	
+	/**
 	 * Return a copy of all pencilmarks currently entered on the board
 	 * @return
 	 */
@@ -789,7 +799,7 @@ public class Board extends JPanel {
 					cells[j][i].setGiven(false);
 				}
 				//Always clear pencilmarks
-				clearPencilmarks();
+				clearPencilmarks(false);
 			}
 		}
 		repaint();
@@ -797,12 +807,17 @@ public class Board extends JPanel {
 	
 	/**
 	 * Remove all pencilmarks from the board
+	 * 
+	 * @param repaint Whether to repaint the board after clearing pencilmarks
 	 */
-	public void clearPencilmarks() {
+	public void clearPencilmarks(final boolean repaint) {
 		for (int i = 0; i < unit; ++i) {
 			for (int j = 0; j < unit; ++j) {
 				cells[j][i].clearPencilmarks();
 			}
+		}
+		if(repaint) {
+			repaint();
 		}
 	}
 	

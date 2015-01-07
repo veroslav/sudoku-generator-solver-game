@@ -94,6 +94,9 @@ class UndoActionHandler implements ActionListener {
 		else if(undoAction instanceof UndoableColorEntryAction) {
 			mainWindow.clearColorsMenuItem.setEnabled(mainWindow.board.colorsApplied());
 		}
+		else if(undoAction instanceof UndoablePencilmarkEntryAction) {
+			mainWindow.clearPencilmarksMenuItem.setEnabled(mainWindow.board.hasPencilmarks());
+		}
 	}
 	
 	private boolean validatePencilmarkAction(final UndoableBoardEntryAction undoAction, final boolean isUndo) {

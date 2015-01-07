@@ -80,7 +80,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	/**
-	 * Update all unfilled cells with possible candidate values for the currect puzzle
+	 * Update all unfilled cells with possible candidate values for the correct puzzle
 	 */
 	protected void updatePencilmarks() {		
 		final Candidates candidates = new Candidates(mainWindow.dimension, board.toIntMatrix());
@@ -121,6 +121,8 @@ class PuzzleMenuActionHandler implements ActionListener {
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(choice == JOptionPane.YES_OPTION) {
 			updatePencilmarks();
+			//Update puzzle modification states
+			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 		}
 	}
 	
@@ -189,6 +191,11 @@ class PuzzleMenuActionHandler implements ActionListener {
 			if(mainWindow.focusButton.isSelected()) {
 				updatePencilmarks();
 			}
+			
+			//Set current symbol button to match clue value
+			mainWindow.symbolButtons[clue-1].setSelected(true);	
+			mainWindow.symbolButtonActionHandler.onSymbolButton(
+					mainWindow.symbolButtons[clue-1].getActionCommand());
 			
 			//Update puzzle modification states
 			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);

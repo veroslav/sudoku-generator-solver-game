@@ -55,4 +55,18 @@ public class SudokuUndoManager extends UndoManager {
 			}
 		}
 	}
+	
+	/**
+	 * Remove all UndoablePencilmarkEntryAction edits from undo queue.
+	 */
+	public void undoPencilmarksEntries() {		
+		for(int i = 0; i < edits.size(); ++i) {
+			final UndoableEdit edit = edits.elementAt(i);
+			
+			if(edit instanceof UndoablePencilmarkEntryAction) {
+				super.trimEdits(i, i);
+				--i;
+			}
+		}
+	}
 }
