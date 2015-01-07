@@ -37,6 +37,7 @@ import com.matic.sudoku.gui.board.Board;
 class SymbolButtonActionHandler implements ActionListener {
 	private BitSet[][] userPencilmarks = null;
 	private int buttonSelectionMask = 1;
+	private int selectedButtonIndex = 0;
 	
 	private final MainWindow mainWindow;
 	private final Board board;
@@ -93,8 +94,8 @@ class SymbolButtonActionHandler implements ActionListener {
 			button.setSelected(false);
 		}
 		setButtonsToolTipText(mainWindow.symbolButtons, MainWindow.FOCUS_OFF_TOOLTIP_TEXT);
-		mainWindow.symbolButtons[0].setSelected(true);
-		board.setMouseClickInputValue(mainWindow.symbolButtons[0].getActionCommand());
+		mainWindow.symbolButtons[selectedButtonIndex].setSelected(true);		
+		board.setMouseClickInputValue(mainWindow.symbolButtons[selectedButtonIndex].getActionCommand());
 		
 		//Always draw all pencilmarks, no filtering on player entries
 		board.updatePencilmarkFilterMask(-1);
@@ -106,10 +107,11 @@ class SymbolButtonActionHandler implements ActionListener {
 		userPencilmarks = null;				
 	}
 	
-	private void onSymbolButton(final String actionCommand) {
+	protected void onSymbolButton(final String actionCommand) {
 		final int buttonValue = board.getMappedDigit(actionCommand);
+		selectedButtonIndex = buttonValue - 1;
 		if(mainWindow.focusButton.isSelected()) {
-			if(mainWindow.symbolButtons[buttonValue-1].isSelected()) {
+			if(mainWindow.symbolButtons[selectedButtonIndex].isSelected()) {
 				//Focus ON for this digit (button down)
 				updateButtonSelectionMask(buttonValue, true);	
 				//Check if all symbols are selected, if yes, select focus all button

@@ -54,4 +54,12 @@ public class UndoableCellValueEntryAction extends UndoableBoardEntryAction {
 		super.redo();
 		board.setCellValue(row, column, newValue);
 	}
+	
+	public int getOldValue() {
+		return oldValue;
+	}
+	
+	public int getNewValue() {
+		return newValue;
+	}
 }

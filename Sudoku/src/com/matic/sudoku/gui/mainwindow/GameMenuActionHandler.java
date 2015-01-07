@@ -545,7 +545,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			final SymbolType currentSymbolType = board.getSymbolType();
 			final SymbolType newSymbolType = newPuzzleWindowOptions.getSelectedSymbolType();
 			
-			if(currentSymbolType != newSymbolType) { 
+			if(currentSymbolType != newSymbolType) { 				
 				//Board symbol input has changed, update symbol buttons					
 				final String[] buttonLabels = mainWindow.getSymbolButtonLabels(newSymbolType, mainWindow.unit);
 				setSymbolButtonNames(mainWindow.symbolButtons, buttonLabels);

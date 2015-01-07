@@ -780,6 +780,15 @@ public class MainWindow {
 				if(focusButton.isSelected()) {
 					puzzleMenuActionListener.updatePencilmarks();
 				}
+				else {
+					//Update symbol buttons with key/mouse entered value, if any
+					final UndoableCellValueEntryAction entryAction = (UndoableCellValueEntryAction)undoableAction;
+					final int newActionValue = entryAction.getNewValue();					
+					if(newActionValue != 0) {
+						symbolButtons[newActionValue-1].setSelected(true);	
+						symbolButtonActionHandler.onSymbolButton(symbolButtons[newActionValue-1].getActionCommand());
+					}
+				}
 			}	
 			else if(undoableAction instanceof UndoableColorEntryAction) {
 				clearColorsMenuItem.setEnabled(true);
