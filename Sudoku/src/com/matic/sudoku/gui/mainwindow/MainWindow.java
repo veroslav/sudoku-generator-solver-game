@@ -500,6 +500,9 @@ public class MainWindow {
 		
 		final JMenuItem openMenuItem = new JMenuItem(OPEN_STRING);
 		openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		
+		final JMenuItem quitMenuItem = new JMenuItem(QUIT_STRING);
+		quitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
 				
 		saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		saveMenuItem.setEnabled(puzzle.isSaved());
@@ -507,8 +510,7 @@ public class MainWindow {
 		final JMenuItem generateAndExportMenuItem = new JMenuItem(GENERATE_AND_EXPORT_STRING);
 		final JMenuItem exportAsImageMenuItem = new JMenuItem(EXPORT_AS_IMAGE_STRING);
 		final JMenuItem exportToPdfMenuItem = new JMenuItem(EXPORT_TO_PDF_STRING);
-		final JMenuItem saveAsMenuItem = new JMenuItem(SAVE_AS_STRING);
-		final JMenuItem quitMenuItem = new JMenuItem(QUIT_STRING);
+		final JMenuItem saveAsMenuItem = new JMenuItem(SAVE_AS_STRING);		
 		
 		gameMenu.add(newMenuItem);
 		gameMenu.add(openMenuItem);
