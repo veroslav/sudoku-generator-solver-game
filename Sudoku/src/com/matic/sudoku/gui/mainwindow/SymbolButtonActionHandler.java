@@ -36,7 +36,7 @@ import com.matic.sudoku.gui.board.Board;
  */
 class SymbolButtonActionHandler implements ActionListener {
 	private BitSet[][] userPencilmarks = null;
-	private int buttonSelectionMask = 1;
+	private int buttonSelectionMask = 0;
 	private int selectedButtonIndex = 0;
 	
 	private final MainWindow mainWindow;
@@ -71,7 +71,7 @@ class SymbolButtonActionHandler implements ActionListener {
 	
 	public void onFocusEnabled() {
 		setButtonsToolTipText(mainWindow.symbolButtons, MainWindow.FOCUS_ON_TOOLTIP_TEXT);
-		mainWindow.symbolButtonsGroup.clearSelection();
+		buttonSelectionMask = 0;
 		
 		for(final JToggleButton button : mainWindow.symbolButtons) {					
 			mainWindow.symbolButtonsGroup.remove(button);
@@ -84,8 +84,8 @@ class SymbolButtonActionHandler implements ActionListener {
 		mainWindow.fillPencilmarksMenuItem.setEnabled(false);
 		
 		mainWindow.focusAllButton.setEnabled(true);
-		mainWindow.focusAllButton.setSelected(true);
-		onFocusAll();			
+		mainWindow.focusAllButton.setSelected(false);
+		onSymbolButton(mainWindow.symbolButtons[selectedButtonIndex].getActionCommand());			
 	}
 	
 	public void onFocusDisabled() {
@@ -113,9 +113,8 @@ class SymbolButtonActionHandler implements ActionListener {
 	
 	protected void onSymbolButton(final String actionCommand) {
 		final int buttonValue = board.getMappedDigit(actionCommand);
-		selectedButtonIndex = buttonValue - 1;
 		if(mainWindow.focusButton.isSelected()) {
-			if(mainWindow.symbolButtons[selectedButtonIndex].isSelected()) {
+			if(mainWindow.symbolButtons[buttonValue - 1].isSelected()) {
 				//Focus ON for this digit (button down)
 				updateButtonSelectionMask(buttonValue, true);	
 				//Check if all symbols are selected, if yes, select focus all button
@@ -134,8 +133,9 @@ class SymbolButtonActionHandler implements ActionListener {
 			}
 			board.updatePencilmarkFilterMask(buttonSelectionMask);
 		}
-		else {
+		else {		
 			board.setMouseClickInputValue(actionCommand);
+			selectedButtonIndex = buttonValue - 1;
 		}
 	}
 	
