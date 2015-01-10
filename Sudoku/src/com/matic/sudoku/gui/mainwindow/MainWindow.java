@@ -803,7 +803,7 @@ public class MainWindow {
 				clearColorsMenuItem.setEnabled(true);
 			}
 			else if(undoableAction instanceof UndoablePencilmarkEntryAction) {
-				clearPencilmarksMenuItem.setEnabled(true);
+				clearPencilmarksMenuItem.setEnabled(board.hasPencilmarks());
 			}
 		}
 	}

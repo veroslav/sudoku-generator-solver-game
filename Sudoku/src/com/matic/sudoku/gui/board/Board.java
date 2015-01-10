@@ -151,6 +151,9 @@ public class Board extends JPanel {
 	//Brush used for drawing the picker
 	private BasicStroke pickerStroke;
 	
+	//How many pencilmarks has been entered
+	private int pencilmarkCount;
+	
 	//Font used for drawing pencilmarks
 	private Font pencilmarkFont;
 	
@@ -243,6 +246,7 @@ public class Board extends JPanel {
 		
 		cellPickerCol = cellPickerRow = 0;
 		symbolsFilledCount = 0;
+		pencilmarkCount = 0;
 		colorCount = 0;
 		initCells(dimension);		
 	}
@@ -306,10 +310,8 @@ public class Board extends JPanel {
 	 * Check whether any cells contain pencilmarks
 	 * @return true if pencilmarks have been used, false otherwise
 	 */
-	public boolean hasPencilmarks() {
-		//return pencilmarkCount > 0;
-		//TODO: Implement method
-		return true;
+	public boolean hasPencilmarks() {		
+		return pencilmarkCount > 0;		
 	}
 	
 	/**
@@ -337,16 +339,18 @@ public class Board extends JPanel {
 	 * @param pencilmarks Pencilmark values to be restored
 	 */
 	public void setPencilmarks(final BitSet[][] pencilmarks) {
+		pencilmarkCount = 0;
 		for(int i = 0; i < unit; ++i) {
 			for(int j = 0; j < unit; ++j) {
 				if(pencilmarks[i][j] != null) {
 					cells[i][j].setPencilmarks(pencilmarks[i][j]);
+					pencilmarkCount += pencilmarks[i][j].cardinality();
 				}
 				else {
 					cells[i][j].clearPencilmarks();
 				}
 			}
-		}
+		}		
 		repaint();
 	}
 	
@@ -355,13 +359,16 @@ public class Board extends JPanel {
 	 * @param candidates Candidates from which to populate pencilmarks
 	 */
 	public void setPencilmarks(final Candidates candidates) {
+		pencilmarkCount = 0;
 		for(int i = 0; i < unit; ++i) {
 			for(int j = 0; j < unit; ++j) {
-				for(int k = 1; k <= unit; ++k) {					
-					cells[i][j].setPencilmark(k, candidates.contains(k, j, i)? true : false);
+				for(int k = 1; k <= unit; ++k) {			
+					final boolean pencilmarkSet = candidates.contains(k, j, i);
+					cells[i][j].setPencilmark(k, pencilmarkSet);
+					pencilmarkCount = pencilmarkSet? pencilmarkCount + 1 : pencilmarkCount;
 				}
 			}
-		}
+		}		
 		repaint();
 	}
 	
@@ -376,11 +383,20 @@ public class Board extends JPanel {
 	public void setPencilmarkValues(final int row, final int column, final boolean areSet, 
 			final boolean clearOldValues, final int... values) {
 		if(clearOldValues) {
+			final int oldCount = cells[column][row].getPencilmarkCount();
+			pencilmarkCount -= oldCount;
 			cells[column][row].clearPencilmarks();
 		}
 		for(final int value : values) {
+			final boolean isSet = cells[column][row].isPencilmarkSet(value);
+			if(!isSet && areSet) {
+				++pencilmarkCount;
+			}
+			else if(isSet && !areSet) {
+				--pencilmarkCount;
+			}
 			cells[column][row].setPencilmark(value, areSet);
-		}
+		}		
 		repaint();
 	}
 	
@@ -393,11 +409,11 @@ public class Board extends JPanel {
 	public void setCellValue(final int row, final int column, final int value) {
 		if(cells[column][row].getDigit() == 0 && value > 0) {
 			//New symbol entered, increase symbols filled count
-			++symbolsFilledCount;
+			++symbolsFilledCount;			
 		}
 		if(cells[column][row].getDigit() > 0 && value == 0) {
 			//A symbol has been removed, decrease symbols filled count
-			--symbolsFilledCount;
+			--symbolsFilledCount;			
 		}
 		cells[column][row].setDigit(value);
 		repaint();
@@ -733,7 +749,7 @@ public class Board extends JPanel {
 	}
 	
 	/*
-	 * Check if a symbol type is possible to use for this  For larger
+	 * Check if a symbol type is possible to use for this. For larger
 	 * boards (dimension > 3), there are simply not enough numbers to use, so
 	 * even though such a symbol type is requested, it will be set to
 	 * SymbolType.LETTERS in this case
@@ -797,12 +813,11 @@ public class Board extends JPanel {
 				//Clear givens if needed
 				if(clearGivens && cells[j][i].isGiven()) {
 					cells[j][i].setGiven(false);
-				}
-				//Always clear pencilmarks
-				clearPencilmarks(false);
+				}				
 			}
 		}
-		repaint();
+		//Always clear pencilmarks
+		clearPencilmarks(true);
 	}
 	
 	/**
@@ -811,14 +826,15 @@ public class Board extends JPanel {
 	 * @param repaint Whether to repaint the board after clearing pencilmarks
 	 */
 	public void clearPencilmarks(final boolean repaint) {
+		pencilmarkCount = 0;
 		for (int i = 0; i < unit; ++i) {
-			for (int j = 0; j < unit; ++j) {
+			for (int j = 0; j < unit; ++j) {				
 				cells[j][i].clearPencilmarks();
 			}
-		}
+		}		
 		if(repaint) {
 			repaint();
-		}
+		}		
 	}
 	
 	/**

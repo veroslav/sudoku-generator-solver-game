@@ -35,7 +35,7 @@ The following features are planned for version 1.1:
 - Offer to also print solutions when generating and exporting puzzles
 - Show hints for how the next solution step can be revealed
 - Show time taken to solve a puzzle
-- Autofill candidates for a puzzle
+- [IMPLEMENTED] Autofill candidates for a puzzle
 - Candidate focus color highlighting
 - Recent puzzles list
 - Toolbar buttons

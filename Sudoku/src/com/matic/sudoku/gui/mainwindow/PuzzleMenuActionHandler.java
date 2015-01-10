@@ -120,9 +120,10 @@ class PuzzleMenuActionHandler implements ActionListener {
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message, title, 
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(choice == JOptionPane.YES_OPTION) {
-			updatePencilmarks();
+			updatePencilmarks();			
 			//Update puzzle modification states
 			mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
+			mainWindow.clearPencilmarksMenuItem.setEnabled(board.hasPencilmarks());
 		}
 	}
 	

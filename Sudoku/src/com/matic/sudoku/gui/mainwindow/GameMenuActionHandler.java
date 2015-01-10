@@ -201,7 +201,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		mainWindow.clearUndoableActions();			
 		mainWindow.clearColorsMenuItem.setEnabled(board.colorsApplied());
-		mainWindow.clearPencilmarksMenuItem.setEnabled(pencilmarks != null);
+		mainWindow.clearPencilmarksMenuItem.setEnabled(board.hasPencilmarks());
 		board.repaint();
 	}
 	

@@ -80,6 +80,8 @@ class SymbolButtonActionHandler implements ActionListener {
 		//Store user's pencilmarks for later retrieval
 		userPencilmarks = board.getPencilmarks();
 		mainWindow.puzzleMenuActionListener.updatePencilmarks();
+		mainWindow.clearPencilmarksMenuItem.setEnabled(false);
+		mainWindow.fillPencilmarksMenuItem.setEnabled(false);
 		
 		mainWindow.focusAllButton.setEnabled(true);
 		mainWindow.focusAllButton.setSelected(true);
@@ -103,6 +105,8 @@ class SymbolButtonActionHandler implements ActionListener {
 		//Restore user's pencilmarks
 		if(userPencilmarks != null) {
 			board.setPencilmarks(userPencilmarks);
+			mainWindow.clearPencilmarksMenuItem.setEnabled(board.hasPencilmarks());
+			mainWindow.fillPencilmarksMenuItem.setEnabled(true);
 		}
 		userPencilmarks = null;				
 	}
