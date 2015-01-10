@@ -718,7 +718,8 @@ public class MainWindow {
 		}
 		//Prevent the player from undoing any moves and using aids, as the puzzle has been solved
 		flagWrongEntriesMenuItem.setEnabled(false);
-		fillPencilmarksMenuItem.setEnabled(false);
+		clearPencilmarksMenuItem.setEnabled(false);
+		fillPencilmarksMenuItem.setEnabled(false);		
 		giveClueMenuItem.setEnabled(false);				
 		verifyMenuItem.setEnabled(false);		
 		solveMenuItem.setEnabled(false);	
