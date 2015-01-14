@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.logic.Candidates;
-import com.matic.sudoku.util.Constants;
 
 /**
  * Abstract representation of a subset (either naked or hidden). Methods common
@@ -154,7 +154,7 @@ public abstract class Subset extends LogicStrategy {
 	protected boolean belongsToSubset(int row, int col,
 			final int[][] subset) {
 		for (final int[] cellCoord : subset) {
-			if (cellCoord[Constants.X] == col && cellCoord[Constants.Y] == row) {
+			if (cellCoord[Resources.X] == col && cellCoord[Resources.Y] == row) {
 				return true;
 			}
 		}
@@ -166,8 +166,8 @@ public abstract class Subset extends LogicStrategy {
 			final int[][] subset) {
 		final Set<Integer> subsetCandidates = new HashSet<Integer>();
 		for (final int[] pair : subset) {
-			final int[] cellCandidates = candidates.getAsArray(pair[Constants.Y],
-					pair[Constants.X]);
+			final int[] cellCandidates = candidates.getAsArray(pair[Resources.Y],
+					pair[Resources.X]);
 			for (int cand : cellCandidates) {
 				subsetCandidates.add(cand);
 			}
@@ -178,8 +178,8 @@ public abstract class Subset extends LogicStrategy {
 	private void addEmptyCell(final List<int[]> emptyCells,
 			int x, int y, int pairIndex) {
 		final int[] cell = pairs.get(pairIndex);
-		cell[Constants.X] = x;
-		cell[Constants.Y] = y;
+		cell[Resources.X] = x;
+		cell[Resources.Y] = y;
 		emptyCells.add(cell);
 	}
 

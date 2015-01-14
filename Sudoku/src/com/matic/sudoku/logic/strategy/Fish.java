@@ -20,8 +20,8 @@
 
 package com.matic.sudoku.logic.strategy;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.logic.Candidates;
-import com.matic.sudoku.util.Constants;
 
 /**
  * A generic implementation of n-fish pattern. The individual patterns are:
@@ -109,7 +109,7 @@ public abstract class Fish extends LogicStrategy {
 			//Locations of the found subset
 			final int[][] locationPoints = subsetStrategy.getLocationPoints();
 			
-			final int candidate = locationPoints[0][Constants.Y] + 1;
+			final int candidate = locationPoints[0][Resources.Y] + 1;
 			
 			final int[] sectionIndexes = new int[subsetValues.length];			
 			for(int i = 0; i < subsetValues.length; ++i) {
@@ -118,7 +118,7 @@ public abstract class Fish extends LogicStrategy {
 			
 			final boolean[] dontFilterMask = new boolean[unit];			
 			for(final int[] row : locationPoints) {
-				dontFilterMask[row[Constants.X]] = true;
+				dontFilterMask[row[Resources.X]] = true;
 			}
 									
 			final boolean success = remove(candidate, sectionIndexes, dontFilterMask, !rows);

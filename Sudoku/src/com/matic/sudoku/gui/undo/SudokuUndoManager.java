@@ -23,6 +23,8 @@ package com.matic.sudoku.gui.undo;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
+import com.matic.sudoku.Resources;
+
 /**
  * An extension of Swing's UndoManager allowing for peeking at queued undos/redos
  * @author vedran
@@ -40,6 +42,32 @@ public class SudokuUndoManager extends UndoManager {
 	@Override
 	public UndoableEdit editToBeUndone() {
 		return super.editToBeUndone();
+	}
+	
+	@Override
+	public String getRedoPresentationName() {
+		final StringBuilder redoBuilder = new StringBuilder();
+		redoBuilder.append(Resources.getTranslation("edit.redo"));
+		
+		final UndoableEdit undoableEdit = editToBeRedone();
+		if(undoableEdit != null) {
+			redoBuilder.append(" ");
+			redoBuilder.append(undoableEdit.getPresentationName());
+		}
+		return redoBuilder.toString();
+	}
+	
+	@Override
+	public String getUndoPresentationName() {
+		final StringBuilder undoBuilder = new StringBuilder();
+		undoBuilder.append(Resources.getTranslation("edit.undo"));
+		
+		final UndoableEdit undoableEdit = editToBeUndone();
+		if(undoableEdit != null) {
+			undoBuilder.append(" ");
+			undoBuilder.append(undoableEdit.getPresentationName());
+		}
+		return undoBuilder.toString();
 	}
 
 	/**

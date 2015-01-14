@@ -23,6 +23,8 @@ package com.matic.sudoku.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.matic.sudoku.Resources;
+
 /**
  * Various well-known algorithms used by logic solving strategies are provided by this class
  * 
@@ -36,7 +38,7 @@ public class Algorithms {
 	 */
 	public static void shuffle(final int[] array) {
 		for (int i = 0; i < array.length; ++i) {
-			final int newIndex = Constants.RANDOM_INSTANCE
+			final int newIndex = Resources.RANDOM_INSTANCE
 					.nextInt(array.length);
 			final int oldValue = array[newIndex];
 			array[newIndex] = array[i];

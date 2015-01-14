@@ -29,10 +29,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.generator.Generator.Symmetry;
 import com.matic.sudoku.gui.board.Board.SymbolType;
 import com.matic.sudoku.solver.LogicSolver.Grading;
-import com.matic.sudoku.util.Constants;
 
 
 /**
@@ -90,7 +90,7 @@ public class NewPuzzleWindowOptions {
 	public Grading getSelectedDifficulty() {
 		String difficulty = difficultyCombo.getItemAt(difficultyCombo.getSelectedIndex());
 		if(RANDOM_GRADING.equals(difficulty)) {
-			final int randomIndex = Constants.RANDOM_INSTANCE.nextInt(difficultyCombo.getItemCount() - 1);
+			final int randomIndex = Resources.RANDOM_INSTANCE.nextInt(difficultyCombo.getItemCount() - 1);
 			difficulty = difficultyCombo.getItemAt(randomIndex);
 		}
 		return Grading.fromString(difficulty);
@@ -99,7 +99,7 @@ public class NewPuzzleWindowOptions {
 	public Symmetry getSelectedSymmetry() {
 		String symmetry = symmetryCombo.getItemAt(symmetryCombo.getSelectedIndex());
 		if(RANDOM_SYMMETRY.equals(symmetry)) {
-			final int randomIndex = Constants.RANDOM_INSTANCE.nextInt(symmetryCombo.getItemCount() - 1);
+			final int randomIndex = Resources.RANDOM_INSTANCE.nextInt(symmetryCombo.getItemCount() - 1);
 			symmetry = symmetryCombo.getItemAt(randomIndex);
 		}
 		return Symmetry.fromString(symmetry);

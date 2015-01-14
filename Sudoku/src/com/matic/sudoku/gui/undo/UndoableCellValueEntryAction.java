@@ -23,15 +23,19 @@ package com.matic.sudoku.gui.undo;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.board.Board;
 
 public class UndoableCellValueEntryAction extends UndoableBoardEntryAction {
 	
 	private static final long serialVersionUID = 7639782414229940909L;
 	
-	public static final String DELETE_SYMBOL_PRESENTATION_NAME = "delete cell value";
-	public static final String INSERT_VALUE_PRESENTATION_NAME = "insert cell value";
-	public static final String GIVE_CLUE_PRESENTATION_NAME = "give clue";
+	public static final String DELETE_SYMBOL_PRESENTATION_NAME = 
+			Resources.getTranslation("action.delete_symbol");
+	public static final String INSERT_VALUE_PRESENTATION_NAME = 
+			Resources.getTranslation("action.insert_symbol");
+	public static final String GIVE_CLUE_PRESENTATION_NAME = 
+			Resources.getTranslation("action.give_clue");
 	
 	private final int oldValue;
 	private final int newValue;

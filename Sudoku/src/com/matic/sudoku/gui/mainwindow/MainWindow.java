@@ -51,6 +51,7 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.Sudoku;
 import com.matic.sudoku.generator.ClassicGenerator;
 import com.matic.sudoku.generator.Generator;
@@ -78,33 +79,33 @@ public class MainWindow {
 	private static final String NIMBUS_LAF_NAME = "Nimbus";
 	
 	//Menu strings
-	private static final String GAME_MENU = "Game";	
-	private static final String EDIT_MENU = "Edit";
-	private static final String PUZZLE_MENU = "Puzzle";
-	private static final String VIEW_MENU = "View";
+	private static final String GAME_MENU = Resources.getTranslation("menubar.game");	
+	private static final String EDIT_MENU = Resources.getTranslation("menubar.edit");
+	private static final String PUZZLE_MENU = Resources.getTranslation("menubar.puzzle");
+	private static final String VIEW_MENU = Resources.getTranslation("menubar.view");
 	
 	//Menu options strings
-	protected static final String GENERATE_AND_EXPORT_STRING = "Generate and Export...";
-	protected static final String EXPORT_TO_PDF_STRING = "Export to PDF...";
-	protected static final String EXPORT_AS_IMAGE_STRING = "Export as Image...";
-	protected static final String SHOW_COLORS_TOOLBAR_STRING = "Cell colors toolbar";
-	protected static final String SHOW_SYMBOLS_TOOLBAR_STRING = "Symbol entry toolbar";
-	protected static final String FILL_PENCILMARKS_STRING = "Fill pencilmarks";
-	protected static final String FLAG_WRONG_ENTRIES_STRING = "Flag wrong entries";
-	protected static final String CLEAR_COLORS_STRING = "Clear cell colors";
-	protected static final String CLEAR_PENCILMARKS_STRING = "Clear pencilmarks";
-	protected static final String GIVE_CLUE_STRING = "Give clue";
-	protected static final String NEW_STRING = "New...";
-	protected static final String OPEN_STRING = "Open...";
-	protected static final String SAVE_AS_STRING = "Save As...";
-	protected static final String SAVE_STRING = "Save";
-	protected static final String VERIFY_STRING = "Verify";
-	protected static final String CHECK_STRING = "Check";
-	protected static final String RESET_STRING = "Reset";
-	protected static final String COPY_STRING = "Copy";
-	protected static final String PASTE_STRING = "Paste";
-	protected static final String QUIT_STRING = "Quit";
-	protected static final String SOLVE_STRING = "Solve";
+	protected static final String GENERATE_AND_EXPORT_STRING = "game.generate_and_export";
+	protected static final String EXPORT_TO_PDF_STRING = "game.export_to_pdf";			
+	protected static final String EXPORT_AS_IMAGE_STRING = "game.export_as_image";
+	protected static final String SHOW_COLORS_TOOLBAR_STRING = "view.cell_colors";
+	protected static final String SHOW_SYMBOLS_TOOLBAR_STRING = "view.symbol_entry";
+	protected static final String FILL_PENCILMARKS_STRING = "puzzle.fill_pencilmarks";
+	protected static final String FLAG_WRONG_ENTRIES_STRING = "puzzle.flag_wrong_entries";
+	protected static final String CLEAR_COLORS_STRING = "edit.clear_colors";
+	protected static final String CLEAR_PENCILMARKS_STRING = "edit.clear_pencilmarks";
+	protected static final String GIVE_CLUE_STRING = "puzzle.give_clue";
+	protected static final String NEW_STRING = "game.new";
+	protected static final String OPEN_STRING = "game.open";
+	protected static final String SAVE_AS_STRING = "game.save_as";
+	protected static final String SAVE_STRING = "game.save";
+	protected static final String VERIFY_STRING = "puzzle.verify";
+	protected static final String CHECK_STRING = "puzzle.check";
+	protected static final String RESET_STRING = "puzzle.reset";
+	protected static final String COPY_STRING = "edit.copy";
+	protected static final String PASTE_STRING = "edit.paste";
+	protected static final String QUIT_STRING = "game.quit";
+	protected static final String SOLVE_STRING = "puzzle.solve";
 	
 	//Other String constants
 	protected static final String FOCUS_OFF_TOOLTIP_TEXT = "<html>Click in a cell to assign it this value." +
@@ -179,20 +180,41 @@ public class MainWindow {
 		generator.setBruteForceSolver(bruteForceSolver);
 		generator.setLogicSolver(logicSolver);
 		
-		showSymbolsToolBarMenuItem = new JCheckBoxMenuItem(SHOW_SYMBOLS_TOOLBAR_STRING);
-		showColorsToolBarMenuItem = new JCheckBoxMenuItem(SHOW_COLORS_TOOLBAR_STRING);
-		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(FLAG_WRONG_ENTRIES_STRING);		
+		showSymbolsToolBarMenuItem = new JCheckBoxMenuItem(Resources.getTranslation(SHOW_SYMBOLS_TOOLBAR_STRING));
+		showSymbolsToolBarMenuItem.setActionCommand(SHOW_SYMBOLS_TOOLBAR_STRING);
+		
+		showColorsToolBarMenuItem = new JCheckBoxMenuItem(Resources.getTranslation(SHOW_COLORS_TOOLBAR_STRING));
+		showColorsToolBarMenuItem.setActionCommand(SHOW_COLORS_TOOLBAR_STRING);
+		
+		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(Resources.getTranslation(FLAG_WRONG_ENTRIES_STRING));
+		flagWrongEntriesMenuItem.setActionCommand(FLAG_WRONG_ENTRIES_STRING);
 		
 		undoManager = new SudokuUndoManager();				
 		
-		clearPencilmarksMenuItem = new JMenuItem(CLEAR_PENCILMARKS_STRING);
-		fillPencilmarksMenuItem = new JMenuItem(FILL_PENCILMARKS_STRING);
-		clearColorsMenuItem = new JMenuItem(CLEAR_COLORS_STRING);		
-		giveClueMenuItem = new JMenuItem(GIVE_CLUE_STRING);
-		verifyMenuItem = new JMenuItem(VERIFY_STRING);
-		checkMenuItem = new JMenuItem(CHECK_STRING);
-		solveMenuItem = new JMenuItem(SOLVE_STRING);
-		saveMenuItem = new JMenuItem(SAVE_STRING);		
+		clearPencilmarksMenuItem = new JMenuItem(Resources.getTranslation(CLEAR_PENCILMARKS_STRING));
+		clearPencilmarksMenuItem.setActionCommand(CLEAR_PENCILMARKS_STRING);
+		
+		fillPencilmarksMenuItem = new JMenuItem(Resources.getTranslation(FILL_PENCILMARKS_STRING));
+		fillPencilmarksMenuItem.setActionCommand(FILL_PENCILMARKS_STRING);
+		
+		clearColorsMenuItem = new JMenuItem(Resources.getTranslation(CLEAR_COLORS_STRING));
+		clearColorsMenuItem.setActionCommand(CLEAR_COLORS_STRING);
+		
+		giveClueMenuItem = new JMenuItem(Resources.getTranslation(GIVE_CLUE_STRING));
+		giveClueMenuItem.setActionCommand(GIVE_CLUE_STRING);
+		
+		verifyMenuItem = new JMenuItem(Resources.getTranslation(VERIFY_STRING));
+		verifyMenuItem.setActionCommand(VERIFY_STRING);
+		
+		checkMenuItem = new JMenuItem(Resources.getTranslation(CHECK_STRING));
+		checkMenuItem.setActionCommand(CHECK_STRING);
+		
+		solveMenuItem = new JMenuItem(Resources.getTranslation(SOLVE_STRING));
+		solveMenuItem.setActionCommand(SOLVE_STRING);
+		
+		saveMenuItem = new JMenuItem(Resources.getTranslation(SAVE_STRING));
+		saveMenuItem.setActionCommand(SAVE_STRING);
+		
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
 		undoMenuItem = new JMenuItem(undoManager.getUndoPresentationName());
 		
@@ -493,24 +515,39 @@ public class MainWindow {
 	
 	private JMenu buildGameMenu() {
 		final JMenu gameMenu = new JMenu(GAME_MENU);	
-		gameMenu.setMnemonic(KeyEvent.VK_G);
+		gameMenu.setMnemonic(KeyStroke.getKeyStroke(
+				Resources.getTranslation("menubar.game.mnemonic")).getKeyCode());
 		
-		final JMenuItem newMenuItem = new JMenuItem(NEW_STRING);
+		final JMenuItem newMenuItem = new JMenuItem(Resources.getTranslation(NEW_STRING));
+		newMenuItem.setActionCommand(NEW_STRING);
+		
 		newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
 		
-		final JMenuItem openMenuItem = new JMenuItem(OPEN_STRING);
+		final JMenuItem openMenuItem = new JMenuItem(Resources.getTranslation(OPEN_STRING));
+		openMenuItem.setActionCommand(OPEN_STRING);
+		
 		openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 		
-		final JMenuItem quitMenuItem = new JMenuItem(QUIT_STRING);
+		final JMenuItem quitMenuItem = new JMenuItem(Resources.getTranslation(QUIT_STRING));
+		quitMenuItem.setActionCommand(QUIT_STRING);
 		quitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
 				
 		saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		saveMenuItem.setEnabled(puzzle.isSaved());
 		
-		final JMenuItem generateAndExportMenuItem = new JMenuItem(GENERATE_AND_EXPORT_STRING);
-		final JMenuItem exportAsImageMenuItem = new JMenuItem(EXPORT_AS_IMAGE_STRING);
-		final JMenuItem exportToPdfMenuItem = new JMenuItem(EXPORT_TO_PDF_STRING);
-		final JMenuItem saveAsMenuItem = new JMenuItem(SAVE_AS_STRING);		
+		final JMenuItem generateAndExportMenuItem = new JMenuItem(
+				Resources.getTranslation(GENERATE_AND_EXPORT_STRING));
+		generateAndExportMenuItem.setActionCommand(GENERATE_AND_EXPORT_STRING);
+		
+		final JMenuItem exportAsImageMenuItem = new JMenuItem(
+				Resources.getTranslation(EXPORT_AS_IMAGE_STRING));
+		exportAsImageMenuItem.setActionCommand(EXPORT_AS_IMAGE_STRING);
+		
+		final JMenuItem exportToPdfMenuItem = new JMenuItem(Resources.getTranslation(EXPORT_TO_PDF_STRING));
+		exportToPdfMenuItem.setActionCommand(EXPORT_TO_PDF_STRING);
+		
+		final JMenuItem saveAsMenuItem = new JMenuItem(Resources.getTranslation(SAVE_AS_STRING));
+		saveAsMenuItem.setActionCommand(SAVE_AS_STRING);
 		
 		gameMenu.add(newMenuItem);
 		gameMenu.add(openMenuItem);
@@ -538,7 +575,8 @@ public class MainWindow {
 	
 	private JMenu buildEditMenu() {
 		final JMenu editMenu = new JMenu(EDIT_MENU);
-		editMenu.setMnemonic(KeyEvent.VK_E);
+		editMenu.setMnemonic(KeyStroke.getKeyStroke(
+				Resources.getTranslation("menubar.edit.mnemonic")).getKeyCode());
 		
 		final ActionListener actionListener = new EditMenuActionHandler(this, board);
 		final ActionListener undoListener = new UndoActionHandler(this);
@@ -551,11 +589,13 @@ public class MainWindow {
 		redoMenuItem.addActionListener(undoListener);
 		redoMenuItem.setEnabled(false);
 		
-		final JMenuItem copyMenuItem = new JMenuItem(COPY_STRING);
+		final JMenuItem copyMenuItem = new JMenuItem(Resources.getTranslation(COPY_STRING));		
 		copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
+		copyMenuItem.setActionCommand(COPY_STRING);
 		
-		final JMenuItem pasteMenuItem = new JMenuItem(PASTE_STRING);
+		final JMenuItem pasteMenuItem = new JMenuItem(Resources.getTranslation(PASTE_STRING));		
 		pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
+		pasteMenuItem.setActionCommand(PASTE_STRING);
 		
 		clearPencilmarksMenuItem.setEnabled(false);
 		clearColorsMenuItem.setEnabled(false);		
@@ -581,15 +621,19 @@ public class MainWindow {
 	
 	private JMenu buildPuzzleMenu() {
 		final JMenu puzzleMenu = new JMenu(PUZZLE_MENU);
-		puzzleMenu.setMnemonic(KeyEvent.VK_P);
+		puzzleMenu.setMnemonic(KeyStroke.getKeyStroke(
+				Resources.getTranslation("menubar.puzzle.mnemonic")).getKeyCode());
 		
 		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
 		giveClueMenuItem.setEnabled(false);
 		
 		fillPencilmarksMenuItem.setEnabled(false);
 		
+		final JMenuItem resetMenuItem = new JMenuItem(Resources.getTranslation(RESET_STRING));
+		resetMenuItem.setActionCommand(RESET_STRING);
+		
 		final JMenuItem[] puzzleMenuItems = {verifyMenuItem, checkMenuItem, solveMenuItem, 
-				new JMenuItem(RESET_STRING), giveClueMenuItem, fillPencilmarksMenuItem,
+				resetMenuItem, giveClueMenuItem, fillPencilmarksMenuItem,
 				flagWrongEntriesMenuItem};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
@@ -613,7 +657,8 @@ public class MainWindow {
 	
 	private JMenu buildViewMenu() {
 		final JMenu viewMenu = new JMenu(VIEW_MENU);
-		viewMenu.setMnemonic(KeyEvent.VK_V);
+		viewMenu.setMnemonic(KeyStroke.getKeyStroke(
+				Resources.getTranslation("menubar.view.mnemonic")).getKeyCode());
 		
 		final JCheckBoxMenuItem[] viewMenuItems = {showColorsToolBarMenuItem, showSymbolsToolBarMenuItem};
 		final ActionListener actionListener = new ViewMenuActionHandler(this);
@@ -635,8 +680,8 @@ public class MainWindow {
 			System.exit(0);
 		}
 		else {
-			final String message = "Do you really want to quit?";
-			final String title = "Confirm quit";
+			final String message = Resources.getTranslation("game.quit.question");
+			final String title = Resources.getTranslation("game.quit.confirm");
 			
 			final int choice = JOptionPane.showConfirmDialog(window, message,
 					title, JOptionPane.YES_NO_OPTION);

@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.matic.sudoku.util.Constants;
+import com.matic.sudoku.Resources;
 
 public class SlicingAndSlotting extends LogicStrategy {
 	
@@ -70,8 +70,8 @@ public class SlicingAndSlotting extends LogicStrategy {
 		
 		for(final int[] emptyCell : emptyCells) {			
 			for(int i = 1; i <= unit; ++i) {
-				final int emptyCellX = emptyCell[Constants.X];
-				final int emptyCellY = emptyCell[Constants.Y];
+				final int emptyCellX = emptyCell[Resources.X];
+				final int emptyCellY = emptyCell[Resources.Y];
 				
 				//Check if this digit is already filled in this box
 				if(boxSingles.contains(i)) {

@@ -18,16 +18,21 @@
 *
 */
 
-package com.matic.sudoku.util;
+package com.matic.sudoku;
 
 import java.util.Random;
+import java.util.ResourceBundle;
 
 /**
- * Various constants used that do not belong to any specific class 
+ * Various resources (such as translations and images) used by the application 
  * @author vedran
  *
  */
-public class Constants {
+public class Resources {
+	
+	//Resource bundle holding language translations for the active language
+	private static final ResourceBundle LANGUAGE_RESOURCE_BUNDLE = 
+			ResourceBundle.getBundle("resources.lang");
 	
 	//When used as an array index, represents a board's X coordinate
 	public static final int X = 0;
@@ -42,6 +47,15 @@ public class Constants {
 	public static final Random RANDOM_INSTANCE = new Random(System.nanoTime());
 
 	//Prevent instantiation of this class
-	private Constants() {}
-
+	private Resources() {}
+	
+	/**
+	 * Get string translation for the active language
+	 * 
+	 * @param string String to translate
+	 * @return String translated to the currently active language
+	 */
+	public static String getTranslation(final String string) {
+		return LANGUAGE_RESOURCE_BUNDLE.getString(string);
+	}
 }

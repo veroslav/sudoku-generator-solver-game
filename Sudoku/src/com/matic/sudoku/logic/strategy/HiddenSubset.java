@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.util.Algorithms;
-import com.matic.sudoku.util.Constants;
 
 public class HiddenSubset extends Subset {
 
@@ -95,11 +95,11 @@ public class HiddenSubset extends Subset {
 			final List<Integer> eliminationCandidates = new ArrayList<Integer>();
 			
 			for(final int[] emptyCell : emptyCells) {			
-				if(belongsToSubset(emptyCell[Constants.Y], emptyCell[Constants.X], subset)) {
-					subsetCandidates.addAll(candidates.getAsSet(emptyCell[Constants.Y], emptyCell[Constants.X]));
+				if(belongsToSubset(emptyCell[Resources.Y], emptyCell[Resources.X], subset)) {
+					subsetCandidates.addAll(candidates.getAsSet(emptyCell[Resources.Y], emptyCell[Resources.X]));
 				}
 				else {
-					nonSubsetCandidates.addAll(candidates.getAsSet(emptyCell[Constants.Y], emptyCell[Constants.X]));
+					nonSubsetCandidates.addAll(candidates.getAsSet(emptyCell[Resources.Y], emptyCell[Resources.X]));
 				}
 			}
 			
@@ -148,7 +148,7 @@ public class HiddenSubset extends Subset {
 	private void eliminateCandidates(final List<Integer> eliminationCandidates, final int[][] subset) {
 		for(final int[] pair : subset) {
 			for(int candidate : eliminationCandidates) {
-				candidates.remove(candidate, pair[Constants.Y], pair[Constants.X]);
+				candidates.remove(candidate, pair[Resources.Y], pair[Resources.X]);
 			}
 		}
 	}
