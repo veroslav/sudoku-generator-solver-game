@@ -42,6 +42,7 @@ import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileFilter;
 
 import com.lowagie.text.DocumentException;
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.generator.GeneratorResult;
 import com.matic.sudoku.gui.GenerateAndExportWindow;
 import com.matic.sudoku.gui.NewPuzzleWindowOptions;
@@ -124,10 +125,14 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			currentPath = new File(exporterParameters.getOutputPath()).getParent();
 			pdfExporter.write(exporterParameters, mainWindow.generator, board.getDimension());
 		} catch (final IOException e) {
-			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
+			JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("export.error.message"), 
+					Resources.getTranslation("export.error.title"), 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		} catch (final DocumentException e) {
-			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while creating the PDF file", "Export error", 
+			JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("export.pdf.error"), 
+					Resources.getTranslation("export.error.title"), 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -217,12 +222,15 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			result = fileManager.fromFile(file);
 			
 		} catch(final IOException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, "A read error occured while loading the puzzle.", 
-					"File open error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("file.open.error.message"), 
+					Resources.getTranslation("file.open.error.title"), 
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		} catch(final UnsupportedPuzzleFormatException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage() + ".", 
-					"File open error", JOptionPane.ERROR_MESSAGE);
+					Resources.getTranslation("file.open.error.title"), 
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}	
 		
@@ -246,10 +254,14 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			currentPath = targetFile.getParent();
 			pdfExporter.write(getBoardCopy(board), targetFile);
 		} catch (final DocumentException e) {
-			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while creating the PDF file", "Export error", 
+			JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("export.pdf.error"), 
+					Resources.getTranslation("export.error.title"), 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		} catch (final IOException e) {
-			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
+			JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("export.error.message"), 
+					Resources.getTranslation("export.error.title"), 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -268,7 +280,9 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			imageExporter.write(getBoardCopy(board), targetFile, storageProperties.getFileSuffix());
 			
 		} catch (final IOException e) {
-			JOptionPane.showConfirmDialog(mainWindow.window, "An error occured while writing the file", "Export error", 
+			JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("export.error.message"), 
+					Resources.getTranslation("export.error.title"), 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -350,8 +364,10 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		if(targetFile.exists()) {
-			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
-					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("file.exists.message"), 
+					Resources.getTranslation("file.exists.title"), 
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(overwriteFile != JOptionPane.YES_OPTION) {
 				return false;
 			}
@@ -360,9 +376,9 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		//Warn player when saving to formats other than SadMan Sudoku
 		if(formatType != FormatType.SADMAN_SUDOKU) {
 			final int saveInSimpleFormat = JOptionPane.showConfirmDialog(mainWindow.window, 
-					"When saving in this format, color and pencilmark information might get lost.\n" +
-							"Save anyway?", 
-					"File format", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					Resources.getTranslation("file.nondefault.format.message"), 
+					Resources.getTranslation("file.nondefault.format.title"), 
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(saveInSimpleFormat != JOptionPane.YES_OPTION) {
 				return false;
 			}
@@ -398,8 +414,10 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		File targetFile = saveAsChooser.getSelectedFile();
 		if(targetFile.exists()) {
-			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, "The file already exists. Overwrite?", 
-					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("file.exists.message"), 
+					Resources.getTranslation("file.exists.title"), 
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(overwriteFile != JOptionPane.YES_OPTION) {
 				return null;
 			}
@@ -505,10 +523,14 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		try {
 			fileManager.write(targetFile, puzzleBean);
 		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, "An error occured while saving the file", "Write error", 
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("file.write.error.message"), 
+					Resources.getTranslation("file.write.error.title"), 
 					JOptionPane.ERROR_MESSAGE);
 		} catch (final UnsupportedPuzzleFormatException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), "Write error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
+					Resources.getTranslation("file.write.error.title"), 
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -520,7 +542,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		final NewPuzzleWindowOptions newPuzzleWindowOptions = new NewPuzzleWindowOptions();
-		final String title = "New puzzle";
+		final String title = Resources.getTranslation("puzzle.new");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, newPuzzleWindowOptions.getOptionsPanel(), 
 				title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		
@@ -537,8 +559,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			
 			if(generatorResult == null) {
 				JOptionPane.showMessageDialog(mainWindow.window,
-						"Failed to generate a new puzzle of specified difficulty.",
-						"New puzzle", JOptionPane.INFORMATION_MESSAGE);
+						Resources.getTranslation("puzzle.new.error"),
+						title, JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 		}
@@ -593,7 +615,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 	
 	private boolean handleOldPuzzleModifications() {		
 		if(mainWindow.puzzle.isModified()) {
-			final boolean modificationsSaved = mainWindow.handlePuzzleModification("Save changes?");
+			final boolean modificationsSaved = mainWindow.handlePuzzleModification(
+					Resources.getTranslation("puzzle.save.changes"));
 			mainWindow.updateWindowTitle();
 			return modificationsSaved;
 		}

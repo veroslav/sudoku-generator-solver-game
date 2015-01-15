@@ -23,14 +23,17 @@ package com.matic.sudoku.gui.undo;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.board.Board;
 
 public class UndoablePencilmarkEntryAction extends UndoableBoardEntryAction {
 
 	private static final long serialVersionUID = 517831715113903723L;
 	
-	public static final String INSERT_PENCILMARK_PRESENTATION_NAME = "add pencilmark";
-	public static final String DELETE_PENCILMARK_PRESENTATION_NAME = "delete pencilmark";
+	public static final String INSERT_PENCILMARK_PRESENTATION_NAME = 
+			Resources.getTranslation("action.add_pencilmark");
+	public static final String DELETE_PENCILMARK_PRESENTATION_NAME = 
+			Resources.getTranslation("action.delete_pencilmark");
 		
 	private final int[] oldValues;
 	private final boolean deleted;

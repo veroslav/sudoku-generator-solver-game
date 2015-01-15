@@ -35,6 +35,8 @@ import java.util.Map;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.matic.sudoku.Resources;
+
 /**
  * A class for managing puzzle extraction from Strings/Files and offering methods for
  * storing puzzles to the disk. The following are the supported puzzle formats:
@@ -49,10 +51,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileFormatManager {
 	
-	public static final String SDK_SUDOKU_FILTER_NAME = "Sadman and SudoCue Sudoku files";
-	public static final String SADMAN_SUDOKU_FILTER_NAME = "Sadman Sudoku files";
-	public static final String SIMPLE_SUDOKU_FILTER_NAME = "Simple Sudoku files";
-	public static final String SUDOCUE_SUDOKU_FILTER_NAME = "SudoCue files";
+	public static final String SDK_SUDOKU_FILTER_NAME = "format.sdk";
+	public static final String SADMAN_SUDOKU_FILTER_NAME = "format.sadman";
+	public static final String SIMPLE_SUDOKU_FILTER_NAME = "format.simple_sudoku";
+	public static final String SUDOCUE_SUDOKU_FILTER_NAME = "format.sudocue";
 	public static final String EMPTY_STRING = "";
 	
 	private static final String SDK_EXTENSION = "sdk";
@@ -86,17 +88,22 @@ public class FileFormatManager {
 	
 	public static FileFilter[] getSupportedFileSaveFilters() {
 		final FileFilter[] fileFilters = {
-				new FileNameExtensionFilter(SADMAN_SUDOKU_FILTER_NAME, SDK_EXTENSION),
-				new FileNameExtensionFilter(SIMPLE_SUDOKU_FILTER_NAME, SS_EXTENSION),
-				new FileNameExtensionFilter(SUDOCUE_SUDOKU_FILTER_NAME, SDK_EXTENSION)};
+				new FileNameExtensionFilter(Resources.getTranslation("format.sadman"), 
+						SDK_EXTENSION),
+				new FileNameExtensionFilter(Resources.getTranslation("format.simple_sudoku"), 
+						SS_EXTENSION),
+				new FileNameExtensionFilter(Resources.getTranslation("format.sudocue"), 
+						SDK_EXTENSION)};
 		
 		return fileFilters;
 	}
 	
 	public static FileFilter[] getSupportedFileOpenFilters() {
 		final FileFilter[] fileFilters = {
-				new FileNameExtensionFilter(SDK_SUDOKU_FILTER_NAME, SDK_EXTENSION),
-				new FileNameExtensionFilter(SIMPLE_SUDOKU_FILTER_NAME, SS_EXTENSION)};
+				new FileNameExtensionFilter(
+						Resources.getTranslation("format.sdk"), SDK_EXTENSION),
+				new FileNameExtensionFilter(
+						Resources.getTranslation("format.simple_sudoku"), SS_EXTENSION)};
 		
 		return fileFilters;
 	}

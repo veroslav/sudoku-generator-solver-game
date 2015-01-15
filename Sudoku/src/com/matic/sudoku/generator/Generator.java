@@ -20,6 +20,7 @@
 
 package com.matic.sudoku.generator;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.LogicSolver;
 import com.matic.sudoku.solver.LogicSolver.Grading;
@@ -32,8 +33,12 @@ import com.matic.sudoku.solver.LogicSolver.Grading;
 public abstract class Generator {
 	
 	public enum Symmetry {
-		NONE("None"), ROTATIONAL_180("180\u00B0 Rotational"), VERTICAL_MIRRORING("Vertical mirroring"),
-		HORIZONTAL_MIRRORING("Horizontal mirroring"), DIAGONAL("Diagonal"), ANTI_DIAGONAL("Anti-diagonal");
+		NONE(Resources.getTranslation("symmetry.none")), 
+		ROTATIONAL_180(Resources.getTranslation("symmetry.rotational")), 
+		VERTICAL_MIRRORING(Resources.getTranslation("symmetry.vertical_mirroring")),
+		HORIZONTAL_MIRRORING(Resources.getTranslation("symmetry.horizontal_mirroring")), 
+		DIAGONAL(Resources.getTranslation("symmetry.diagonal")), 
+		ANTI_DIAGONAL(Resources.getTranslation("symmetry.anti_diagonal"));
 		
 		private final String description;
 		

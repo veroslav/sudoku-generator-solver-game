@@ -44,6 +44,7 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.generator.Generator.Symmetry;
 import com.matic.sudoku.gui.board.Board.SymbolType;
 import com.matic.sudoku.io.export.ExportManager;
@@ -63,7 +64,7 @@ import com.matic.sudoku.solver.LogicSolver.Grading;
 
 public class GenerateAndExportWindow implements ActionListener, PropertyChangeListener {
 	
-	private static final String RANDOM_STRING = "Random";
+	private static final String RANDOM_STRING = Resources.getTranslation("generate.random");
 	
 	private final JTextField puzzleCountField;
 	private final JTextField outputPathField;	
@@ -83,15 +84,15 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	private final JOptionPane optionPane;
 	private final ExportManager exportManager;
 	
-	private final String exportButtonLabel = "Export";
-    private final String cancelButtonLabel = "Cancel";
+	private final String exportButtonLabel = Resources.getTranslation("export.title");
+    private final String cancelButtonLabel = Resources.getTranslation("button.cancel");
     private final String currentPath;
     
     private final JDialog dialog;    
 
 	public GenerateAndExportWindow(final JFrame parent, final ExportManager exportManager,
 			final String currentPath) {			
-		dialog = new JDialog(parent, "Generate and Export", true);
+		dialog = new JDialog(parent, Resources.getTranslation("generate.export.title"), true);
 		this.exportManager = exportManager;
 		this.currentPath = currentPath;
 		
@@ -101,14 +102,21 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		outputPathField = new JTextField();
 		outputPathField.setEditable(false);
 		
-		showDifficultiesCheck = new JCheckBox("Show puzzle difficulties", true);
-		showNumberingCheck = new JCheckBox("Show puzzle numberings", true);
+		showDifficultiesCheck = new JCheckBox(
+				Resources.getTranslation("generate.show_difficulties"), true);
+		showNumberingCheck = new JCheckBox(
+				Resources.getTranslation("generate.show_numberings"), true);
 		
-		puzzleTypeCombo = new JComboBox<String>(new String[] {"Generate new puzzles", "Blank puzzles"});		
+		puzzleTypeCombo = new JComboBox<String>(new String[] {
+				Resources.getTranslation("generate.new_puzzles"), 
+				Resources.getTranslation("generate.blank_puzzles")});		
 		puzzleTypeCombo.addActionListener(this);
 		
-		symbolsCombo = new JComboBox<String>(new String[] {"Digits", "Letters", RANDOM_STRING});
-		puzzleOrderCombo = new JComboBox<String>(new String[] {"Difficulty", RANDOM_STRING});
+		symbolsCombo = new JComboBox<String>(new String[] {
+				Resources.getTranslation("symbols.digits"), 
+				Resources.getTranslation("symbols.letters"), RANDOM_STRING});
+		puzzleOrderCombo = new JComboBox<String>(new String[] {
+				Resources.getTranslation("generate.difficulty"), RANDOM_STRING});
 		puzzlesPerPageCombo = new JComboBox<String>(new String[] {"1", "2", "4"});
 		puzzlesPerPageCombo.setSelectedIndex(1);
 		
@@ -117,7 +125,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		
 		addComboBoxItems();
 		
-		browseButton = new JButton("Browse...");
+		browseButton = new JButton(Resources.getTranslation("button.browse"));
 		browseButton.addActionListener(this);
 		
 		final JPanel mainPanel = buildContentPanel();

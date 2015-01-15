@@ -40,6 +40,7 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.Sudoku;
 import com.matic.sudoku.generator.Generator;
 import com.matic.sudoku.generator.Generator.Symmetry;
@@ -59,7 +60,7 @@ import com.matic.sudoku.solver.LogicSolver.Grading;
  */
 public class PdfExporter implements FileSaveFilter {		
 	
-	public static final String PDF_FILTER_NAME = "Portable Document Format (PDF)";	
+	public static final String PDF_FILTER_NAME = Resources.getTranslation("format.pdf");	
 	public static final String PDF_SUFFIX = "pdf";
 	
 	private static final Color LEGEND_COLOR = new Color(50, 50, 50, 70);

@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.io.FileSaveFilter;
 
@@ -39,9 +40,9 @@ import com.matic.sudoku.io.FileSaveFilter;
  */
 public class ImageExporter implements FileSaveFilter {
 	
-	private static final String JPEG_FILTER_NAME = "JPEG image";
-	private static final String PNG_FILTER_NAME = "PNG image";
-	private static final String GIF_FILTER_NAME = "GIF image";
+	private static final String JPEG_FILTER_NAME = "format.jpeg";
+	private static final String PNG_FILTER_NAME = "format.png";
+	private static final String GIF_FILTER_NAME = "format.gif";
 	
 	private static final String JPEG_SUFFIX = "jpg";
 	private static final String PNG_SUFFIX = "png";
@@ -50,9 +51,15 @@ public class ImageExporter implements FileSaveFilter {
 	@Override
 	public FileFilter[] getSupportedFileSaveFilters() {
 		final FileFilter[] fileFilters = {
-				new FileNameExtensionFilter(PNG_FILTER_NAME, PNG_SUFFIX),
-				new FileNameExtensionFilter(JPEG_FILTER_NAME, JPEG_SUFFIX),				
-				new FileNameExtensionFilter(GIF_FILTER_NAME, GIF_SUFFIX)};		
+				new FileNameExtensionFilter(
+						Resources.getTranslation(PNG_FILTER_NAME), 
+						PNG_SUFFIX),
+				new FileNameExtensionFilter(
+						Resources.getTranslation(JPEG_FILTER_NAME), 
+						JPEG_SUFFIX),				
+				new FileNameExtensionFilter(
+						Resources.getTranslation(GIF_FILTER_NAME), 
+						GIF_SUFFIX)};		
 		
 		return fileFilters;
 	}

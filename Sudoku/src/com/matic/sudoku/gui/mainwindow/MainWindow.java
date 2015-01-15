@@ -108,14 +108,14 @@ public class MainWindow {
 	protected static final String SOLVE_STRING = "puzzle.solve";
 	
 	//Other String constants
-	protected static final String FOCUS_OFF_TOOLTIP_TEXT = "<html>Click in a cell to assign it this value." +
-			"<br/>Right-click to enter a pencilmark.</html>";
-	static final String FOCUS_ON_TOOLTIP_TEXT = "Click to toggle focus on this candidate";
-	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = "Enable or disable candidate focus";
-	private static final String FOCUS_BUTTON_TEXT = "Focus";
+	protected static final String FOCUS_OFF_TOOLTIP_TEXT = Resources.getTranslation("focus.off.tooltip");
+	static final String FOCUS_ON_TOOLTIP_TEXT = Resources.getTranslation("focus.on.tooltip");
+	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = Resources.getTranslation("focus.button.tooltip");
+	private static final String FOCUS_BUTTON_TEXT = Resources.getTranslation("focus.button");
 	
-	private static final String FOCUS_ALL_BUTTON_TOOLTIP_TEXT = "Click to focus on all or no candidates";
-	private static final String FOCUS_ALL_BUTTON_TEXT = "All";
+	private static final String FOCUS_ALL_BUTTON_TOOLTIP_TEXT = 
+			Resources.getTranslation("focusall.button.tooltip");
+	private static final String FOCUS_ALL_BUTTON_TEXT = Resources.getTranslation("focusall.button");
 	
 	private static final String WINDOW_TITLE_SEPARATOR = " - ";
 	private static final String PUZZLE_MODIFIED_INDICATOR = "*";
@@ -362,7 +362,7 @@ public class MainWindow {
 	private JToolBar buildColorsToolBar() {		
 		final ToolBarPropertyChangeHandler toolBarPropertyChangeHandler = new ToolBarPropertyChangeHandler();
 		final ActionListener colorHandler = new ColorSelectionActionHandler();
-		final String toolTipText = "Ctrl-click on a cell to apply this color";
+		final String toolTipText = Resources.getTranslation("color.button.tooltip");
 		
 		final JToggleButton[] colorButtons = new ColoredToggleButton[Board.CELL_SELECTION_COLORS.length - 1];		
 		final ButtonGroup colorButtonsGroup = new ButtonGroup();
@@ -673,7 +673,8 @@ public class MainWindow {
 	
 	protected void handleQuit() {
 		if(puzzle.isModified()) {
-			final boolean handledByPlayer = handlePuzzleModification("Save changes before exiting?");
+			final boolean handledByPlayer = handlePuzzleModification(
+					Resources.getTranslation("save.on.exit"));
 			if(!handledByPlayer) {
 				return;
 			}
@@ -692,9 +693,9 @@ public class MainWindow {
 	}
 	
 	protected boolean handlePuzzleModification(final String playerMessage) {
-		final String title = "Puzzle modified";
-		final String message = "Puzzle has been modified." + (playerMessage != null? 
-				" " + playerMessage : "");		
+		final String title = Resources.getTranslation("puzzle.modified");
+		final String message = Resources.getTranslation("puzzle.was.modified") + 
+				(playerMessage != null? " " + playerMessage : "");		
 		
 		final int choice = JOptionPane.showConfirmDialog(window, message,
 				title, JOptionPane.YES_NO_CANCEL_OPTION);
@@ -758,8 +759,9 @@ public class MainWindow {
 	protected void handlePuzzleSolved(final boolean showConfirmationDialog) {
 		if(showConfirmationDialog) {
 			JOptionPane.showMessageDialog(window,
-					"Congratulations! You solved the puzzle correctly.",
-					"Puzzle solved", JOptionPane.INFORMATION_MESSAGE);
+					Resources.getTranslation("puzzle.solved.message"),
+					Resources.getTranslation("puzzle.solved.title"), 
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 		//Prevent the player from undoing any moves and using aids, as the puzzle has been solved
 		flagWrongEntriesMenuItem.setEnabled(false);

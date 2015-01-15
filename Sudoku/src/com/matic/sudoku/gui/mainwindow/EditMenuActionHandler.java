@@ -32,6 +32,7 @@ import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.io.FileFormatManager;
 import com.matic.sudoku.io.PuzzleBean;
@@ -54,7 +55,7 @@ class EditMenuActionHandler implements ActionListener {
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(final ActionEvent e) {
 		final String actionCommand = e.getActionCommand();
 		
 		switch(actionCommand) {
@@ -74,8 +75,8 @@ class EditMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleClearPencilmarksAction() {
-		final String message = "Are you sure you want to clear all pencilmarks?";
-		final String title = "Confirm pencilmarks edit";
+		final String message = Resources.getTranslation("pencilmarks.clear.message");
+		final String title = Resources.getTranslation("pencilmarks.clear.title");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
 				message, title, JOptionPane.YES_NO_OPTION,
 				JOptionPane.WARNING_MESSAGE);
@@ -89,8 +90,8 @@ class EditMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleClearColorsAction() {
-		final String message = "Are you sure you want to clear all cells' colors?";
-		final String title = "Confirm color edit";
+		final String message = Resources.getTranslation("colors.clear.message");
+		final String title = Resources.getTranslation("colors.clear.title");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
 				message, title, JOptionPane.YES_NO_OPTION,
 				JOptionPane.WARNING_MESSAGE);
@@ -120,8 +121,8 @@ class EditMenuActionHandler implements ActionListener {
 		}	
 		
 		// Warn player about board contents being replaced		
-		final String message = "Are you sure you want to replace board contents?";
-		final String title = "Confirm replace";
+		final String message = Resources.getTranslation("paste.message");
+		final String title = Resources.getTranslation("paste.title");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window,
 				message, title, JOptionPane.YES_NO_OPTION,
 				JOptionPane.WARNING_MESSAGE);
@@ -134,11 +135,14 @@ class EditMenuActionHandler implements ActionListener {
 		try {
 			puzzleBean = fileFormatManager.fromString(clipboardContents);
 		} catch(final IOException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, "Invalid clipboard content", "Paste",
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("paste.invalid"), 
+					Resources.getTranslation("paste.name"),
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		} catch(final UnsupportedPuzzleFormatException e) {
-			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), "Paste",
+			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage(), 
+					Resources.getTranslation("paste.name"),
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}

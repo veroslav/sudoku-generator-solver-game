@@ -20,6 +20,7 @@
 
 package com.matic.sudoku.solver;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.logic.Candidates;
 import com.matic.sudoku.logic.strategy.HiddenSingles;
 import com.matic.sudoku.logic.strategy.HiddenSubset;
@@ -52,8 +53,11 @@ public class LogicSolver {
 
 	// Puzzle grading constants
 	public enum Grading {
-		EASY("Easy"), MODERATE("Moderate"), HARD("Hard"), 
-		EXPERT("Expert"), DIABOLIC("Diabolic");
+		EASY(Resources.getTranslation("puzzle.easy")), 
+		MODERATE(Resources.getTranslation("puzzle.moderate")), 
+		HARD(Resources.getTranslation("puzzle.hard")), 
+		EXPERT(Resources.getTranslation("puzzle.expert")), 
+		DIABOLIC(Resources.getTranslation("puzzle.diabolic"));
 		
 		private final String description;
 		

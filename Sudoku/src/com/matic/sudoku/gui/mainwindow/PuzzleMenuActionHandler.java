@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.board.Board;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
@@ -115,8 +116,8 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleFillPencilmarks() {
-		final String message = "This will replace already entered pencilmarks.\nContinue?";
-		final String title = "Confirm pencilmark replacement";
+		final String message = Resources.getTranslation("pencilmarks.replace.message");
+		final String title = Resources.getTranslation("pencilmarks.clear.title");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message, title, 
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(choice == JOptionPane.YES_OPTION) {
@@ -131,7 +132,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 		if(!board.isVerified()) {
 			return;
 		}
-		final String title = "Check puzzle";
+		final String title = Resources.getTranslation("puzzle.check");
 		final int incorrectCount = mainWindow.puzzle.getIncorrectCount();
 		final int filledCount = board.getSymbolsFilledCount();
 		final int leftCount = board.cellCount - filledCount;
@@ -139,21 +140,29 @@ class PuzzleMenuActionHandler implements ActionListener {
 		final StringBuilder sb = new StringBuilder();
 		
 		if(incorrectCount > 0) {
-			sb.append(incorrectCount == 1? "There is " : "There are ");
+			sb.append(incorrectCount == 1? Resources.getTranslation("puzzle.check.error.a") + 
+					" " : Resources.getTranslation("puzzle.check.error.b") + " ");
 			sb.append(incorrectCount);
-			sb.append(" wrong ");
-			sb.append(incorrectCount == 1? "entry.\n" : "entries.\n");
+			sb.append(" ");
+			sb.append(Resources.getTranslation("puzzle.check.error.c"));
+			sb.append(" ");
+			sb.append(incorrectCount == 1? Resources.getTranslation("puzzle.check.error.d") + 
+					"\n" : Resources.getTranslation("puzzle.check.error.e") + "\n");
 		}
 		else {
-			sb.append("Everything looks good.\n");
+			sb.append(Resources.getTranslation("puzzle.check.ok"));
+			sb.append("\n");
 		}
 		
 		sb.append(board.getSymbolType().getDescription());
-		sb.append(" entered: ");
+		sb.append(" ");
+		sb.append(Resources.getTranslation("puzzle.check.entered"));
+		sb.append(": ");
 		sb.append(filledCount);
 		sb.append("\n");
 		sb.append(leftCount);
-		sb.append(" left to go.");
+		sb.append(" ");
+		sb.append(Resources.getTranslation("puzzle.check.left"));
 		
 		JOptionPane.showMessageDialog(mainWindow.window, sb.toString(), title, 
 				JOptionPane.INFORMATION_MESSAGE);
@@ -163,16 +172,18 @@ class PuzzleMenuActionHandler implements ActionListener {
 		if(!board.isVerified()) {
 			return;
 		}
-		final String title = "Give clue";
+		final String title = Resources.getTranslation("clue.give.title");
 		if(mainWindow.bruteForceSolver.solve(board.getPuzzle()) != BruteForceSolver.UNIQUE_SOLUTION) {
-			JOptionPane.showMessageDialog(mainWindow.window, "Invalid puzzle entered.", title, 
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("puzzle.invalid.message"), title, 
 					JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 		final LogicStrategy strategy = mainWindow.logicSolver.nextStep(board.toIntMatrix(), true);
 		if(strategy == null) {
 			//Current puzzle is invalid, no clues could be found, display message
-			JOptionPane.showMessageDialog(mainWindow.window, "No clues available.", title, 
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("puzzle.invalid.message"), title, 
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 		else {
@@ -207,8 +218,8 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleResetAction() {
-		final String message = "Do you really want to clear all player entries?";
-		final String title = "Confirm reset";
+		final String message = Resources.getTranslation("puzzle.reset.message");
+		final String title = Resources.getTranslation("puzzle.reset.title");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message, title, 
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(choice == JOptionPane.YES_OPTION) {
@@ -228,7 +239,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleVerifyAction() {			
-		final String title = "Verify puzzle";
+		final String title = Resources.getTranslation("puzzle.verify.title");
 		
 		final int[] enteredPuzzle = board.getPuzzle();
 		final int bruteForceSolution = mainWindow.bruteForceSolver.solve(enteredPuzzle);
@@ -237,7 +248,8 @@ class PuzzleMenuActionHandler implements ActionListener {
 		//First check if there is a unique solution
 		if(bruteForceSolution == BruteForceSolver.NO_SOLUTION ||
 				bruteForceSolution == BruteForceSolver.INVALID_PUZZLE) {
-			JOptionPane.showMessageDialog(mainWindow.window, "No solution found.", 
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("puzzle.solution.error"), 
 					title, JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
@@ -252,7 +264,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 			case BruteForceSolver.UNIQUE_SOLUTION:
 				//A unique solution found but not possible to solve using logic only
 				final int showSolutionChoice = JOptionPane.showConfirmDialog(mainWindow.window, 
-						"A unique solution exists but can't be deducted using logic only. Show solution?", 
+						Resources.getTranslation("puzzle.solution.bruteforce.message"), 
 						title, JOptionPane.YES_NO_OPTION);
 				if(showSolutionChoice == JOptionPane.YES_OPTION) {
 					board.setPuzzle(enteredPuzzle);
@@ -260,17 +272,20 @@ class PuzzleMenuActionHandler implements ActionListener {
 				break;
 			case BruteForceSolver.MULTIPLE_SOLUTIONS:
 				//Multiple solutions were found, show one of these to the player
-				JOptionPane.showMessageDialog(mainWindow.window, "Multiple solutions found.", title, 
-						JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(mainWindow.window, 
+						Resources.getTranslation("puzzle.multiple.solutions.message"), 
+						title, JOptionPane.INFORMATION_MESSAGE);
 				break;
 			}
 			return;
 		}
 		
 		final Grading grading = mainWindow.logicSolver.getGrading();
-		final String message = "Puzzle has a unique solution, estimated difficulty: " + grading.getDescription();
+		final String message = Resources.getTranslation("puzzle.unique.solution.message") + 
+				": " + grading.getDescription();
 		
-		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message + ".\nStart playing?", title, 
+		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message + ".\n" +
+				Resources.getTranslation("game.start_playing"), title, 
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			
 		if(choice == JOptionPane.YES_OPTION) {
@@ -284,10 +299,9 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	private void handleSolveAction() {	
-		final String title = "Solve puzzle";
+		final String title = Resources.getTranslation("puzzle.solve.title");
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, 
-				"This will reveal puzzle's solution.\n" +
-				"Are you sure you want to continue?", title, 
+				Resources.getTranslation("puzzle.solve.message"), title, 
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		
 		if(choice != JOptionPane.YES_OPTION) {
@@ -310,10 +324,14 @@ class PuzzleMenuActionHandler implements ActionListener {
 			mainWindow.handlePuzzleSolved(false);
 			break;
 		case BruteForceSolver.NO_SOLUTION:
-			JOptionPane.showMessageDialog(mainWindow.window, "No solution found.", title, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("puzzle.solution.error"), 
+					title, JOptionPane.INFORMATION_MESSAGE);
 			break;
 		case BruteForceSolver.MULTIPLE_SOLUTIONS:
-			JOptionPane.showMessageDialog(mainWindow.window, "Multiple solutions found.", title, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("puzzle.multiple.solutions.message"), 
+					title, JOptionPane.INFORMATION_MESSAGE);
 			break;
 		}
 	}

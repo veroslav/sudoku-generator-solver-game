@@ -23,11 +23,12 @@ package com.matic.sudoku.gui.undo;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.board.Board;
 
 public class UndoableColorEntryAction extends UndoableBoardEntryAction {
 
-	private static final String PRESENTATION_NAME = "cell color";
+	private static final String PRESENTATION_NAME = Resources.getTranslation("action.cell_color");
 		
 	private static final long serialVersionUID = 1L;
 	private final int oldValue;
