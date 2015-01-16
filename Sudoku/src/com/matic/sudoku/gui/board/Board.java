@@ -37,6 +37,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
@@ -53,7 +54,8 @@ public class Board extends JPanel {
 	private static final long serialVersionUID = -1713421450354914241L;	
 
 	public enum SymbolType {
-		DIGITS("Digits"), LETTERS("Letters");
+		DIGITS(Resources.getTranslation("symbols.digits")), 
+		LETTERS(Resources.getTranslation("symbols.letters"));
 		
 		private final String description;
 		

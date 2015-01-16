@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
+import com.matic.sudoku.Resources;
 import com.matic.sudoku.gui.undo.UndoableBoardEntryAction;
 import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.gui.undo.UndoableColorEntryAction;
@@ -99,13 +100,13 @@ class UndoActionHandler implements ActionListener {
 		}
 	}
 	
-	private boolean validatePencilmarkAction(final UndoableBoardEntryAction undoAction, final boolean isUndo) {
-		final String actionName = isUndo? "undo" : "redo";
-		final String title = isUndo? "Undo" : "Redo";
+	private boolean validatePencilmarkAction(final UndoableBoardEntryAction undoAction, final boolean isUndo) {		
+		final String title = isUndo? Resources.getTranslation("edit.undo") : 
+			Resources.getTranslation("edit.redo");
 		//Pencilmark edits are only possible when focus is OFF. Ask the player to switch OFF focus mode
 		if(mainWindow.focusButton.isSelected() && undoAction instanceof UndoablePencilmarkEntryAction) {
-			final int choice = JOptionPane.showConfirmDialog(mainWindow.window, "Can't " + actionName + 
-					" pencilmark edit in focus mode.\nLeave focus mode to " + actionName + "?", 
+			final int choice = JOptionPane.showConfirmDialog(mainWindow.window, 
+					Resources.getTranslation("error.focus.action"), 
 					title, JOptionPane.YES_NO_OPTION);
 			if(choice != JOptionPane.YES_OPTION) {
 				return false;

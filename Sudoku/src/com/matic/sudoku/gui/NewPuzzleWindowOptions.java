@@ -43,8 +43,10 @@ import com.matic.sudoku.solver.LogicSolver.Grading;
  */
 public class NewPuzzleWindowOptions {
 	
-	private static final String RANDOM_SYMMETRY = "Random";
-	private static final String RANDOM_GRADING = "Random";	
+	private static final String RANDOM_SYMMETRY = 
+			Resources.getTranslation("generate.random");
+	private static final String RANDOM_GRADING = 
+			Resources.getTranslation("generate.random");	
 	
 	private final JPanel mainPanel;
 	
@@ -58,10 +60,14 @@ public class NewPuzzleWindowOptions {
 		mainPanel = new JPanel(new BorderLayout());
 				
 		final ComboBoxActionHandler actionHandler = new ComboBoxActionHandler();
-		newOrEmptyCombo = new JComboBox<String>(new String[] {"Generate new puzzle", "Blank puzzle"});
+		newOrEmptyCombo = new JComboBox<String>(new String[] {
+				Resources.getTranslation("generate.new_puzzle"), 
+				Resources.getTranslation("generate.blank_puzzle")});
 		newOrEmptyCombo.addActionListener(actionHandler);
 		
-		symbolsCombo = new JComboBox<String>(new String[] {"Digits", "Letters"});
+		symbolsCombo = new JComboBox<String>(new String[] {
+				Resources.getTranslation("symbols.digits"), 
+				Resources.getTranslation("symbols.letters")});
 		
 		typeCombo = new JComboBox<String>(new String[] {"3x3", "9x9", "16x16"});
 		typeCombo.setEnabled(false);
@@ -120,15 +126,15 @@ public class NewPuzzleWindowOptions {
 	
 	private void build() {
 		final JPanel panel = new JPanel(new GridLayout(5,2));
-		panel.add(new JLabel("Create: "));
+		panel.add(new JLabel(Resources.getTranslation("puzzle.create") + ": "));
 		panel.add(newOrEmptyCombo);
-		panel.add(new JLabel("Type: "));
+		panel.add(new JLabel(Resources.getTranslation("puzzle.type") + ": "));
 		panel.add(typeCombo);
-		panel.add(new JLabel("Symbols: "));
+		panel.add(new JLabel(Resources.getTranslation("symbols.label") + ": "));
 		panel.add(symbolsCombo);
-		panel.add(new JLabel("Difficulty: "));
+		panel.add(new JLabel(Resources.getTranslation("generate.difficulty") + ": "));
 		panel.add(difficultyCombo);
-		panel.add(new JLabel("Symmetry: "));
+		panel.add(new JLabel(Resources.getTranslation("symmetry.name") + ": "));
 		panel.add(symmetryCombo);
 		
 		mainPanel.add(panel, BorderLayout.NORTH);

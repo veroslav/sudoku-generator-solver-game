@@ -207,7 +207,9 @@ public class FileFormatManager {
 	private void writeSimpleFormat(final PrintWriter writer, final int[] puzzle) 
 			throws IOException, UnsupportedPuzzleFormatException {
 		if(puzzle == null) {
-			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+			System.err.println("Missing puzzle");
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		for(int i = 0; i < puzzle.length; ++i) {
 			if(puzzle[i] > 0) {
@@ -222,7 +224,9 @@ public class FileFormatManager {
 	private void writeSimpleSudokuFormat(final PrintWriter writer, final int[] puzzle) 
 			throws IOException, UnsupportedPuzzleFormatException {
 		if(puzzle == null) {
-			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+			System.err.println("Missing puzzle");
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		int puzzleIndex = 0;
 		for(int i = 0; i < CLASSIC_PUZZLE_UNIT; ++i) {
@@ -257,7 +261,9 @@ public class FileFormatManager {
 		final int[] puzzle = puzzleBean.getPuzzle();		
 		
 		if(puzzle == null || givens == null) {
-			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+			System.err.println("Missing either puzzle or givens");
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		
 		final Map<String, String> headers = puzzleBean.getHeaders();
@@ -283,7 +289,9 @@ public class FileFormatManager {
 			final Map<String, String> headers) 
 			throws UnsupportedPuzzleFormatException {
 		if(puzzle == null) {
-			throw new UnsupportedPuzzleFormatException("Missing puzzle");
+			System.err.println("Missing puzzle");
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		if(headers != null) {
 			writeSdkHeaders(writer, headers, false);
@@ -397,7 +405,9 @@ public class FileFormatManager {
 		String firstLine = reader.readLine();
 		
 		if(firstLine == null) {
-			throw new UnsupportedPuzzleFormatException("Empty input file");
+			System.err.println("Empty input file");
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		
 		firstLine = firstLine.trim();
@@ -495,12 +505,16 @@ public class FileFormatManager {
 				puzzle = parseSdkPuzzleSection(reader, line);
 			}
 			else {
-				throw new UnsupportedPuzzleFormatException("Unknown or invalid puzzle format");
+				System.err.println("Unknown or invalid puzzle format");
+				throw new UnsupportedPuzzleFormatException(
+						Resources.getTranslation("puzzle.invalid.content"));
 			}
 		} while((line = reader.readLine()) != null);
 		
 		if(puzzle == null) {
-			throw new UnsupportedPuzzleFormatException("No puzzle found");
+			System.err.println("No puzzle found");
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		
 		//Update givens if [State] section is found
@@ -536,7 +550,9 @@ public class FileFormatManager {
 			throws IOException, UnsupportedPuzzleFormatException {
 		final String headlessLine = reader.readLine();
 		if(headlessLine == null) {
-			throw new UnsupportedPuzzleFormatException(errorMessage);
+			System.err.println(errorMessage);
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		return headlessLine.trim();
 	}
@@ -619,7 +635,9 @@ public class FileFormatManager {
 					colors[puzzleIndex] = Character.getNumericValue(currentChar);
 				}
 				else if(currentChar != DOT_CHAR) {
-					throw new UnsupportedPuzzleFormatException(errorMessage);
+					System.err.println(errorMessage);
+					throw new UnsupportedPuzzleFormatException(
+							Resources.getTranslation("puzzle.invalid.content"));
 				}
 				++puzzleIndex;
 			}
@@ -659,7 +677,9 @@ public class FileFormatManager {
 					for(int j = 0; j < cellPencilmarks.length(); ++j) {
 						final int pencilmarkValue = Character.getNumericValue(cellPencilmarks.charAt(j));
 						if(!(pencilmarkValue > 0 && pencilmarkValue <= puzzleUnit)) {
-							throw new UnsupportedPuzzleFormatException("Invalid pencilmark value: " + pencilmarkValue);
+							System.err.println("Invalid pencilmark value: " + pencilmarkValue);
+							throw new UnsupportedPuzzleFormatException(
+									Resources.getTranslation("puzzle.invalid.content"));
 						}
 						pencilmarks[i][rowIndex].set(pencilmarkValue - 1);
 					}
@@ -719,7 +739,9 @@ public class FileFormatManager {
 					puzzle[puzzleIndex++] = 0;
 				}
 				else {
-					throw new UnsupportedPuzzleFormatException("Invalid " + SADMAN_PUZZLE_TAG + " section");
+					System.err.println("Invalid " + SADMAN_PUZZLE_TAG + " section");
+					throw new UnsupportedPuzzleFormatException(
+							Resources.getTranslation("puzzle.invalid.content"));
 				}
 			}			
 		} while(++rowIndex < puzzleUnit && (line = reader.readLine().trim()) != null && !line.isEmpty());
@@ -745,7 +767,9 @@ public class FileFormatManager {
 		} while((line = reader.readLine()) != null);
 		
 		if(puzzleIndex != puzzle.length) {
-			throw new UnsupportedPuzzleFormatException("Invalid puzzle length");
+			System.err.println("Invalid puzzle length, index = " + puzzleIndex);
+			throw new UnsupportedPuzzleFormatException(
+					Resources.getTranslation("puzzle.invalid.content"));
 		}
 		
 		final PuzzleBean response = new PuzzleBean(puzzle);
@@ -769,7 +793,9 @@ public class FileFormatManager {
 				puzzle[j++] = 0;
 			}
 			else if(currentChar != columnSeparator) {
-				throw new UnsupportedPuzzleFormatException("Invalid puzzle row format");
+				System.err.println("Invalid puzzle row format, char: " + currentChar);
+				throw new UnsupportedPuzzleFormatException(
+						Resources.getTranslation("puzzle.invalid.content"));
 			}
 		}
 	}

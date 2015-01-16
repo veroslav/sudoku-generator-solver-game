@@ -266,15 +266,20 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		//Validate output file path
 		final String outputPath = outputPathField.getText();
 		if(outputPath == null || outputPath.trim().length() == 0) {
-			JOptionPane.showMessageDialog(dialog, "An output file must be selected.", "Missing input", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(dialog, 
+					Resources.getTranslation("export.output.error.message"), 
+					Resources.getTranslation("export.invalid_input"), 
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		
 		//Check if it is ok to overwrite an existing file
 		final File targetFile = new File(outputPath);
 		if(targetFile.exists()) {
-			final int overwriteFile = JOptionPane.showConfirmDialog(dialog, "The file already exists. Overwrite?", 
-					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			final int overwriteFile = JOptionPane.showConfirmDialog(dialog, 
+					Resources.getTranslation("file.exists.message"), 
+					Resources.getTranslation("file.exists.title"), 
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(overwriteFile != JOptionPane.YES_OPTION) {
 				return false;
 			}
@@ -283,14 +288,18 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		try {
 			final int puzzleCount = Integer.parseInt(puzzleCountField.getText());
 			if(puzzleCount < 1) {
-				JOptionPane.showMessageDialog(dialog, "Number of puzzles to generate must be greater than zero.", 
-						"Invalid input", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(dialog, 
+						Resources.getTranslation("export.zero_puzzles.error.message"), 
+						Resources.getTranslation("export.invalid_input"), 
+						JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 		}
 		catch(final NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(dialog, "Number of puzzles to generate must be an integer.", 
-					"Invalid input", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(dialog, 
+					Resources.getTranslation("export.puzzle_count.error.message"), 
+					Resources.getTranslation("export.invalid_input"), 
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
@@ -334,7 +343,8 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		southPanel.add(buildFormattingOptionsPanel(), BorderLayout.NORTH);
 		southPanel.add(buildDisplayOptionsPanel(), BorderLayout.SOUTH);
 		
-		southPanel.setBorder(BorderFactory.createTitledBorder("PDF export options"));
+		southPanel.setBorder(BorderFactory.createTitledBorder(
+				Resources.getTranslation("export.border.pdf")));
 		
 		return southPanel;
 	}
@@ -345,7 +355,8 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		panel.add(outputPathField, BorderLayout.CENTER);
 		panel.add(browseButton, BorderLayout.EAST);
 		
-		panel.setBorder(BorderFactory.createTitledBorder("Select output file"));
+		panel.setBorder(BorderFactory.createTitledBorder(
+				Resources.getTranslation("export.border.output")));
 		
 		return panel;
 	}
@@ -353,18 +364,19 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	private JPanel buildGeneratorOptionsPanel() {
 		final JPanel panel = new JPanel(new GridLayout(5,2));
 		
-		panel.add(new JLabel("Grid type: "));
+		panel.add(new JLabel(Resources.getTranslation("export.grid_type") + ": "));
 		panel.add(puzzleTypeCombo);
-		panel.add(new JLabel("Number of puzzles to create: "));
+		panel.add(new JLabel(Resources.getTranslation("export.puzzle_count") + ": "));
 		panel.add(puzzleCountField);
-		panel.add(new JLabel("Symbols: "));
+		panel.add(new JLabel(Resources.getTranslation("symbols.label") + ": "));
 		panel.add(symbolsCombo);
-		panel.add(new JLabel("Difficulty: "));
+		panel.add(new JLabel(Resources.getTranslation("generate.difficulty") + ": "));
 		panel.add(difficultyCombo);
-		panel.add(new JLabel("Symmetry: "));
+		panel.add(new JLabel(Resources.getTranslation("symmetry.name") + ": "));
 		panel.add(symmetryCombo);
 		
-		panel.setBorder(BorderFactory.createTitledBorder("Generator options"));
+		panel.setBorder(BorderFactory.createTitledBorder(
+				Resources.getTranslation("export.border.generator")));
 		
 		return panel;
 	}
@@ -373,11 +385,11 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		final JPanel panel = new JPanel(new BorderLayout());
 		
 		final JPanel perPagePanel = new JPanel(new GridLayout());
-		perPagePanel.add(new JLabel("Puzzles per page: "));
+		perPagePanel.add(new JLabel(Resources.getTranslation("export.puzzles_per_page") + ": "));
 		perPagePanel.add(puzzlesPerPageCombo);
 				
 		final JPanel orderPanel = new JPanel(new GridLayout());
-		orderPanel.add(new JLabel("Order puzzles by: "));
+		orderPanel.add(new JLabel(Resources.getTranslation("export.puzzle_ordering") + ": "));
 		orderPanel.add(puzzleOrderCombo);
 		
 		panel.add(perPagePanel, BorderLayout.NORTH);
