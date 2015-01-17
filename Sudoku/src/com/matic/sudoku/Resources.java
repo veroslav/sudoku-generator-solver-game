@@ -23,6 +23,8 @@ package com.matic.sudoku;
 import java.util.Random;
 import java.util.ResourceBundle;
 
+import javax.swing.UIManager;
+
 /**
  * Various resources (such as translations and images) used by the application 
  * @author vedran
@@ -45,6 +47,12 @@ public class Resources {
 	
 	//A single random instance to use for randomness generation needs of the whole app
 	public static final Random RANDOM_INSTANCE = new Random(System.nanoTime());
+	
+	static {		
+		UIManager.put("OptionPane.yesButtonText", LANGUAGE_RESOURCE_BUNDLE.getString("button.yes"));
+		UIManager.put("OptionPane.noButtonText", LANGUAGE_RESOURCE_BUNDLE.getString("button.no"));
+		UIManager.put("OptionPane.cancelButtonText", LANGUAGE_RESOURCE_BUNDLE.getString("button.cancel"));
+	}
 
 	//Prevent instantiation of this class
 	private Resources() {}
