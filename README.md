@@ -1,6 +1,8 @@
 sudoku-generator-solver-game
 ============================
 
+Contact: sudonkey(at)gmx(dot)com
+
 A sudoku game featuring a puzzle generator and a solver written in Java programing language.
 
 System Requirements: Java Runtime Environment (JRE) 1.7 or later
