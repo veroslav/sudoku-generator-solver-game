@@ -137,9 +137,11 @@ public class Board extends JPanel {
 	
 	private static Color PENCILMARK_FONT_COLOR = new Color(0, 43, 54);
 	
-	//Available colors the player can use for cell selections
-	public static final Color[] CELL_SELECTION_COLORS = {BACKGROUND_COLOR, Color.orange, new Color(46, 245, 39), 
-			new Color(255, 144, 150), new Color(52, 236, 230), Color.yellow};
+	//Available colors the player can use for cell selections	
+	public static final Color[] CELL_SELECTION_COLORS = {BACKGROUND_COLOR, 
+		new Color(253, 188, 75), new Color(255, 144, 150), 
+		new Color(244, 119, 80), new Color(29, 153, 243), 
+		new Color(46, 204, 113)};
 	
 	//Color index of the board's default background color (white)
 	private final int defaultBackgroundColorIndex = 0;
