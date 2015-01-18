@@ -83,7 +83,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		this.mainWindow = mainWindow;
 		this.board = board;
 		
-		currentPath = System.getProperty(USER_HOME_PROPERTY_NAME);
+		currentPath = Resources.getProperty(Resources.CURRENT_PATH, 
+				System.getProperty(USER_HOME_PROPERTY_NAME));
 	}
 	
 	@Override
@@ -123,6 +124,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		final PdfExporter pdfExporter = new PdfExporter();
 		try {
 			currentPath = new File(exporterParameters.getOutputPath()).getParent();
+			Resources.setProperty(Resources.CURRENT_PATH, currentPath);
 			pdfExporter.write(exporterParameters, mainWindow.generator, board.getDimension());
 		} catch (final IOException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, 
@@ -252,6 +254,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		try {
 			final File targetFile = storageProperties.getFile();
 			currentPath = targetFile.getParent();
+			Resources.setProperty(Resources.CURRENT_PATH, currentPath);
 			pdfExporter.write(getBoardCopy(board), targetFile);
 		} catch (final DocumentException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, 
@@ -277,6 +280,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		try {
 			final File targetFile = storageProperties.getFile();
 			currentPath = targetFile.getParent();
+			Resources.setProperty(Resources.CURRENT_PATH, currentPath);
 			imageExporter.write(getBoardCopy(board), targetFile, storageProperties.getFileSuffix());
 			
 		} catch (final IOException e) {
@@ -331,6 +335,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			puzzleFile = file;
 		}
 		currentPath = puzzleFile.getParent();
+		Resources.setProperty(Resources.CURRENT_PATH, currentPath);
 		if(populateFromFile(puzzleFile)) {
 			onPuzzleStateChanged(false);
 		}
@@ -355,6 +360,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		File targetFile = saveAsChooser.getSelectedFile();
 		currentPath = targetFile.getParent();
+		Resources.setProperty(Resources.CURRENT_PATH, currentPath);
 		
 		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
 		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);

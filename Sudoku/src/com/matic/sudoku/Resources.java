@@ -43,11 +43,14 @@ public class Resources {
 	//Resource bundle holding language translations for the active language
 	private static ResourceBundle LANGUAGE_RESOURCE_BUNDLE; 
 	
+	//Language identifier for the default language (English)
+	private static final String DEFAULT_LANG_VALUE = "en";
+	
 	//Resource key pointing to the player selected language ("en" by default and empty)
 	private static final String PLAYER_LANG_KEY = "player.lang";
 	
-	//Language identifier for the default language (English)
-	private static final String DEFAULT_LANG_VALUE = "en";
+	//Last path selected when opening and storing puzzles
+	public static final String CURRENT_PATH = "current.path";
 	
 	//When used as an array index, represents a board's X coordinate
 	public static final int X = 0;
@@ -79,6 +82,17 @@ public class Resources {
 
 	//Prevent instantiation of this class
 	private Resources() {}
+	
+	/**
+	 * Get a value of an application property
+	 * 
+	 * @param propName Property name
+	 * @param defaultValue Default value to set and return if it is a new property
+	 * @return
+	 */
+	public static String getProperty(final String propName, final String defaultValue) {
+		return APPLICATION_PREFERENCES.get(propName, defaultValue);
+	}
 	
 	/**
 	 * Update existing och create a new application property with the given value
