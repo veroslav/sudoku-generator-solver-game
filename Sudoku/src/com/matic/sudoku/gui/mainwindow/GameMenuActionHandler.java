@@ -371,7 +371,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			if(overwriteFile != JOptionPane.YES_OPTION) {
 				return false;
 			}
-		}
+		}		
 		
 		//Warn player when saving to formats other than SadMan Sudoku
 		if(formatType != FormatType.SADMAN_SUDOKU) {
@@ -505,15 +505,19 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		return headers;
 	}
 	
-	private FormatType getFormatType(final FileFilter fileFilter) {
-		switch(fileFilter.getDescription()) {
-		case FileFormatManager.SADMAN_SUDOKU_FILTER_NAME:
+	private FormatType getFormatType(final FileFilter fileFilter) {		
+		final String filterDescription = fileFilter.getDescription();
+		
+		if(FileFormatManager.SADMAN_SUDOKU_FILTER_NAME.equals(filterDescription)) {		
 			return FormatType.SADMAN_SUDOKU;
-		case FileFormatManager.SUDOCUE_SUDOKU_FILTER_NAME:
+		}
+		else if(FileFormatManager.SUDOCUE_SUDOKU_FILTER_NAME.equals(filterDescription)) {
 			return FormatType.SUDOCUE_SUDOKU;
-		case FileFormatManager.SIMPLE_SUDOKU_FILTER_NAME:
+		}
+		else if(FileFormatManager.SIMPLE_SUDOKU_FILTER_NAME.equals(filterDescription)) {
 			return FormatType.SIMPLE_SUDOKU;
-		default:
+		}
+		else {
 			return FormatType.SIMPLE_FORMAT;
 		}
 	}

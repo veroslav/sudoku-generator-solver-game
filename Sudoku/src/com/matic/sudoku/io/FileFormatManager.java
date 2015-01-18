@@ -51,10 +51,10 @@ import com.matic.sudoku.Resources;
 
 public class FileFormatManager {
 	
-	public static final String SDK_SUDOKU_FILTER_NAME = "format.sdk";
-	public static final String SADMAN_SUDOKU_FILTER_NAME = "format.sadman";
-	public static final String SIMPLE_SUDOKU_FILTER_NAME = "format.simple_sudoku";
-	public static final String SUDOCUE_SUDOKU_FILTER_NAME = "format.sudocue";
+	public static final String SDK_SUDOKU_FILTER_NAME = Resources.getTranslation("format.sdk");
+	public static final String SADMAN_SUDOKU_FILTER_NAME = Resources.getTranslation("format.sadman");
+	public static final String SIMPLE_SUDOKU_FILTER_NAME = Resources.getTranslation("format.simple_sudoku");
+	public static final String SUDOCUE_SUDOKU_FILTER_NAME = Resources.getTranslation("format.sudocue");
 	public static final String EMPTY_STRING = "";
 	
 	private static final String SDK_EXTENSION = "sdk";
