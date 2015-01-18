@@ -26,11 +26,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+import java.util.Locale;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -46,6 +49,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -53,6 +57,7 @@ import javax.swing.UIManager;
 
 import com.matic.sudoku.Resources;
 import com.matic.sudoku.Sudoku;
+import com.matic.sudoku.action.LanguageActionHandler;
 import com.matic.sudoku.generator.ClassicGenerator;
 import com.matic.sudoku.generator.Generator;
 import com.matic.sudoku.gui.Puzzle;
@@ -83,6 +88,7 @@ public class MainWindow {
 	private static final String EDIT_MENU = Resources.getTranslation("menubar.edit");
 	private static final String PUZZLE_MENU = Resources.getTranslation("menubar.puzzle");
 	private static final String VIEW_MENU = Resources.getTranslation("menubar.view");
+	private static final String TOOLS_MENU = Resources.getTranslation("menubar.tools");
 	
 	//Menu options strings
 	protected static final String GENERATE_AND_EXPORT_STRING = "game.generate_and_export";
@@ -93,8 +99,9 @@ public class MainWindow {
 	protected static final String FILL_PENCILMARKS_STRING = "puzzle.fill_pencilmarks";
 	protected static final String FLAG_WRONG_ENTRIES_STRING = "puzzle.flag_wrong_entries";
 	protected static final String CLEAR_COLORS_STRING = "edit.clear_colors";
-	protected static final String CLEAR_PENCILMARKS_STRING = "edit.clear_pencilmarks";
+	protected static final String CLEAR_PENCILMARKS_STRING = "edit.clear_pencilmarks";	
 	protected static final String GIVE_CLUE_STRING = "puzzle.give_clue";
+	protected static final String LANGUAGE_STRING = "tools.language";
 	protected static final String NEW_STRING = "game.new";
 	protected static final String OPEN_STRING = "game.open";
 	protected static final String SAVE_AS_STRING = "game.save_as";
@@ -511,6 +518,7 @@ public class MainWindow {
 		menuBar.add(buildEditMenu());
 		menuBar.add(buildPuzzleMenu());
 		menuBar.add(buildViewMenu());
+		menuBar.add(buildToolsMenu());
 	}
 	
 	private JMenu buildGameMenu() {
@@ -669,6 +677,44 @@ public class MainWindow {
 		}
 		
 		return viewMenu;
+	}
+	
+	private JMenu buildToolsMenu() {
+		final JMenu toolsMenu = new JMenu(TOOLS_MENU);
+		toolsMenu.setMnemonic(KeyStroke.getKeyStroke(
+				Resources.getTranslation("menubar.tools.mnemonic")).getKeyCode());
+		
+		toolsMenu.add(buildLanguageMenu());
+		
+		return toolsMenu;
+	}
+	
+	private JMenu buildLanguageMenu() {
+		final JMenu languageMenu = new JMenu(Resources.getTranslation(LANGUAGE_STRING));
+		
+		final List<Locale> foundLocales = Resources.getAvailableResourceLocales();
+		final String currentLanguage = Resources.getLanguage();
+		
+		final ItemListener itemListener = new LanguageActionHandler(window);
+		final ButtonGroup langGroup = new ButtonGroup(); 
+		
+		for(final Locale locale : foundLocales) {
+			final String langCode = locale.getLanguage();
+			final JRadioButtonMenuItem langMenuItem = new JRadioButtonMenuItem(
+					Resources.getLanguagePresentationName(locale));
+			
+			if(langCode.equals(currentLanguage)) {
+				langMenuItem.setSelected(true);
+			}
+			
+			langMenuItem.setActionCommand(langCode);
+			langMenuItem.addItemListener(itemListener);
+			
+			langGroup.add(langMenuItem);
+			languageMenu.add(langMenuItem);
+		}
+		
+		return languageMenu;
 	}
 	
 	protected void handleQuit() {

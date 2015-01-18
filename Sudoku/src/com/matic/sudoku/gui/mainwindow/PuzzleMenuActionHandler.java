@@ -52,7 +52,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(final ActionEvent e) {
 		final String actionCommand = e.getActionCommand();
 		
 		switch(actionCommand) {
@@ -154,7 +154,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 			sb.append("\n");
 		}
 		
-		sb.append(board.getSymbolType().getDescription());
+		sb.append(Resources.getTranslation("symbols.label"));
 		sb.append(" ");
 		sb.append(Resources.getTranslation("puzzle.check.entered"));
 		sb.append(": ");
