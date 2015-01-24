@@ -56,6 +56,7 @@ public class FileFormatManager {
 	public static final String SIMPLE_SUDOKU_FILTER_NAME = Resources.getTranslation("format.simple_sudoku");
 	public static final String SUDOCUE_SUDOKU_FILTER_NAME = Resources.getTranslation("format.sudocue");
 	public static final String EMPTY_STRING = "";
+	public static final char DOT_CHAR = '.';
 	
 	private static final String SDK_EXTENSION = "sdk";
 	private static final String SS_EXTENSION = "ss";
@@ -75,7 +76,6 @@ public class FileFormatManager {
 	private static final char SADMAN_HEADER_TAG = '#';
 	private static final char SPACE_CHAR = ' ';
 	private static final char ZERO_CHAR = '0';
-	private static final char DOT_CHAR = '.';
 	
 	private static final int CLASSIC_PUZZLE_CELL_COUNT = 81;
 	private static final int CLASSIC_PUZZLE_DIMENSION = 3;
@@ -117,6 +117,23 @@ public class FileFormatManager {
 			return SS_EXTENSION;
 		default:
 			return EMPTY_STRING;	
+		}
+	}
+	
+	public static FormatType getFormatType(final FileFilter fileFilter) {		
+		final String filterDescription = fileFilter.getDescription();
+		
+		if(FileFormatManager.SADMAN_SUDOKU_FILTER_NAME.equals(filterDescription)) {		
+			return FormatType.SADMAN_SUDOKU;
+		}
+		else if(FileFormatManager.SUDOCUE_SUDOKU_FILTER_NAME.equals(filterDescription)) {
+			return FormatType.SUDOCUE_SUDOKU;
+		}
+		else if(FileFormatManager.SIMPLE_SUDOKU_FILTER_NAME.equals(filterDescription)) {
+			return FormatType.SIMPLE_SUDOKU;
+		}
+		else {
+			return FormatType.SIMPLE_FORMAT;
 		}
 	}
 	

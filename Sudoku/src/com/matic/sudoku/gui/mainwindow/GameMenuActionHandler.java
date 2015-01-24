@@ -223,13 +223,15 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		try {				
 			result = fileManager.fromFile(file);
 			
-		} catch(final IOException e) {
+		} 
+		catch(final IOException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, 
 					Resources.getTranslation("file.open.error.message"), 
 					Resources.getTranslation("file.open.error.title"), 
 					JOptionPane.ERROR_MESSAGE);
 			return false;
-		} catch(final UnsupportedPuzzleFormatException e) {
+		} 
+		catch(final UnsupportedPuzzleFormatException e) {
 			JOptionPane.showMessageDialog(mainWindow.window, e.getMessage() + ".", 
 					Resources.getTranslation("file.open.error.title"), 
 					JOptionPane.ERROR_MESSAGE);
@@ -252,16 +254,16 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		try {
-			final File targetFile = storageProperties.getFile();
-			currentPath = targetFile.getParent();
-			Resources.setProperty(Resources.CURRENT_PATH, currentPath);
+			final File targetFile = storageProperties.getFile();			
 			pdfExporter.write(getBoardCopy(board), targetFile);
-		} catch (final DocumentException e) {
+		} 
+		catch(final DocumentException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, 
 					Resources.getTranslation("export.pdf.error"), 
 					Resources.getTranslation("export.error.title"), 
 					JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
-		} catch (final IOException e) {
+		} 
+		catch(final IOException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, 
 					Resources.getTranslation("export.error.message"), 
 					Resources.getTranslation("export.error.title"), 
@@ -278,12 +280,11 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		
 		try {
-			final File targetFile = storageProperties.getFile();
-			currentPath = targetFile.getParent();
-			Resources.setProperty(Resources.CURRENT_PATH, currentPath);
+			final File targetFile = storageProperties.getFile();			
 			imageExporter.write(getBoardCopy(board), targetFile, storageProperties.getFileSuffix());
 			
-		} catch (final IOException e) {
+		} 
+		catch (final IOException e) {
 			JOptionPane.showConfirmDialog(mainWindow.window, 
 					Resources.getTranslation("export.error.message"), 
 					Resources.getTranslation("export.error.title"), 
@@ -344,6 +345,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 	private boolean handleSaveAs() {
 		final FileFilter[] fileFilters = FileFormatManager.getSupportedFileSaveFilters();
 		final JFileChooser saveAsChooser = new JFileChooser(currentPath);
+		saveAsChooser.setAcceptAllFileFilterUsed(false);
 		
 		for(final FileFilter fileFilter : fileFilters) {
 			saveAsChooser.addChoosableFileFilter(fileFilter);
@@ -362,10 +364,11 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		currentPath = targetFile.getParent();
 		Resources.setProperty(Resources.CURRENT_PATH, currentPath);
 		
-		final FormatType formatType = getFormatType(saveAsChooser.getFileFilter());
+		final FormatType formatType = FileFormatManager.getFormatType(saveAsChooser.getFileFilter());
 		final String fileSuffix = FileFormatManager.getFormatTypeExtensionName(formatType);
 		
-		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
+		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath()
+				.endsWith(FileFormatManager.DOT_CHAR + fileSuffix)){
 		    targetFile = new File(targetFile + "." + fileSuffix);
 		}
 		
@@ -404,6 +407,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 	private StorageProperties confirmFileSave(final FileSaveFilter savable) {
 		final FileFilter[] fileFilters = savable.getSupportedFileSaveFilters();
 		final JFileChooser saveAsChooser = new JFileChooser(currentPath);
+		saveAsChooser.setAcceptAllFileFilterUsed(false);
 		
 		for(final FileFilter fileFilter : fileFilters) {
 			saveAsChooser.addChoosableFileFilter(fileFilter);
@@ -417,8 +421,18 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		if(choice != JFileChooser.APPROVE_OPTION) {
 			return null;
 		}
+				
+		final String filePath = saveAsChooser.getSelectedFile().getAbsolutePath();				
+		final FileFilter selectedFileFilter = saveAsChooser.getFileFilter();
+		final String fileSuffix = savable.getFileSuffix(selectedFileFilter.getDescription());
 		
-		File targetFile = saveAsChooser.getSelectedFile();
+		final File targetFile = new File(!fileSuffix.equals(FileFormatManager.EMPTY_STRING) && !filePath
+				.endsWith(FileFormatManager.DOT_CHAR + fileSuffix)?
+		    filePath + "." + fileSuffix : filePath);		
+		
+		currentPath = targetFile.getParent();
+		Resources.setProperty(Resources.CURRENT_PATH, currentPath);
+		
 		if(targetFile.exists()) {
 			final int overwriteFile = JOptionPane.showConfirmDialog(mainWindow.window, 
 					Resources.getTranslation("file.exists.message"), 
@@ -427,13 +441,6 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			if(overwriteFile != JOptionPane.YES_OPTION) {
 				return null;
 			}
-		}
-		
-		final FileFilter selectedFileFilter = saveAsChooser.getFileFilter();
-		final String fileSuffix = savable.getFileSuffix(selectedFileFilter.getDescription());
-		
-		if(fileSuffix != FileFormatManager.EMPTY_STRING && !targetFile.getAbsolutePath().endsWith(fileSuffix)){
-		    targetFile = new File(targetFile + "." + fileSuffix);
 		}
 		
 		final StorageProperties storageProperties = new StorageProperties(targetFile, selectedFileFilter, fileSuffix);		
@@ -509,23 +516,6 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}			
 		
 		return headers;
-	}
-	
-	private FormatType getFormatType(final FileFilter fileFilter) {		
-		final String filterDescription = fileFilter.getDescription();
-		
-		if(FileFormatManager.SADMAN_SUDOKU_FILTER_NAME.equals(filterDescription)) {		
-			return FormatType.SADMAN_SUDOKU;
-		}
-		else if(FileFormatManager.SUDOCUE_SUDOKU_FILTER_NAME.equals(filterDescription)) {
-			return FormatType.SUDOCUE_SUDOKU;
-		}
-		else if(FileFormatManager.SIMPLE_SUDOKU_FILTER_NAME.equals(filterDescription)) {
-			return FormatType.SIMPLE_SUDOKU;
-		}
-		else {
-			return FormatType.SIMPLE_FORMAT;
-		}
 	}
 	
 	private void writeFile(final File targetFile, final PuzzleBean puzzleBean) {

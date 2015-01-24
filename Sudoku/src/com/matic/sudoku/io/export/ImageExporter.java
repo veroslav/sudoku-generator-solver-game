@@ -24,6 +24,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
@@ -40,40 +42,35 @@ import com.matic.sudoku.io.FileSaveFilter;
  */
 public class ImageExporter implements FileSaveFilter {
 	
-	private static final String JPEG_FILTER_NAME = "format.jpeg";
-	private static final String PNG_FILTER_NAME = "format.png";
-	private static final String GIF_FILTER_NAME = "format.gif";
+	private static final String JPEG_FILTER_NAME = Resources.getTranslation("format.jpeg");
+	private static final String PNG_FILTER_NAME = Resources.getTranslation("format.png");
+	private static final String GIF_FILTER_NAME = Resources.getTranslation("format.gif");
 	
 	private static final String JPEG_SUFFIX = "jpg";
 	private static final String PNG_SUFFIX = "png";
 	private static final String GIF_SUFFIX = "gif";
 	
+	private static final Map<String, String> SUFFIX_MAPPINGS = new HashMap<>();
+	
+	static {
+		SUFFIX_MAPPINGS.put(JPEG_FILTER_NAME, JPEG_SUFFIX);
+		SUFFIX_MAPPINGS.put(PNG_FILTER_NAME, PNG_SUFFIX);
+		SUFFIX_MAPPINGS.put(GIF_FILTER_NAME, GIF_SUFFIX);
+	}
+	
 	@Override
 	public FileFilter[] getSupportedFileSaveFilters() {
 		final FileFilter[] fileFilters = {
-				new FileNameExtensionFilter(
-						Resources.getTranslation(PNG_FILTER_NAME), 
-						PNG_SUFFIX),
-				new FileNameExtensionFilter(
-						Resources.getTranslation(JPEG_FILTER_NAME), 
-						JPEG_SUFFIX),				
-				new FileNameExtensionFilter(
-						Resources.getTranslation(GIF_FILTER_NAME), 
-						GIF_SUFFIX)};		
+				new FileNameExtensionFilter(PNG_FILTER_NAME, PNG_SUFFIX),
+				new FileNameExtensionFilter(JPEG_FILTER_NAME, JPEG_SUFFIX),				
+				new FileNameExtensionFilter(GIF_FILTER_NAME, GIF_SUFFIX)};		
 		
 		return fileFilters;
 	}
 	
 	@Override
 	public String getFileSuffix(final String description) {
-		switch(description) {
-		case JPEG_FILTER_NAME:
-			return JPEG_SUFFIX;
-		case GIF_FILTER_NAME:
-			return GIF_SUFFIX;
-		default:
-			return PNG_SUFFIX;	
-		}
+		return SUFFIX_MAPPINGS.get(description);
 	}
 
 	/**

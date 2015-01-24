@@ -47,6 +47,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.matic.sudoku.Resources;
 import com.matic.sudoku.generator.Generator.Symmetry;
 import com.matic.sudoku.gui.board.Board.SymbolType;
+import com.matic.sudoku.io.FileFormatManager;
 import com.matic.sudoku.io.export.ExportManager;
 import com.matic.sudoku.io.export.ExporterParameters;
 import com.matic.sudoku.io.export.ExporterParameters.ExportMode;
@@ -234,7 +235,8 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	private void handleBrowse() {		
 		final FileFilter pdfFileFilter = new FileNameExtensionFilter(
 				PdfExporter.PDF_FILTER_NAME, PdfExporter.PDF_SUFFIX);
-		final JFileChooser saveAsChooser = new JFileChooser(currentPath);				
+		final JFileChooser saveAsChooser = new JFileChooser(currentPath);	
+		saveAsChooser.setAcceptAllFileFilterUsed(false);
 		
 		//Set default file save format
 		saveAsChooser.setFileFilter(pdfFileFilter);
@@ -245,11 +247,14 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 			return;
 		}
 		
-		File targetFile = saveAsChooser.getSelectedFile();						
+		final String filePath = saveAsChooser.getSelectedFile().getAbsolutePath();		
+		final FileFilter selectedFileFilter = saveAsChooser.getFileFilter();		
+		final String fileSuffix = selectedFileFilter == pdfFileFilter? 
+				PdfExporter.PDF_SUFFIX : FileFormatManager.EMPTY_STRING;
 		
-		if(!targetFile.getAbsolutePath().endsWith(PdfExporter.PDF_SUFFIX)){
-		    targetFile = new File(targetFile + "." + PdfExporter.PDF_SUFFIX);
-		}
+		final File targetFile = new File(!fileSuffix.equals(FileFormatManager.EMPTY_STRING) && !filePath
+				.endsWith(FileFormatManager.DOT_CHAR + fileSuffix)?
+		    filePath + "." + fileSuffix : filePath);
 		
 		outputPathField.setText(targetFile.getAbsolutePath());
 	}
@@ -275,6 +280,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		
 		//Check if it is ok to overwrite an existing file
 		final File targetFile = new File(outputPath);
+		
 		if(targetFile.exists()) {
 			final int overwriteFile = JOptionPane.showConfirmDialog(dialog, 
 					Resources.getTranslation("file.exists.message"), 
