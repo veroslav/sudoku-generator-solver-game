@@ -450,7 +450,7 @@ public class Board extends JPanel {
 	public void setCellBackgroundColorIndex(final int row, final int column, final int colorIndex) {
 		final int currentColor = cells[column][row].getBackgroundColorIndex();
 		
-		if(currentColor == defaultBackgroundColorIndex && colorIndex != defaultBackgroundColorIndex) {
+		if(currentColor == defaultBackgroundColorIndex && colorIndex != defaultBackgroundColorIndex) {			
 			++colorCount;
 		}
 		else if(currentColor != defaultBackgroundColorIndex && colorIndex == defaultBackgroundColorIndex) {

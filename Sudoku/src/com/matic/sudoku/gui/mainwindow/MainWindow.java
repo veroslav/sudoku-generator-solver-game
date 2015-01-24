@@ -893,8 +893,8 @@ public class MainWindow {
 					}
 				}
 			}	
-			else if(undoableAction instanceof UndoableColorEntryAction) {
-				clearColorsMenuItem.setEnabled(true);
+			else if(undoableAction instanceof UndoableColorEntryAction) {				
+				clearColorsMenuItem.setEnabled(board.colorsApplied());
 			}
 			else if(undoableAction instanceof UndoablePencilmarkEntryAction) {
 				clearPencilmarksMenuItem.setEnabled(board.hasPencilmarks());
