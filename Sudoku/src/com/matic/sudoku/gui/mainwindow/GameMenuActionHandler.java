@@ -507,7 +507,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			
 			final Grading grading = mainWindow.puzzle.getGrading();
 			if(grading != null) {
-				headers.put("L", grading.getDescription());
+				final String gradingName = grading.toString();				
+				headers.put("L", gradingName.charAt(0) + gradingName.substring(1).toLowerCase());
 			}
 			
 			if(formatType == FormatType.SUDOCUE_SUDOKU) {
