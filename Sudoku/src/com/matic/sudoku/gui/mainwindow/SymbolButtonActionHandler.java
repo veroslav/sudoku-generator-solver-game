@@ -35,7 +35,7 @@ import com.matic.sudoku.gui.board.Board;
  *
  */
 class SymbolButtonActionHandler implements ActionListener {
-	private BitSet[][] userPencilmarks = null;
+	protected BitSet[][] userPencilmarks = null;
 	private int buttonSelectionMask = 0;
 	private int selectedButtonIndex = 0;
 	

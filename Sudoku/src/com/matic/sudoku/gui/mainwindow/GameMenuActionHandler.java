@@ -587,6 +587,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			mainWindow.verifyMenuItem.setEnabled(true);
 			mainWindow.clearColorsMenuItem.setEnabled(false);
 			mainWindow.clearPencilmarksMenuItem.setEnabled(false);
+			mainWindow.symbolButtonActionHandler.userPencilmarks = null;
 			
 			if(newPuzzleWindowOptions.isFromEmptyBoard()) {
 				mainWindow.setPuzzleVerified(false);
