@@ -65,15 +65,26 @@ public class Resources {
 	public static final Random RANDOM_INSTANCE = new Random(System.nanoTime());
 	
 	static {
-		final List<Locale> availableLocales = Resources.getAvailableResourceLocales();		
-		final Locale storedLanguage = new Locale(APPLICATION_PREFERENCES.get(PLAYER_LANG_KEY, DEFAULT_LANG_VALUE));
+		final List<String> availableLanguageResourceNames = Resources.getAvailableLanguageResourceNames();	
 		
-		if(!availableLocales.contains(storedLanguage)) {			
-			LANGUAGE_RESOURCE_BUNDLE = ResourceBundle.getBundle("resources.lang");
+		//Get previously stored language preference, if any
+		final String storedLanguageName = APPLICATION_PREFERENCES.get(PLAYER_LANG_KEY, null);		
+		final String defaultPlayerLanguage = Locale.getDefault().getLanguage();
+		
+		String targetLanguageName = DEFAULT_LANG_VALUE;
+		
+		//Check if a preffered language was set previously and has a translation file available
+		if(storedLanguageName != null 
+				&& availableLanguageResourceNames.contains(storedLanguageName)) {			
+			targetLanguageName = storedLanguageName;
 		}
-		else {			
-			LANGUAGE_RESOURCE_BUNDLE = ResourceBundle.getBundle("resources.lang", storedLanguage);
-		}				
+		//Check if there is a translation file for current player language
+		else if(availableLanguageResourceNames.contains(defaultPlayerLanguage)) {			
+			targetLanguageName = defaultPlayerLanguage;
+		}
+				
+		LANGUAGE_RESOURCE_BUNDLE = ResourceBundle.getBundle("resources.lang", new Locale(targetLanguageName));			
+		setLanguage(targetLanguageName);
 		
 		UIManager.put("OptionPane.yesButtonText", LANGUAGE_RESOURCE_BUNDLE.getString("button.yes"));
 		UIManager.put("OptionPane.noButtonText", LANGUAGE_RESOURCE_BUNDLE.getString("button.no"));
@@ -115,11 +126,11 @@ public class Resources {
 	}
 	
 	/**
-	 * Conveniance method for updating language resource bundle with translations for target language code
+	 * Convenience method for updating language resource bundle with translations for target language code
 	 * 
 	 * @param languageCode New language code
 	 */
-	public static void setLanguage(final String languageCode) {		
+	public static void setLanguage(final String languageCode) {	
 		Resources.setProperty(PLAYER_LANG_KEY, languageCode);
 	}
 	
@@ -136,10 +147,11 @@ public class Resources {
 	/**
 	 * Return a player friendly language name (used in language menu items) 
 	 * 
-	 * @param locale Target locale
+	 * @param locale Target language name code
 	 * @return Friendly language name
 	 */
-	public static String getLanguagePresentationName(final Locale locale) {
+	public static String getLanguagePresentationName(final String languageName) {
+		final Locale locale = new Locale(languageName);
 		final String langName = locale.getDisplayLanguage(locale);
 		final StringBuilder builder = new StringBuilder(langName);
 		builder.setCharAt(0, Character.toUpperCase(langName.charAt(0)));
@@ -150,12 +162,11 @@ public class Resources {
 	/**
 	 * Get all locales for which a language resource is available
 	 * 
-	 * @return List of locales with available translations
+	 * @return List of locale codes with available translations
 	 */
-	public static List<Locale> getAvailableResourceLocales() {
+	public static List<String> getAvailableLanguageResourceNames() {
 		final String[] languages = Locale.getISOLanguages();		
-		final List<Locale> locales = new ArrayList<Locale>();
-		locales.add(Locale.ENGLISH);
+		final List<String> localeNames = new ArrayList<>();
 		
 		for(final String lang : languages) {
 			final URL url = ClassLoader.getSystemResource("resources/lang_"+lang+".properties");
@@ -164,12 +175,11 @@ public class Resources {
 				final int startIndex = urlAsString.indexOf('_');
 				final int endIndex = urlAsString.indexOf('.', startIndex);
 				final String langCode = urlAsString.substring(startIndex + 1, endIndex);				
-				
-				final Locale locale = new Locale(langCode);
-				locales.add(locale);
+								
+				localeNames.add(langCode);
 			}
 		}
 		
-		return locales;
+		return localeNames;
 	}
 }

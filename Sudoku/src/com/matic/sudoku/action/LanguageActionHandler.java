@@ -45,7 +45,7 @@ public class LanguageActionHandler implements ItemListener {
 			return;
 		}
 		
-		final String selectedLanguageCode = source.getActionCommand();		
+		final String selectedLanguageCode = source.getActionCommand();			
 		Resources.setLanguage(selectedLanguageCode);
 		
 		JOptionPane.showMessageDialog(parent, Resources.getTranslation("lang.change.message"), 

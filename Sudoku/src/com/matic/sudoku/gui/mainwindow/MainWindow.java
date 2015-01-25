@@ -33,7 +33,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -692,22 +691,21 @@ public class MainWindow {
 	private JMenu buildLanguageMenu() {
 		final JMenu languageMenu = new JMenu(Resources.getTranslation(LANGUAGE_STRING));
 		
-		final List<Locale> foundLocales = Resources.getAvailableResourceLocales();
+		final List<String> foundLanguageNames = Resources.getAvailableLanguageResourceNames();
 		final String currentLanguage = Resources.getLanguage();
 		
 		final ItemListener itemListener = new LanguageActionHandler(window);
 		final ButtonGroup langGroup = new ButtonGroup(); 
 		
-		for(final Locale locale : foundLocales) {
-			final String langCode = locale.getLanguage();
+		for(final String languageName : foundLanguageNames) {			
 			final JRadioButtonMenuItem langMenuItem = new JRadioButtonMenuItem(
-					Resources.getLanguagePresentationName(locale));
+					Resources.getLanguagePresentationName(languageName));
 			
-			if(langCode.equals(currentLanguage)) {
+			if(languageName.equals(currentLanguage)) {
 				langMenuItem.setSelected(true);
 			}
 			
-			langMenuItem.setActionCommand(langCode);
+			langMenuItem.setActionCommand(languageName);
 			langMenuItem.addItemListener(itemListener);
 			
 			langGroup.add(langMenuItem);
