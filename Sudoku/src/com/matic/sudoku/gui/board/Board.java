@@ -131,14 +131,16 @@ public class Board extends JPanel {
 	private static final Color INNER_LINE_COLOR = Color.black;
 	
 	//Color of rectangular area surrounding an active cell
-	private static final Color PICKER_COLOR = new Color(220, 0, 0); //new Color(210,210,210);
+	private static final Color ON_FOCUS_PICKER_COLOR = new Color(180, 0 , 0);
+	private static final Color DEFAULT_PICKER_COLOR = new Color(220, 0, 0);		
 	
-	static Color BACKGROUND_COLOR = Color.white;
+	private static final Color DEFAULT_BACKGROUND_COLOR = new Color(253, 246, 227);
+	private static final Color ON_FOCUS_COLOR = new Color(40, 40, 40, 150);
 	
 	private static Color PENCILMARK_FONT_COLOR = new Color(0, 43, 54);
 	
 	//Available colors the player can use for cell selections	
-	public static final Color[] CELL_SELECTION_COLORS = {BACKGROUND_COLOR, 
+	public static final Color[] CELL_SELECTION_COLORS = {DEFAULT_BACKGROUND_COLOR, 
 		new Color(253, 188, 75), new Color(255, 144, 150), 
 		new Color(244, 119, 80), new Color(29, 153, 243), 
 		new Color(46, 204, 113)};
@@ -151,6 +153,12 @@ public class Board extends JPanel {
 	
 	//How many cells have their background color changed
 	private int colorCount;
+	
+	//Color used to paint board and cell backgrounds
+	private Color primaryColor;
+	
+	//Color used to paint picker
+	private Color pickerColor;
 	
 	//Brush used for drawing the picker
 	private BasicStroke pickerStroke;
@@ -237,6 +245,9 @@ public class Board extends JPanel {
 		
 		mouseClickInputValue = MOUSE_CLICK_DEFAULT_INPUT_VALUE;
 		cellColorSelectionIndex = defaultBackgroundColorIndex;
+		
+		primaryColor = DEFAULT_BACKGROUND_COLOR;
+		pickerColor = DEFAULT_PICKER_COLOR;
 		
 		setSymbolType(symbolType);		
 		
@@ -532,6 +543,16 @@ public class Board extends JPanel {
 				setCellFontColor(i, j, color);			
 			}
 		}
+	}
+	
+	/**
+	 * Set the board primary color depending on focus state
+	 * @param isFocused Whether focus is on
+	 */
+	public void onFocusChanged(final boolean isFocused) {
+		pickerColor = isFocused? ON_FOCUS_PICKER_COLOR : DEFAULT_PICKER_COLOR;
+		primaryColor = isFocused? ON_FOCUS_COLOR : DEFAULT_BACKGROUND_COLOR;		
+		repaint();
 	}
 	
 	/**
@@ -939,7 +960,7 @@ public class Board extends JPanel {
 	}
 	
 	private void drawBackground(final Graphics2D g2d) {
-		g2d.setColor(BACKGROUND_COLOR);
+		g2d.setColor(primaryColor);
 		g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
@@ -983,18 +1004,26 @@ public class Board extends JPanel {
 		//Enable antialiasing for font rendering
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		// Set the cell's background color and draw it
+		final boolean focusOn = primaryColor.equals(ON_FOCUS_COLOR);
+		
+		// Set the cell's background color and draw it		
 		g2d.setColor(CELL_SELECTION_COLORS[cell.getBackgroundColorIndex()]);
 		g2d.fillRect(cellX, cellY, cellWidth, cellWidth);
 
-		final int digit = cell.getDigit();
+		boolean hasFocusedPencilmarks = false;
+		final int digit = cell.getDigit();		
 		
 		if(digit > 0) {		
 			drawCellDigit(g2d, cell, cellX, cellY, digit);
 		}
 		else if(cell.getPencilmarkCount() > 0) {
 			// Set pencilmark font and color and draw this cell's pencilmarks
-			drawCellPencilmarks(g2d, cell, cellX, cellY);
+			hasFocusedPencilmarks = drawCellPencilmarks(g2d, cell, cellX, cellY) > 0;			
+		}
+		//Paint the cell properly depending on whether the focus is on		
+		if(focusOn && (!hasFocusedPencilmarks || cell.getDigit() > 0)) {
+			g2d.setColor(ON_FOCUS_COLOR);
+			g2d.fillRect(cellX, cellY, cellWidth, cellWidth);			
 		}
 	}
 	
@@ -1020,13 +1049,14 @@ public class Board extends JPanel {
 				cellY + (int)((cellWidth - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
 	}
 	
-	private void drawCellPencilmarks(final Graphics2D g2d, final Cell cell, final int cellX, final int cellY) {		
+	private int drawCellPencilmarks(final Graphics2D g2d, final Cell cell, final int cellX, final int cellY) {		
 		g2d.setFont(pencilmarkFont);
 		g2d.setColor(PENCILMARK_FONT_COLOR);
 		
 		final FontMetrics fontMetrics = g2d.getFontMetrics();
 		
-		int pencilmark = 1;
+		int hasFocusCount = 0;
+		int pencilmark = 1;		
 		
 		for(int i = 0, y = cellY; i < dimension; ++i, y += pencilmarkWidth) {
 			for(int j = 0, x = cellX; j < dimension; ++j, x += pencilmarkWidth) {
@@ -1038,6 +1068,7 @@ public class Board extends JPanel {
 					final int fontHeight = (int)stringBounds.getHeight();
 					
 					if(pencilmarkHasFocus(pencilmark)) {
+						++hasFocusCount;
 						g2d.drawString(symbol, x + (int)((pencilmarkWidth - fontWidth) / 2.0 + 0.5), 
 								y + (int)((pencilmarkWidth - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
 					}
@@ -1045,6 +1076,8 @@ public class Board extends JPanel {
 				++pencilmark;
 			}					
 		}
+		
+		return hasFocusCount;
 	}
 	
 	/*
@@ -1056,7 +1089,7 @@ public class Board extends JPanel {
 	}
 	
 	private void drawPicker(final Graphics2D g2d, final int x, final int y) {
-		g2d.setColor(PICKER_COLOR);
+		g2d.setColor(pickerColor);
 		g2d.setStroke(pickerStroke);
 		
 		g2d.drawRect(x, y, cellWidth, cellWidth);

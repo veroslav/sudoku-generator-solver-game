@@ -49,23 +49,33 @@ class SymbolButtonActionHandler implements ActionListener {
 	
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		final Object src = e.getSource();
+		final String command = e.getActionCommand();
+		
+		switch(command) {
 		//Check whether the focus button was clicked
-		if(src == mainWindow.focusButton) {
-			if(mainWindow.focusButton.isSelected()) {					
+		case MainWindow.FOCUS_BUTTON_STRING:
+			if(e.getSource() == mainWindow.focusButton && mainWindow.focusButton.isSelected() || 
+				e.getSource() == mainWindow.focusMenuItem && mainWindow.focusMenuItem.isSelected()) {
+				mainWindow.focusMenuItem.setSelected(true);
+				mainWindow.focusButton.setSelected(true);				
+				
 				onFocusEnabled();
 			}
-			else {					
+			else if(e.getSource() == mainWindow.focusButton && !mainWindow.focusButton.isSelected() || 
+					e.getSource() == mainWindow.focusMenuItem && !mainWindow.focusMenuItem.isSelected()){
+				mainWindow.focusMenuItem.setSelected(false);
+				mainWindow.focusButton.setSelected(false);				
+				
 				onFocusDisabled();
 			}
-		}
+			break;
 		//Or whether focus on all candidates button was clicked
-		else if(src == mainWindow.focusAllButton) {
+		case MainWindow.FOCUS_ALL_BUTTON_STRING:
 			onFocusAll();
-		}
-		//Or whether any of the symbol input buttons were clicked
-		else {
-			onSymbolButton(e.getActionCommand());				
+			break;			
+		// Or whether any of the symbol input buttons were clicked
+		default:
+			onSymbolButton(e.getActionCommand());			
 		}
 	}
 	
@@ -76,6 +86,8 @@ class SymbolButtonActionHandler implements ActionListener {
 		for(final JToggleButton button : mainWindow.symbolButtons) {					
 			mainWindow.symbolButtonsGroup.remove(button);
 		}
+		
+		board.onFocusChanged(true);
 		
 		//Store user's pencilmarks for later retrieval
 		userPencilmarks = board.getPencilmarks();
@@ -90,6 +102,8 @@ class SymbolButtonActionHandler implements ActionListener {
 	
 	public void onFocusDisabled() {
 		mainWindow.focusAllButton.setEnabled(false);
+		
+		board.onFocusChanged(false);
 		
 		for(final JToggleButton button : mainWindow.symbolButtons) {
 			mainWindow.symbolButtonsGroup.add(button);

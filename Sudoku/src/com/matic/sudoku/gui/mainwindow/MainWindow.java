@@ -101,6 +101,8 @@ public class MainWindow {
 	protected static final String CLEAR_PENCILMARKS_STRING = "edit.clear_pencilmarks";	
 	protected static final String GIVE_CLUE_STRING = "puzzle.give_clue";
 	protected static final String LANGUAGE_STRING = "tools.language";
+	protected static final String FOCUS_ALL_BUTTON_STRING = "focusall.button";
+	protected static final String FOCUS_BUTTON_STRING = "focus.button";	
 	protected static final String NEW_STRING = "game.new";
 	protected static final String OPEN_STRING = "game.open";
 	protected static final String SAVE_AS_STRING = "game.save_as";
@@ -116,12 +118,10 @@ public class MainWindow {
 	//Other String constants
 	protected static final String FOCUS_OFF_TOOLTIP_TEXT = Resources.getTranslation("focus.off.tooltip");
 	static final String FOCUS_ON_TOOLTIP_TEXT = Resources.getTranslation("focus.on.tooltip");
-	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = Resources.getTranslation("focus.button.tooltip");
-	private static final String FOCUS_BUTTON_TEXT = Resources.getTranslation("focus.button");
+	private static final String FOCUS_BUTTON_TOOLTIP_TEXT = Resources.getTranslation("focus.button.tooltip");	
 	
 	private static final String FOCUS_ALL_BUTTON_TOOLTIP_TEXT = 
-			Resources.getTranslation("focusall.button.tooltip");
-	private static final String FOCUS_ALL_BUTTON_TEXT = Resources.getTranslation("focusall.button");
+			Resources.getTranslation("focusall.button.tooltip");	
 	
 	private static final String WINDOW_TITLE_SEPARATOR = " - ";
 	private static final String PUZZLE_MODIFIED_INDICATOR = "*";
@@ -138,6 +138,7 @@ public class MainWindow {
 	protected final JCheckBoxMenuItem showSymbolsToolBarMenuItem;
 	protected final JCheckBoxMenuItem showColorsToolBarMenuItem;
 	protected final JCheckBoxMenuItem flagWrongEntriesMenuItem;
+	protected final JCheckBoxMenuItem focusMenuItem;
 		
 	protected final JToolBar symbolsToolBar;
 	
@@ -195,6 +196,9 @@ public class MainWindow {
 		flagWrongEntriesMenuItem = new JCheckBoxMenuItem(Resources.getTranslation(FLAG_WRONG_ENTRIES_STRING));
 		flagWrongEntriesMenuItem.setActionCommand(FLAG_WRONG_ENTRIES_STRING);
 		
+		focusMenuItem = new JCheckBoxMenuItem(Resources.getTranslation(FOCUS_BUTTON_STRING));
+		focusMenuItem.setActionCommand(FOCUS_BUTTON_STRING);
+		
 		undoManager = new SudokuUndoManager();				
 		
 		clearPencilmarksMenuItem = new JMenuItem(Resources.getTranslation(CLEAR_PENCILMARKS_STRING));
@@ -224,8 +228,11 @@ public class MainWindow {
 		redoMenuItem = new JMenuItem(undoManager.getRedoPresentationName());
 		undoMenuItem = new JMenuItem(undoManager.getUndoPresentationName());
 		
-		focusAllButton = new JToggleButton(FOCUS_ALL_BUTTON_TEXT);				
-		focusButton = new JToggleButton(FOCUS_BUTTON_TEXT);		
+		focusAllButton = new JToggleButton(Resources.getTranslation(FOCUS_ALL_BUTTON_STRING));	
+		focusAllButton.setActionCommand(FOCUS_ALL_BUTTON_STRING);
+		
+		focusButton = new JToggleButton(Resources.getTranslation(FOCUS_BUTTON_STRING));	
+		focusButton.setActionCommand(FOCUS_BUTTON_STRING);
 		
 		symbolButtonsGroup = new ButtonGroup();		
 		symbolsToolBar = buildSymbolsToolBar();
@@ -667,13 +674,18 @@ public class MainWindow {
 		viewMenu.setMnemonic(KeyStroke.getKeyStroke(
 				Resources.getTranslation("menubar.view.mnemonic")).getKeyCode());
 		
-		final JCheckBoxMenuItem[] viewMenuItems = {showColorsToolBarMenuItem, showSymbolsToolBarMenuItem};
-		final ActionListener actionListener = new ViewMenuActionHandler(this);
+		final ActionListener actionListener = new ViewMenuActionHandler(this);		
+		showColorsToolBarMenuItem.addActionListener(actionListener);	
+		showSymbolsToolBarMenuItem.addActionListener(actionListener);
 		
-		for(final JMenuItem menuItem : viewMenuItems) {
-			menuItem.addActionListener(actionListener);
-			viewMenu.add(menuItem);
-		}
+		focusMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, 
+				InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		focusMenuItem.addActionListener(symbolButtonActionHandler);
+		
+		viewMenu.add(showColorsToolBarMenuItem);
+		viewMenu.add(showSymbolsToolBarMenuItem);
+		viewMenu.addSeparator();
+		viewMenu.add(focusMenuItem);
 		
 		return viewMenu;
 	}
@@ -832,6 +844,7 @@ public class MainWindow {
 		fillPencilmarksMenuItem.setEnabled(verified);
 		flagWrongEntriesMenuItem.setEnabled(verified);
 		
+		focusMenuItem.setEnabled(verified);
 		focusButton.setEnabled(verified);
 		focusButton.setSelected(false);
 		
