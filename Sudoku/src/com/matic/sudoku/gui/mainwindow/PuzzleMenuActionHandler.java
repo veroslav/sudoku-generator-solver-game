@@ -223,6 +223,8 @@ class PuzzleMenuActionHandler implements ActionListener {
 		final int choice = JOptionPane.showConfirmDialog(mainWindow.window, message, title, 
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(choice == JOptionPane.YES_OPTION) {
+			mainWindow.symbolButtonActionHandler.userPencilmarks = null;
+			
 			mainWindow.clearColorsMenuItem.setEnabled(false);
 			mainWindow.verifyMenuItem.setEnabled(true);
 			mainWindow.clearUndoableActions();

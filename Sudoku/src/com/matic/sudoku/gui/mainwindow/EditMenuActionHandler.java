@@ -147,6 +147,7 @@ class EditMenuActionHandler implements ActionListener {
 			return;
 		}
 		
+		mainWindow.symbolButtonActionHandler.userPencilmarks = null;
 		mainWindow.gameMenuActionListener.updateBoard(puzzleBean);
 		mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 	}

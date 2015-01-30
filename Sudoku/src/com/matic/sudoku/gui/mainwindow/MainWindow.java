@@ -846,6 +846,7 @@ public class MainWindow {
 		
 		focusMenuItem.setEnabled(verified);
 		focusButton.setEnabled(verified);
+		focusMenuItem.setSelected(false);
 		focusButton.setSelected(false);
 		
 		if(verified && focusButton.isSelected()) {			

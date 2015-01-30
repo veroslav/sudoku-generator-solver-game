@@ -337,6 +337,8 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		}
 		currentPath = puzzleFile.getParent();
 		Resources.setProperty(Resources.CURRENT_PATH, currentPath);
+		mainWindow.symbolButtonActionHandler.userPencilmarks = null;
+		
 		if(populateFromFile(puzzleFile)) {
 			onPuzzleStateChanged(false);
 		}
