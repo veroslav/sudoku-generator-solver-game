@@ -46,4 +46,9 @@ public class Swordfish extends Fish {
 	public String getName() {
 		return STRATEGY_NAME;
 	}
+	
+	@Override
+	public String asHint() {
+		return null;
+	}
 }

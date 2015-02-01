@@ -26,7 +26,7 @@ public class LockedCandidates extends LogicStrategy {
 	private static final int NOT_LOCKED_IN = -1;
 	private static final int SCORE = 200;
 	
-	public LockedCandidates(int dimension) {
+	public LockedCandidates(final int dimension) {
 		super(dimension);
 	}
 
@@ -41,7 +41,7 @@ public class LockedCandidates extends LogicStrategy {
 	}
 	
 	@Override
-	protected boolean iterateBoxes(final int[][] puzzle, int boxX, int boxY) {
+	protected boolean iterateBoxes(final int[][] puzzle, final int boxX, final int boxY) {
 		//Box-Row/Column interactions
 		for(int i = boxY; i < boxY + dimension; ++i) {
 			for(int j = boxX; j < boxX + dimension; ++j) {
@@ -81,6 +81,11 @@ public class LockedCandidates extends LogicStrategy {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public String asHint() {
+		return null;
 	}
 	
 	private boolean filterBoxForColumn(int candidate, int column, int boxX, int boxY) {

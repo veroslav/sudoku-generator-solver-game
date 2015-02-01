@@ -20,6 +20,11 @@
 
 package com.matic.sudoku.logic.strategy;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.matic.sudoku.solver.Pair;
+
 public class NakedSingles extends LogicStrategy {
 	
 	private static final String STRATEGY_NAME = "Naked Singles";
@@ -30,15 +35,16 @@ public class NakedSingles extends LogicStrategy {
 	}
 
 	@Override
-	protected boolean applyToCell(int[][] puzzle, int boxX, int boxY,
-			int rowIndex, int colIndex) {		
+	protected boolean applyToCell(final int[][] puzzle, final int boxX, final int boxY,
+			final int rowIndex, final int colIndex) {		
 		//Check if the cell contains a single candidate (naked single)
 		if(puzzle[colIndex][rowIndex] == 0 && candidates.count(rowIndex, colIndex) == 1) {
 			final int single = candidates.getFirst(rowIndex, colIndex);
 			
 			//Store the found single value and it's location
-			super.setValuesAndLocations(new int[] {single}, 
-					new int[][] {{colIndex, rowIndex}});
+			final List<Pair> locations = new ArrayList<>();
+			locations.add(new Pair(rowIndex, colIndex));			
+			super.setValuesAndLocations(new int[] {single}, locations);
 			
 			singleFound(puzzle, rowIndex, colIndex, single);			
 			return true;
@@ -54,5 +60,10 @@ public class NakedSingles extends LogicStrategy {
 	@Override
 	public int getScore() {		
 		return SCORE;
+	}
+	
+	@Override
+	public String asHint() {
+		return null;
 	}
 }

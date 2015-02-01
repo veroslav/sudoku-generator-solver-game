@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.matic.sudoku.Resources;
+import com.matic.sudoku.solver.Pair;
 
 public class SlicingAndSlotting extends LogicStrategy {
 	
@@ -47,9 +47,9 @@ public class SlicingAndSlotting extends LogicStrategy {
 	}
 
 	@Override	
-	protected boolean iterateBoxes(final int[][] puzzle, int boxX, int boxY) {
+	protected boolean iterateBoxes(final int[][] puzzle, final int boxX, final int boxY) {
 		final Set<Integer> boxSingles = new HashSet<Integer>();		
-		final List<int[]> emptyCells = new ArrayList<>();
+		final List<Pair> emptyCells = new ArrayList<>();
 		
 		//Store all singles in the box
 		for(int i = boxX; i < boxX + dimension; ++i) {
@@ -59,7 +59,7 @@ public class SlicingAndSlotting extends LogicStrategy {
 				}
 				else {
 					//Store empty cells' coordinates so we don't need another iteration
-					emptyCells.add(new int[] {i,j});
+					emptyCells.add(new Pair(j, i));
 				}
 			}
 		}
@@ -68,10 +68,10 @@ public class SlicingAndSlotting extends LogicStrategy {
 		final Set<Integer>[] slicingRows = getSlicingRows(puzzle, boxX, boxY);
 		final boolean[][] coveredCells = new boolean[dimension][dimension];
 		
-		for(final int[] emptyCell : emptyCells) {			
+		for(final Pair emptyCell : emptyCells) {			
 			for(int i = 1; i <= unit; ++i) {
-				final int emptyCellX = emptyCell[Resources.X];
-				final int emptyCellY = emptyCell[Resources.Y];
+				final int emptyCellX = emptyCell.getColumn();
+				final int emptyCellY = emptyCell.getRow();
 				
 				//Check if this digit is already filled in this box
 				if(boxSingles.contains(i)) {
@@ -97,8 +97,9 @@ public class SlicingAndSlotting extends LogicStrategy {
 				if(isSlotted) {
 					// If here,SINGLE found	
 					//Store the found single value and it's location
-					super.setValuesAndLocations(new int[] {i}, 
-							new int[][] {{emptyCellX, emptyCellY}});
+					final List<Pair> locations = new ArrayList<>();
+					locations.add(new Pair(emptyCellY, emptyCellX));
+					super.setValuesAndLocations(new int[] {i}, locations);
 					
 					singleFound(puzzle, emptyCellY, emptyCellX, i);
 					return true;
@@ -106,6 +107,11 @@ public class SlicingAndSlotting extends LogicStrategy {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public String asHint() {
+		return null;
 	}
 	
 	private void resetCoveredCells(final boolean[][] coveredCells) {
@@ -117,7 +123,7 @@ public class SlicingAndSlotting extends LogicStrategy {
 	}
 	
 	private void coverRow(final int[][] puzzle, final Set<Integer>[] slicingRows,
-			final boolean[][] coveredCells, int boxX, int boxY, int digit) {
+			final boolean[][] coveredCells, final int boxX, final int boxY, final int digit) {
 		//Check if the digit is part of any or all slicing rows
 		for(int i = 0; i < slicingRows.length; ++i) {
 			if(slicingRows[i].contains(digit)) {
@@ -137,7 +143,7 @@ public class SlicingAndSlotting extends LogicStrategy {
 	}
 	
 	private void coverColumn(final int[][] puzzle, final Set<Integer>[] slicingColumns,
-			final boolean[][] coveredCells, int boxX, int boxY, int digit) {
+			final boolean[][] coveredCells, final int boxX, final int boxY, final int digit) {
 		//Check if the digit is part of any or all slicing columns
 		for(int i = 0; i < slicingColumns.length; ++i) {
 			if(slicingColumns[i].contains(digit)) {
@@ -156,7 +162,8 @@ public class SlicingAndSlotting extends LogicStrategy {
 		}
 	}
 	
-	private boolean slot(final boolean[][] coveredCells, int emptyCellX, int emptyCellY) {		
+	private boolean slot(final boolean[][] coveredCells, final int emptyCellX, 
+			final int emptyCellY) {		
 		int coveredCount = 0;
 		for(int i = 0; i < coveredCells.length; ++i) {
 			for(int j = 0; j < coveredCells[i].length; ++j) {
@@ -175,7 +182,8 @@ public class SlicingAndSlotting extends LogicStrategy {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Set<Integer>[] getSlicingRows(final int[][] puzzle, int boxX, int boxY) {
+	private Set<Integer>[] getSlicingRows(final int[][] puzzle, final int boxX, 
+			final int boxY) {
 		//Loop through slicing rows
 		final Set<Integer>[] slicingRows = new HashSet[dimension];
 		for(int i = 0; i < slicingRows.length; ++i) {
@@ -199,7 +207,8 @@ public class SlicingAndSlotting extends LogicStrategy {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Set<Integer>[] getSlicingColumns(final int[][] puzzle, int boxX, int boxY) {
+	private Set<Integer>[] getSlicingColumns(final int[][] puzzle, final int boxX, 
+			final int boxY) {
 		//Loop through slicing columns
 		final Set<Integer>[] slicingColumns = new HashSet[dimension];
 		for(int i = 0; i < slicingColumns.length; ++i) {

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.matic.sudoku.Resources;
+import com.matic.sudoku.solver.Pair;
 
 /**
  * Various well-known algorithms used by logic solving strategies are provided by this class
@@ -31,6 +32,8 @@ import com.matic.sudoku.Resources;
  * @author vedran
  */
 public class Algorithms {
+	
+	private static final Pair EMPTY_PAIR = new Pair(0,0); 
 	
 	/**
 	 * Randomize an array.
@@ -71,31 +74,46 @@ public class Algorithms {
 	 * @param subsetSize Size of each found subset
 	 * @return A list of all possible subset of size subsetSize
 	 */
-	public static List<int[][]> findAllSubsets(
-			final List<int[]> pairs, int subsetSize) {
-		final List<int[][]> subsets = new ArrayList<>();
-		final int[][] t = new int[pairs.size()][];
+	public static List<List<Pair>> findAllSubsets(
+			final List<Pair> pairs, final int subsetSize) {
+		final List<List<Pair>> subsets = new ArrayList<>();
+		final List<Pair> t = emptyPairs(pairs.size());
 
 		Algorithms.findSubsets(subsets, pairs, t, subsetSize, 0, 0);
 
 		return subsets;
 	}
+	
+	private static List<Pair> emptyPairs(final int size) {
+		final List<Pair> t = new ArrayList<>(size);
+		
+		for(int i = 0; i < size; ++i) {
+			t.add(EMPTY_PAIR);
+		}
+		
+		return t;
+	}
 
 	// Recursive approach to find all subsets of length subsetLength in a set of
 	// length n	
 	private static void findSubsets(
-			final List<int[][]> subsets,
-			final List<int[]> pairs,
-			final int[][] t, int subsetSize, int q, int r) {
-		if (q == subsetSize) {
-			final int[][] ss = new int[subsetSize][];
-			for (int i = 0; i < subsetSize; ++i) {
-				ss[i] = t[i];
+			final List<List<Pair>> subsets,
+			final List<Pair> pairs,
+			final List<Pair> t, final int subsetSize, final int q, final int r) {
+		if(q == subsetSize) {
+			final List<Pair> ss = emptyPairs(subsetSize);
+			for(int i = 0; i < subsetSize; ++i) {
+				ss.set(i, t.get(i));
 			}
 			subsets.add(ss);
-		} else {
-			for (int i = r; i < pairs.size(); ++i) {
-				t[q] = pairs.get(i);
+		} 
+		else {
+			for(int i = r; i < pairs.size(); ++i) {
+				/*System.out.println(t);
+				System.out.println("pairs.size() = " + pairs.size() + ", i = " + i);
+				System.out.println("q = " + q);
+				System.out.println("pairs.get(i) = " + pairs.get(i));*/
+				t.set(q, pairs.get(i));
 				Algorithms.findSubsets(subsets, pairs, t, subsetSize, q + 1, i + 1);
 			}
 		}

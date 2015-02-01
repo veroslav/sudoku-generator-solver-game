@@ -240,7 +240,7 @@ public class LogicSolver {
 	 * @param nextDigit Whether next step must reveal a digit
 	 * @return The solution strategy required or null if puzzle can't be solved 
 	 */
-	public LogicStrategy nextStep(final int[][] puzzle, boolean nextDigit) {
+	public LogicStrategy nextStep(final int[][] puzzle, final boolean nextDigit) {
 		candidates = new Candidates(dimension, puzzle);
 		while(true) {
 			for(int i = 0; i <= maxGradingLevel; ++i) {
@@ -259,7 +259,15 @@ public class LogicSolver {
 		}
 	}
 	
-	private Grading calculateGrading(int difficultyScore) {
+	public Hint getHint(final int[][] puzzle) {
+		final LogicStrategy strategy = nextStep(puzzle, false);		
+		
+		final Hint hint = new Hint(null, strategy.asHint());
+		
+		return hint;
+	}
+	
+	private Grading calculateGrading(final int difficultyScore) {
 		if(difficultyScore < MODERATE_THRESHOLD) {
 			return Grading.EASY;
 		}

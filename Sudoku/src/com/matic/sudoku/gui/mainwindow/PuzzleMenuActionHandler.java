@@ -34,6 +34,7 @@ import com.matic.sudoku.logic.strategy.LogicStrategy;
 import com.matic.sudoku.solver.BruteForceSolver;
 import com.matic.sudoku.solver.LogicSolver;
 import com.matic.sudoku.solver.LogicSolver.Grading;
+import com.matic.sudoku.solver.Pair;
 
 /**
  * An action handler for Puzzle-menu options
@@ -189,15 +190,15 @@ class PuzzleMenuActionHandler implements ActionListener {
 		else {
 			//A clue was found, add it and display it on the board
 			final int clue = strategy.getValues()[0];				
-			final int[] clueLocation = strategy.getLocationPoints()[0];
+			final Pair clueLocation = strategy.getLocationPoints().get(0);
 			
 			//Store undoable event
 			final UndoableBoardEntryAction undoableAction = new UndoableCellValueEntryAction(
 					UndoableCellValueEntryAction.GIVE_CLUE_PRESENTATION_NAME, board, 
-					clueLocation[1], clueLocation[0], 0, clue);
+					clueLocation.getRow(), clueLocation.getColumn(), 0, clue);
 			
 			mainWindow.registerUndoableAction(undoableAction);				
-			board.setCellValue(clueLocation[1], clueLocation[0], clue);
+			board.setCellValue(clueLocation.getRow(), clueLocation.getColumn(), clue);
 			
 			//Update candidates, if focus is ON
 			if(mainWindow.focusButton.isSelected()) {

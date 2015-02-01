@@ -23,6 +23,7 @@ package com.matic.sudoku.logic.strategy;
 import java.util.List;
 import java.util.Set;
 
+import com.matic.sudoku.solver.Pair;
 import com.matic.sudoku.util.Algorithms;
 
 public class NakedSubset extends Subset {
@@ -68,10 +69,10 @@ public class NakedSubset extends Subset {
 	}
 	
 	@Override
-	protected boolean findAndFilterBoxSubset(int boxX, int boxY, final List<int[]> emptyCells) {
-		final List<int[][]> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
+	protected boolean findAndFilterBoxSubset(final int boxX, final int boxY, final List<Pair> emptyCells) {
+		final List<List<Pair>> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
 		
-		for(final int[][] subset : cellSubsets) {
+		for(final List<Pair> subset : cellSubsets) {
 			final Set<Integer> subsetCandidates = getCandidatesInSubset(subset);
 			if(subsetCandidates.size() == subsetSize) {
 				if(filterBox(boxX, boxY, subset, subsetCandidates)) {
@@ -84,10 +85,10 @@ public class NakedSubset extends Subset {
 	}
 	
 	@Override
-	protected boolean findAndFilterColumnSubset(int column, final List<int[]> emptyCells) {
-		final List<int[][]> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
+	protected boolean findAndFilterColumnSubset(final int column, final List<Pair> emptyCells) {
+		final List<List<Pair>> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
 		
-		for(final int[][] subset : cellSubsets) {
+		for(final List<Pair> subset : cellSubsets) {
 			final Set<Integer> subsetCandidates = getCandidatesInSubset(subset);
 			if(subsetCandidates.size() == subsetSize) {
 				if(filterColumn(column, subset, subsetCandidates)) {
@@ -100,10 +101,10 @@ public class NakedSubset extends Subset {
 	}
 	
 	@Override
-	protected boolean findAndFilterRowSubset(int row, final List<int[]> emptyCells) {
-		final List<int[][]> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
+	protected boolean findAndFilterRowSubset(final int row, final List<Pair> emptyCells) {
+		final List<List<Pair>> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
 		
-		for(final int[][] subset : cellSubsets) {
+		for(final List<Pair> subset : cellSubsets) {
 			final Set<Integer> subsetCandidates = getCandidatesInSubset(subset);
 			if(subsetCandidates.size() == subsetSize) {
 				if(filterRow(row, subset, subsetCandidates)) {
@@ -114,9 +115,14 @@ public class NakedSubset extends Subset {
 		
 		return false;
 	}
+	
+	@Override
+	public String asHint() {
+		return null;
+	}
 		
-	private boolean filterColumn(int column,
-			final int[][] subset,
+	private boolean filterColumn(final int column,
+			final List<Pair> subset,
 			final Set<Integer> subsetCandidates) {
 
 		boolean success = false;
@@ -140,7 +146,7 @@ public class NakedSubset extends Subset {
 		return success;
 	}
 		
-	private boolean filterRow(int row, final int[][] subset, 
+	private boolean filterRow(final int row, final List<Pair> subset, 
 		final Set<Integer> subsetCandidates) {
 		
 		boolean success = false;
@@ -164,7 +170,7 @@ public class NakedSubset extends Subset {
 		return success;
 	}
 	
-	private boolean filterBox(int boxX, int boxY, final int[][] subset, 
+	private boolean filterBox(final int boxX, final int boxY, final List<Pair> subset, 
 		final Set<Integer> subsetCandidates) {
 		
 		boolean success = false;

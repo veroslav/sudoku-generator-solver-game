@@ -20,6 +20,11 @@
 
 package com.matic.sudoku.logic.strategy;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.matic.sudoku.solver.Pair;
+
 
 /**
  * This strategy checks all rows, columns and boxes for single entries that are
@@ -58,7 +63,8 @@ public class SimpleSingles extends LogicStrategy {
 	}
 	
 	@Override
-	protected boolean applyToCell(final int[][] puzzle, int boxX, int boxY, int rowIndex, int colIndex) {		
+	protected boolean applyToCell(final int[][] puzzle, final int boxX, final int boxY, 
+			final int rowIndex, final int colIndex) {		
 		if(puzzle[colIndex][rowIndex] != 0) {			
 			return false;
 		}
@@ -66,7 +72,13 @@ public class SimpleSingles extends LogicStrategy {
 		return applyToRegions(puzzle, boxX, boxY, rowIndex, colIndex);
 	}
 	
-	protected boolean applyToRegions(final int[][] puzzle, int boxX, int boxY, int rowIndex, int colIndex) {
+	@Override
+	public String asHint() {
+		return null;
+	}
+	
+	protected boolean applyToRegions(final int[][] puzzle, final int boxX, final int boxY, 
+			final int rowIndex, final int colIndex) {
 		//Check row
 		if(applyToRow(puzzle, rowIndex, colIndex)) {
 			return true;
@@ -114,8 +126,8 @@ public class SimpleSingles extends LogicStrategy {
 	}
 	
 	// Return true if a single is found, false otherwise
-	protected boolean applyToBox(final int[][] puzzle, int boxStartX,
-			int boxStartY, int rowIndex, int colIndex) {		
+	protected boolean applyToBox(final int[][] puzzle, final int boxStartX,
+			final int boxStartY, final int rowIndex, final int colIndex) {		
 		int singlesInBox = 0;
 		int singlesSum = 0;
 		for (int i = boxStartX; i < boxStartX + dimension; ++i) {
@@ -129,13 +141,15 @@ public class SimpleSingles extends LogicStrategy {
 		return fillSingle(puzzle, singlesInBox, singlesSum, colIndex, rowIndex);
 	}
 		
-	private boolean fillSingle(final int[][] puzzle, final int singlesInRegion, final int singlesSum, final int colIndex, final int rowIndex) {
+	private boolean fillSingle(final int[][] puzzle, final int singlesInRegion, 
+			final int singlesSum, final int colIndex, final int rowIndex) {
 		if(singlesInRegion == unit - 1) {			
 			final int single = entriesSum - singlesSum;	
 			
 			//Store the found single value and it's location
-			super.setValuesAndLocations(new int[] {single}, 
-					new int[][] {{colIndex, rowIndex}});
+			final List<Pair> locations = new ArrayList<>();
+			locations.add(new Pair(rowIndex, colIndex));
+			super.setValuesAndLocations(new int[] {single}, locations);
 			
 			singleFound(puzzle, rowIndex, colIndex, single);			
 			

@@ -21,9 +21,11 @@
 package com.matic.sudoku.logic.strategy;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.matic.sudoku.logic.Candidates;
+import com.matic.sudoku.solver.Pair;
 
 /**
  * Declares an interface for a logic puzzle solution method/strategy implementations
@@ -32,7 +34,7 @@ import com.matic.sudoku.logic.Candidates;
  */
 public abstract class LogicStrategy {
 	
-	private int[][] locationPoints;
+	private List<Pair> locationPairs;
 	private int[] values;
 	
 	protected Candidates candidates;		
@@ -68,6 +70,12 @@ public abstract class LogicStrategy {
 	public abstract int getScore();
 	
 	/**
+	 * Return a description of location points as a hint. 
+	 * @return Hint string or null if no location points exist
+	 */
+	public abstract String asHint();
+	
+	/**
 	 * Whether, after applying this strategy, a single was found and filled in
 	 * the board as a result. Only SimpleSingles, Slicing and Slotting and Naked
 	 * Singles currently find singles. Other strategies only eliminate
@@ -90,8 +98,8 @@ public abstract class LogicStrategy {
 	 * @return Points containing the found values on success, or empty list
 	 *         otherwise
 	 */
-	public int[][] getLocationPoints() {
-		return locationPoints;
+	public List<Pair> getLocationPoints() {
+		return locationPairs;
 	}
 
 	/**
@@ -104,8 +112,8 @@ public abstract class LogicStrategy {
 	}
 
 	protected void setLocationPoints(
-			final int[][] locationPoints) {
-		this.locationPoints = locationPoints;
+			final List<Pair> locationPoints) {
+		this.locationPairs = locationPoints;
 	}
 
 	protected void setValues(final int[] values) {
@@ -113,7 +121,7 @@ public abstract class LogicStrategy {
 	}
 
 	protected void setValuesAndLocations(final int[] values,
-			final int[][] locations) {
+			final List<Pair> locations) {
 		// Store the values for the found naked subset
 		setValues(values);
 

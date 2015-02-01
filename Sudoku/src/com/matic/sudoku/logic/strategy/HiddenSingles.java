@@ -20,7 +20,11 @@
 
 package com.matic.sudoku.logic.strategy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.matic.sudoku.logic.Candidates;
+import com.matic.sudoku.solver.Pair;
 
 public class HiddenSingles extends LogicStrategy {
 	
@@ -60,7 +64,12 @@ public class HiddenSingles extends LogicStrategy {
 	}
 	
 	@Override
-	protected boolean iterateBoxes(final int[][] puzzle, int boxX, int boxY) {		
+	public String asHint() {
+		return null;
+	}
+	
+	@Override
+	protected boolean iterateBoxes(final int[][] puzzle, final int boxX, final int boxY) {		
 		//Iterate through the box
 		for(int i = boxY; i < boxY + dimension; ++i) {
 			for(int j = boxX; j < boxX + dimension; ++j) {
@@ -95,7 +104,7 @@ public class HiddenSingles extends LogicStrategy {
 		return false;
 	}
 	
-	private boolean checkColumns(final int[][] puzzle, final int[][] colCount, int boxX) {
+	private boolean checkColumns(final int[][] puzzle, final int[][] colCount, final int boxX) {
 		for(int i = boxX; i < boxX + dimension; ++i) {
 			for(int j = 0; j < colCount[i].length; ++j) {
 				if(colCount[i][j] == 1) {
@@ -104,8 +113,9 @@ public class HiddenSingles extends LogicStrategy {
 							final int single = j + 1;
 							
 							//Store the found single value and it's location
-							super.setValuesAndLocations(new int[] {single}, 
-									new int[][] {{i, k}});
+							final List<Pair> locations = new ArrayList<>();
+							locations.add(new Pair(k, i));
+							super.setValuesAndLocations(new int[] {single}, locations);
 							
 							singleFound(puzzle, k, i, single);							
 							return true;
@@ -119,7 +129,7 @@ public class HiddenSingles extends LogicStrategy {
 		return false;
 	}
 	
-	private boolean checkRows(final int[][] puzzle, final int[][] rowCount, int boxY) {
+	private boolean checkRows(final int[][] puzzle, final int[][] rowCount, final int boxY) {
 		for(int i = 0; i < rowCount.length; ++i) {
 			for(int j = 0; j < rowCount[i].length; ++j) {
 				if(rowCount[i][j] == 1) {
@@ -129,8 +139,9 @@ public class HiddenSingles extends LogicStrategy {
 							final int row = boxY + i;
 							
 							//Store the found single value and it's location
-							super.setValuesAndLocations(new int[] {single}, 
-									new int[][] {{k, row}});
+							final List<Pair> locations = new ArrayList<>();
+							locations.add(new Pair(row, k));
+							super.setValuesAndLocations(new int[] {single}, locations);
 							
 							singleFound(puzzle, row, k, single);							
 							return true;
@@ -144,7 +155,8 @@ public class HiddenSingles extends LogicStrategy {
 		return false;
 	}
 	
-	private boolean checkBox(final int[][] puzzle, final int[] boxCount, int boxX, int boxY) {
+	private boolean checkBox(final int[][] puzzle, final int[] boxCount, 
+			final int boxX, final int boxY) {
 		for(int i = 0; i < boxCount.length; ++i) {	
 			if(boxCount[i] == 1) {
 				for(int j = boxX; j < boxX + dimension; ++j) {
@@ -153,8 +165,9 @@ public class HiddenSingles extends LogicStrategy {
 							final int single = i + 1;
 							
 							//Store the found single value and it's location
-							super.setValuesAndLocations(new int[] {single}, 
-									new int[][] {{j, k}});
+							final List<Pair> locations = new ArrayList<>();
+							locations.add(new Pair(k, j));
+							super.setValuesAndLocations(new int[] {single}, locations);
 							
 							singleFound(puzzle, k, j, single);														
 							return true;

@@ -20,8 +20,10 @@
 
 package com.matic.sudoku.logic.strategy;
 
-import com.matic.sudoku.Resources;
+import java.util.List;
+
 import com.matic.sudoku.logic.Candidates;
+import com.matic.sudoku.solver.Pair;
 
 /**
  * A generic implementation of n-fish pattern. The individual patterns are:
@@ -47,7 +49,7 @@ public abstract class Fish extends LogicStrategy {
 	}
 
 	@Override
-	protected boolean iterate(int[][] puzzle) {			
+	protected boolean iterate(final int[][] puzzle) {			
 		//First, check for x-wing in rows using only naked subsets
 		Candidates fishRowCandidates = getCandidates(puzzle, true);	
 		
@@ -107,9 +109,10 @@ public abstract class Fish extends LogicStrategy {
 			final int[] subsetValues = subsetStrategy.getValues();
 			
 			//Locations of the found subset
-			final int[][] locationPoints = subsetStrategy.getLocationPoints();
+			final List<Pair> locationPoints = subsetStrategy.getLocationPoints();
 			
-			final int candidate = locationPoints[0][Resources.Y] + 1;
+			//final int candidate = locationPoints[0][Resources.Y] + 1;
+			final int candidate = locationPoints.get(0).getRow() + 1;
 			
 			final int[] sectionIndexes = new int[subsetValues.length];			
 			for(int i = 0; i < subsetValues.length; ++i) {
@@ -117,8 +120,8 @@ public abstract class Fish extends LogicStrategy {
 			}
 			
 			final boolean[] dontFilterMask = new boolean[unit];			
-			for(final int[] row : locationPoints) {
-				dontFilterMask[row[Resources.X]] = true;
+			for(final Pair row : locationPoints) {
+				dontFilterMask[row.getColumn()] = true;
 			}
 									
 			final boolean success = remove(candidate, sectionIndexes, dontFilterMask, !rows);
@@ -146,7 +149,7 @@ public abstract class Fish extends LogicStrategy {
 	 * @param fromRow If true, sectionIndexes denote rows, otherwise columns
 	 * @return True, if any candidate elimination took place, otherwise false
 	 */
-	protected boolean remove(int candidate, final int[] sectionIndexes, final boolean[] dontFilterMask, boolean fromRow) {
+	protected boolean remove(final int candidate, final int[] sectionIndexes, final boolean[] dontFilterMask, final boolean fromRow) {
 		boolean result = false;
 		for(int i = 0; i < unit; ++i) {
 			if(dontFilterMask[i]) {

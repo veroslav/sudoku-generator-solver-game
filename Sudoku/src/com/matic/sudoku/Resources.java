@@ -52,12 +52,6 @@ public class Resources {
 	//Last path selected when opening and storing puzzles
 	public static final String CURRENT_PATH = "current.path";
 	
-	//When used as an array index, represents a board's X coordinate
-	public static final int X = 0;
-	
-	//When used as an array index, represents a board's Y coordinate
-	public static final int Y = 1;
-	
 	//Represents a zero (as dot) found one some Sudoku forums 
 	public static final char ZERO_DOT_FORMAT = '.';
 	

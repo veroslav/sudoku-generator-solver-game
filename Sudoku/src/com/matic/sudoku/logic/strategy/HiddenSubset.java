@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.matic.sudoku.Resources;
+import com.matic.sudoku.solver.Pair;
 import com.matic.sudoku.util.Algorithms;
 
 public class HiddenSubset extends Subset {
@@ -43,22 +43,22 @@ public class HiddenSubset extends Subset {
 	private static final String HIDDEN_TRIPLES_STRATEGY_NAME = "Hidden Triples";
 	private static final String HIDDEN_QUADS_STRATEGY_NAME = "Hidden Quads";
 
-	public HiddenSubset(int dimension, int subsetSize) {
+	public HiddenSubset(final int dimension, final int subsetSize) {
 		super(dimension, subsetSize);
 	}
 	
 	@Override
-	protected boolean findAndFilterRowSubset(int row, final List<int[]> emptyCells) {
+	protected boolean findAndFilterRowSubset(final int row, final List<Pair> emptyCells) {
 		return findAndFilterSubset(emptyCells);
 	}
 	
 	@Override
-	protected boolean findAndFilterColumnSubset(int column, final List<int[]> emptyCells) {
+	protected boolean findAndFilterColumnSubset(final int column, final List<Pair> emptyCells) {
 		return findAndFilterSubset(emptyCells);
 	}
 	
 	@Override
-	protected boolean findAndFilterBoxSubset(int boxX, int boxY, final List<int[]> emptyCells) {
+	protected boolean findAndFilterBoxSubset(final int boxX, final int boxY, final List<Pair> emptyCells) {
 		return findAndFilterSubset(emptyCells);
 	}
 	
@@ -86,20 +86,25 @@ public class HiddenSubset extends Subset {
 		}
 	}
 	
-	private boolean findAndFilterSubset(final List<int[]> emptyCells) {
-		final List<int[][]> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
+	@Override
+	public String asHint() {
+		return null;
+	}
+	
+	private boolean findAndFilterSubset(final List<Pair> emptyCells) {
+		final List<List<Pair>> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
 		
-		for(final int[][] subset : cellSubsets) {
+		for(final List<Pair> subset : cellSubsets) {
 			final Set<Integer> subsetCandidates = new HashSet<Integer>();
 			final Set<Integer> nonSubsetCandidates = new HashSet<Integer>();
 			final List<Integer> eliminationCandidates = new ArrayList<Integer>();
 			
-			for(final int[] emptyCell : emptyCells) {			
-				if(belongsToSubset(emptyCell[Resources.Y], emptyCell[Resources.X], subset)) {
-					subsetCandidates.addAll(candidates.getAsSet(emptyCell[Resources.Y], emptyCell[Resources.X]));
+			for(final Pair emptyCell : emptyCells) {			
+				if(belongsToSubset(emptyCell.getRow(), emptyCell.getColumn(), subset)) {
+					subsetCandidates.addAll(candidates.getAsSet(emptyCell.getRow(), emptyCell.getColumn()));
 				}
 				else {
-					nonSubsetCandidates.addAll(candidates.getAsSet(emptyCell[Resources.Y], emptyCell[Resources.X]));
+					nonSubsetCandidates.addAll(candidates.getAsSet(emptyCell.getRow(), emptyCell.getColumn()));
 				}
 			}
 			
@@ -114,7 +119,7 @@ public class HiddenSubset extends Subset {
 		return false;
 	}
 	
-	private boolean checkForEliminations(final int[][] subset,final Set<Integer> subsetCandidates, 
+	private boolean checkForEliminations(final List<Pair> subset,final Set<Integer> subsetCandidates, 
 		final Set<Integer> nonSubsetCandidates, final List<Integer> eliminationCandidates) {
 		final Iterator<Integer> iter = subsetCandidates.iterator();
 		
@@ -145,10 +150,10 @@ public class HiddenSubset extends Subset {
 		return false;
 	}
 	
-	private void eliminateCandidates(final List<Integer> eliminationCandidates, final int[][] subset) {
-		for(final int[] pair : subset) {
+	private void eliminateCandidates(final List<Integer> eliminationCandidates, final List<Pair> subset) {
+		for(final Pair pair : subset) {
 			for(int candidate : eliminationCandidates) {
-				candidates.remove(candidate, pair[Resources.Y], pair[Resources.X]);
+				candidates.remove(candidate, pair.getRow(), pair.getColumn());
 			}
 		}
 	}
