@@ -639,9 +639,7 @@ public class MainWindow {
 				Resources.getTranslation("menubar.puzzle.mnemonic")).getKeyCode());
 		
 		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
-		giveClueMenuItem.setEnabled(false);
-		
-		fillPencilmarksMenuItem.setEnabled(false);
+		giveClueMenuItem.setEnabled(false);		
 		
 		final JMenuItem resetMenuItem = new JMenuItem(Resources.getTranslation(RESET_STRING));
 		resetMenuItem.setActionCommand(RESET_STRING);
@@ -840,9 +838,9 @@ public class MainWindow {
 	protected void setPuzzleVerified(final boolean verified) {
 		solveMenuItem.setEnabled(verified);		
 		giveClueMenuItem.setEnabled(verified);
-		checkMenuItem.setEnabled(verified);
-		fillPencilmarksMenuItem.setEnabled(verified);
+		checkMenuItem.setEnabled(verified);		
 		flagWrongEntriesMenuItem.setEnabled(verified);
+		fillPencilmarksMenuItem.setEnabled(true);
 		
 		focusMenuItem.setEnabled(verified);
 		focusButton.setEnabled(verified);

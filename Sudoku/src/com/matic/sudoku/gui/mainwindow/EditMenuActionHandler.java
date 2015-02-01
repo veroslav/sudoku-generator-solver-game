@@ -87,6 +87,7 @@ class EditMenuActionHandler implements ActionListener {
 		mainWindow.undoManager.undoPencilmarksEntries();
 		mainWindow.updateUndoControls();
 		mainWindow.clearPencilmarksMenuItem.setEnabled(false);
+		mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 	}
 	
 	private void handleClearColorsAction() {
@@ -102,6 +103,7 @@ class EditMenuActionHandler implements ActionListener {
 		mainWindow.undoManager.undoColorEntries();			
 		mainWindow.updateUndoControls();
 		mainWindow.clearColorsMenuItem.setEnabled(false);
+		mainWindow.gameMenuActionListener.onPuzzleStateChanged(true);
 	}
 		
 	private void handleCopyAction() {
