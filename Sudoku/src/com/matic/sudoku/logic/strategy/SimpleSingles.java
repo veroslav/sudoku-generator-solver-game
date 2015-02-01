@@ -72,25 +72,27 @@ public class SimpleSingles extends LogicStrategy {
 		return applyToRegions(puzzle, boxX, boxY, rowIndex, colIndex);
 	}
 	
-	@Override
-	public String asHint() {
-		return null;
-	}
-	
 	protected boolean applyToRegions(final int[][] puzzle, final int boxX, final int boxY, 
 			final int rowIndex, final int colIndex) {
 		//Check row
 		if(applyToRow(puzzle, rowIndex, colIndex)) {
+			hint = "Only one cell value is left to fill at row " + (rowIndex + 1) + ", column " 
+					+ (colIndex + 1) + ".\nAll other values are entered in this row";
 			return true;
 		}
 		
 		//Check column
 		if(applyToColumn(puzzle, rowIndex, colIndex)) {
+			hint = "Only one cell value is left to fill at row " + (rowIndex + 1) + ", column " 
+					+ (colIndex + 1) + ".\nAll other values are entered in this column";
 			return true;
 		}
 		
 		//Check box
 		if(applyToBox(puzzle, boxX, boxY, rowIndex, colIndex)) {
+			hint = "Only one cell value is left to fill at row " + (rowIndex + 1) 
+					+ " and column " + (colIndex + 1) + ".\n"
+					+ "All other values are entered in this box";
 			return true;
 		}
 		return false;

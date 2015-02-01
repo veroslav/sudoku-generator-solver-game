@@ -236,6 +236,7 @@ public class LogicSolver {
 	
 	/**
 	 * Reveal next solution step, either a digit or candidate removal
+	 * 
 	 * @param puzzle The puzzle to apply next step on
 	 * @param nextDigit Whether next step must reveal a digit
 	 * @return The solution strategy required or null if puzzle can't be solved 
@@ -259,10 +260,21 @@ public class LogicSolver {
 		}
 	}
 	
+	/**
+	 * Get a hint, if available, on how the next solution step can be revealed
+	 * 
+	 * @param puzzle The puzzle for which to get a hint
+	 * @return The hint or null if no hints are available
+	 */
 	public Hint getHint(final int[][] puzzle) {
-		final LogicStrategy strategy = nextStep(puzzle, false);		
+		final LogicStrategy strategy = nextStep(puzzle, false);	
 		
-		final Hint hint = new Hint(null, strategy.asHint());
+		if(strategy == null) {
+			return null;
+		}
+		
+		final Hint hint = new Hint(strategy.getLocationPoints(), 
+				strategy.asHint(), strategy.getName());
 		
 		return hint;
 	}

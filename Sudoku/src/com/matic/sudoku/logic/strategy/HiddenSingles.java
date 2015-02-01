@@ -64,11 +64,6 @@ public class HiddenSingles extends LogicStrategy {
 	}
 	
 	@Override
-	public String asHint() {
-		return null;
-	}
-	
-	@Override
 	protected boolean iterateBoxes(final int[][] puzzle, final int boxX, final int boxY) {		
 		//Iterate through the box
 		for(int i = boxY; i < boxY + dimension; ++i) {

@@ -46,9 +46,4 @@ public class XWing extends Fish {
 	public int getScore() {		
 		return SCORE;
 	}
-	
-	@Override
-	public String asHint() {
-		return null;
-	}
 }

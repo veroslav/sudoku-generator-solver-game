@@ -83,11 +83,6 @@ public class LockedCandidates extends LogicStrategy {
 		return false;
 	}
 	
-	@Override
-	public String asHint() {
-		return null;
-	}
-	
 	private boolean filterBoxForColumn(int candidate, int column, int boxX, int boxY) {
 		int removedCount = 0;
 		for(int i = boxY; i < boxY + dimension; ++i) {

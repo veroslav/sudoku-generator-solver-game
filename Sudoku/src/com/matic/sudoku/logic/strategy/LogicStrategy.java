@@ -38,8 +38,9 @@ public abstract class LogicStrategy {
 	private int[] values;
 	
 	protected Candidates candidates;		
-	
+		
 	protected boolean singleFound;
+	protected String hint = null;
 
 	protected final int dimension;
 	protected final int unit;
@@ -73,7 +74,9 @@ public abstract class LogicStrategy {
 	 * Return a description of location points as a hint. 
 	 * @return Hint string or null if no location points exist
 	 */
-	public abstract String asHint();
+	public String asHint() {
+		return hint;
+	}
 	
 	/**
 	 * Whether, after applying this strategy, a single was found and filled in

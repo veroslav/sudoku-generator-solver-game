@@ -115,11 +115,6 @@ public class NakedSubset extends Subset {
 		
 		return false;
 	}
-	
-	@Override
-	public String asHint() {
-		return null;
-	}
 		
 	private boolean filterColumn(final int column,
 			final List<Pair> subset,

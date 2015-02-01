@@ -102,16 +102,16 @@ public class SlicingAndSlotting extends LogicStrategy {
 					super.setValuesAndLocations(new int[] {i}, locations);
 					
 					singleFound(puzzle, emptyCellY, emptyCellX, i);
+					
+					hint = "All rows and/or columns intersecting the box, except those \nat row "
+							+ (emptyCellY + 1) + " and column " + (emptyCellX + 1)
+							+ " ,already contain this value";
+					
 					return true;
 				}
 			}
 		}
 		return false;
-	}
-	
-	@Override
-	public String asHint() {
-		return null;
 	}
 	
 	private void resetCoveredCells(final boolean[][] coveredCells) {
@@ -164,10 +164,10 @@ public class SlicingAndSlotting extends LogicStrategy {
 	
 	private boolean slot(final boolean[][] coveredCells, final int emptyCellX, 
 			final int emptyCellY) {		
-		int coveredCount = 0;
+		int coveredCount = 0;		
 		for(int i = 0; i < coveredCells.length; ++i) {
 			for(int j = 0; j < coveredCells[i].length; ++j) {
-				if(coveredCells[j][i]) {
+				if(coveredCells[j][i]) {					
 					++coveredCount;
 				}
 				//Reset covered cells for the next round

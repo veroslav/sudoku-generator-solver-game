@@ -86,11 +86,6 @@ public class HiddenSubset extends Subset {
 		}
 	}
 	
-	@Override
-	public String asHint() {
-		return null;
-	}
-	
 	private boolean findAndFilterSubset(final List<Pair> emptyCells) {
 		final List<List<Pair>> cellSubsets = Algorithms.findAllSubsets(emptyCells, subsetSize);
 		

@@ -100,6 +100,7 @@ public class MainWindow {
 	protected static final String CLEAR_COLORS_STRING = "edit.clear_colors";
 	protected static final String CLEAR_PENCILMARKS_STRING = "edit.clear_pencilmarks";	
 	protected static final String GIVE_CLUE_STRING = "puzzle.give_clue";
+	protected static final String GIVE_HINT_STRING = "puzzle.give_hint";
 	protected static final String LANGUAGE_STRING = "tools.language";
 	protected static final String FOCUS_ALL_BUTTON_STRING = "focusall.button";
 	protected static final String FOCUS_BUTTON_STRING = "focus.button";	
@@ -143,10 +144,11 @@ public class MainWindow {
 	protected final JToolBar symbolsToolBar;
 	
 	protected final JMenuItem fillPencilmarksMenuItem; 
-	protected final JMenuItem giveClueMenuItem;
+	protected final JMenuItem giveClueMenuItem;	
 	protected final JMenuItem verifyMenuItem;
 	protected final JMenuItem checkMenuItem;	
 	protected final JMenuItem solveMenuItem;
+	protected final JMenuItem hintMenuItem;
 	protected final JMenuItem saveMenuItem;
 	protected final JMenuItem undoMenuItem;
 	protected final JMenuItem redoMenuItem;
@@ -212,6 +214,9 @@ public class MainWindow {
 		
 		giveClueMenuItem = new JMenuItem(Resources.getTranslation(GIVE_CLUE_STRING));
 		giveClueMenuItem.setActionCommand(GIVE_CLUE_STRING);
+		
+		hintMenuItem = new JMenuItem(Resources.getTranslation(GIVE_HINT_STRING));
+		hintMenuItem.setActionCommand(GIVE_HINT_STRING);
 		
 		verifyMenuItem = new JMenuItem(Resources.getTranslation(VERIFY_STRING));
 		verifyMenuItem.setActionCommand(VERIFY_STRING);
@@ -638,14 +643,17 @@ public class MainWindow {
 		puzzleMenu.setMnemonic(KeyStroke.getKeyStroke(
 				Resources.getTranslation("menubar.puzzle.mnemonic")).getKeyCode());
 		
-		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
-		giveClueMenuItem.setEnabled(false);		
+		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_MASK));
+		giveClueMenuItem.setEnabled(false);
+		
+		hintMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
+		hintMenuItem.setEnabled(false);
 		
 		final JMenuItem resetMenuItem = new JMenuItem(Resources.getTranslation(RESET_STRING));
 		resetMenuItem.setActionCommand(RESET_STRING);
 		
 		final JMenuItem[] puzzleMenuItems = {verifyMenuItem, checkMenuItem, solveMenuItem, 
-				resetMenuItem, giveClueMenuItem, fillPencilmarksMenuItem,
+				resetMenuItem, giveClueMenuItem, hintMenuItem, fillPencilmarksMenuItem,
 				flagWrongEntriesMenuItem};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
@@ -656,7 +664,9 @@ public class MainWindow {
 		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[4]);
 		puzzleMenu.add(puzzleMenuItems[5]);
+		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[6]);
+		puzzleMenu.add(puzzleMenuItems[7]);
 		
 		puzzleMenuActionListener = new PuzzleMenuActionHandler(this, board);
 		
@@ -821,10 +831,11 @@ public class MainWindow {
 		flagWrongEntriesMenuItem.setEnabled(false);
 		clearPencilmarksMenuItem.setEnabled(false);
 		fillPencilmarksMenuItem.setEnabled(false);		
-		giveClueMenuItem.setEnabled(false);				
+		giveClueMenuItem.setEnabled(false);			
 		verifyMenuItem.setEnabled(false);		
 		solveMenuItem.setEnabled(false);	
 		checkMenuItem.setEnabled(false);
+		hintMenuItem.setEnabled(false);
 		
 		clearUndoableActions();
 		
@@ -837,6 +848,7 @@ public class MainWindow {
 	
 	protected void setPuzzleVerified(final boolean verified) {
 		solveMenuItem.setEnabled(verified);		
+		hintMenuItem.setEnabled(verified);
 		giveClueMenuItem.setEnabled(verified);
 		checkMenuItem.setEnabled(verified);		
 		flagWrongEntriesMenuItem.setEnabled(verified);

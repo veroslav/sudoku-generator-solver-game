@@ -31,6 +31,7 @@ import java.util.List;
 public class Hint {
 	
 	private final List<Pair> affectedCells;
+	private final String strategyName;
 	private final String description; 
 
 	/**
@@ -38,9 +39,12 @@ public class Hint {
 	 * 
 	 * @param affectedCells Which cells are affected by the hint
 	 * @param description A short description of the hint
+	 * @param strategyName Required strategy
 	 */
-	public Hint(final List<Pair> affectedCells, final String description) {
+	public Hint(final List<Pair> affectedCells, final String description, 
+			final String strategyName) {
 		this.affectedCells = affectedCells;
+		this.strategyName = strategyName;
 		this.description = description;
 	}
 
@@ -51,6 +55,10 @@ public class Hint {
 	public String getDescription() {
 		return description;
 	}
+	
+	public String getStrategyName() {
+		return strategyName;
+	}
 
 	@Override
 	public int hashCode() {
@@ -60,6 +68,8 @@ public class Hint {
 				+ ((affectedCells == null) ? 0 : affectedCells.hashCode());
 		result = prime * result
 				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result
+				+ ((strategyName == null) ? 0 : strategyName.hashCode());
 		return result;
 	}
 
@@ -82,12 +92,17 @@ public class Hint {
 				return false;
 		} else if (!description.equals(other.description))
 			return false;
+		if (strategyName == null) {
+			if (other.strategyName != null)
+				return false;
+		} else if (!strategyName.equals(other.strategyName))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Hint [affectedCells=" + affectedCells + ", description="
-				+ description + "]";
+		return "Hint [affectedCells=" + affectedCells + ", strategyName="
+				+ strategyName + ", description=" + description + "]";
 	}	
 }

@@ -32,6 +32,7 @@ import com.matic.sudoku.gui.undo.UndoableCellValueEntryAction;
 import com.matic.sudoku.logic.Candidates;
 import com.matic.sudoku.logic.strategy.LogicStrategy;
 import com.matic.sudoku.solver.BruteForceSolver;
+import com.matic.sudoku.solver.Hint;
 import com.matic.sudoku.solver.LogicSolver;
 import com.matic.sudoku.solver.LogicSolver.Grading;
 import com.matic.sudoku.solver.Pair;
@@ -77,6 +78,9 @@ class PuzzleMenuActionHandler implements ActionListener {
 			break;
 		case MainWindow.FILL_PENCILMARKS_STRING:
 			handleFillPencilmarks();
+			break;
+		case MainWindow.GIVE_HINT_STRING:
+			handleHintAction();
 			break;
 		}
 	}
@@ -167,6 +171,18 @@ class PuzzleMenuActionHandler implements ActionListener {
 		
 		JOptionPane.showMessageDialog(mainWindow.window, sb.toString(), title, 
 				JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	private void handleHintAction() {
+		if(!board.isVerified()) {
+			return;
+		}
+		final Hint hint = mainWindow.logicSolver.getHint(board.toIntMatrix());
+		
+		System.out.println("\n" + hint.getDescription());
+		System.out.println("\nThis technique is called " + hint.getStrategyName());
+		
+		board.setToolTipText("Hoover over the highlighted cells to reveal the clue");
 	}
 	
 	private void handleGiveClueAction() {

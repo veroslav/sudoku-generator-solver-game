@@ -46,7 +46,12 @@ public class NakedSingles extends LogicStrategy {
 			locations.add(new Pair(rowIndex, colIndex));			
 			super.setValuesAndLocations(new int[] {single}, locations);
 			
-			singleFound(puzzle, rowIndex, colIndex, single);			
+			singleFound(puzzle, rowIndex, colIndex, single);	
+			
+			hint = "A single value is left to fill in the cell at row " + (rowIndex + 1)
+					+ ", column " + (colIndex) + ", as all other values\nare contained in"
+					+ " intersecting rows, columns or the box itself";
+			
 			return true;
 		}
 		return false;
@@ -60,10 +65,5 @@ public class NakedSingles extends LogicStrategy {
 	@Override
 	public int getScore() {		
 		return SCORE;
-	}
-	
-	@Override
-	public String asHint() {
-		return null;
 	}
 }
