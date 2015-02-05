@@ -20,6 +20,8 @@
 
 package com.matic.sudoku.io.export;
 
+import java.util.List;
+
 import com.matic.sudoku.generator.Generator.Symmetry;
 import com.matic.sudoku.gui.board.Board.SymbolType;
 import com.matic.sudoku.solver.LogicSolver.Grading;
@@ -44,7 +46,7 @@ public class ExporterParameters {
 	private ExportMode exportMode;
 	private Ordering ordering;
 	private Symmetry symmetry;
-	private Grading grading;
+	private List<Grading> gradings;
 	
 	private String outputPath;
 	
@@ -86,12 +88,12 @@ public class ExporterParameters {
 		this.symmetry = symmetry;
 	}
 	
-	public Grading getGrading() {
-		return grading;
+	public List<Grading> getGradings() {
+		return gradings;
 	}
 	
-	public void setGrading(final Grading grading) {
-		this.grading = grading;
+	public void setGradings(final List<Grading> gradings) {
+		this.gradings = gradings;
 	}
 	
 	public String getOutputPath() {

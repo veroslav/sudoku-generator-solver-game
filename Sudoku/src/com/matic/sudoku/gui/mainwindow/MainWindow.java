@@ -52,7 +52,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
 
 import com.matic.sudoku.Resources;
 import com.matic.sudoku.Sudoku;
@@ -78,9 +77,6 @@ import com.matic.sudoku.solver.LogicSolver;
  *
  */
 public class MainWindow {
-	
-	//A Nimbus LaF name
-	private static final String NIMBUS_LAF_NAME = "Nimbus";
 	
 	//Menu strings
 	private static final String GAME_MENU = Resources.getTranslation("menubar.game");	
@@ -325,7 +321,7 @@ public class MainWindow {
 		final JToolBar toolBar = new JToolBar(JToolBar.HORIZONTAL);
 		
 		//A workaround for Nimbus LaF (which uses Synth for default layout)
-		if(NIMBUS_LAF_NAME.equals(UIManager.getLookAndFeel().getName())) {
+		if(Resources.isNimbusLookAndFeel()) {
 			toolBar.setLayout(new BoxLayout(toolBar, BoxLayout.X_AXIS));
 		}
 		toolBar.setFloatable(false);

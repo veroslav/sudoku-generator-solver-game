@@ -29,6 +29,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -47,6 +49,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.matic.sudoku.Resources;
 import com.matic.sudoku.generator.Generator.Symmetry;
 import com.matic.sudoku.gui.board.Board.SymbolType;
+import com.matic.sudoku.gui.custom.CheckBoxCombo;
+import com.matic.sudoku.gui.custom.CheckBoxComboElement;
 import com.matic.sudoku.io.FileFormatManager;
 import com.matic.sudoku.io.export.ExportManager;
 import com.matic.sudoku.io.export.ExporterParameters;
@@ -78,9 +82,10 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	private final JComboBox<String> puzzlesPerPageCombo;
 	private final JComboBox<String> puzzleOrderCombo;
 	private final JComboBox<String> puzzleTypeCombo;
-	private final JComboBox<String> difficultyCombo;	
-	private final JComboBox<String> symmetryCombo;
 	private final JComboBox<String> symbolsCombo;
+	
+	private final CheckBoxCombo<String> difficultyCombo;	
+	private final JComboBox<String> symmetryCombo;
 	
 	private final JOptionPane optionPane;
 	private final ExportManager exportManager;
@@ -108,21 +113,22 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		showNumberingCheck = new JCheckBox(
 				Resources.getTranslation("generate.show_numberings"), true);
 		
-		puzzleTypeCombo = new JComboBox<String>(new String[] {
+		puzzleTypeCombo = new JComboBox<>(new String[] {
 				Resources.getTranslation("generate.new_puzzles"), 
 				Resources.getTranslation("generate.blank_puzzles")});		
 		puzzleTypeCombo.addActionListener(this);
 		
-		symbolsCombo = new JComboBox<String>(new String[] {
+		symbolsCombo = new JComboBox<>(new String[] {
 				Resources.getTranslation("symbols.digits"), 
 				Resources.getTranslation("symbols.letters"), RANDOM_STRING});
-		puzzleOrderCombo = new JComboBox<String>(new String[] {
+		puzzleOrderCombo = new JComboBox<>(new String[] {
 				Resources.getTranslation("generate.difficulty"), RANDOM_STRING});
-		puzzlesPerPageCombo = new JComboBox<String>(new String[] {"1", "2", "4"});
+		puzzlesPerPageCombo = new JComboBox<>(new String[] {"1", "2", "4"});
 		puzzlesPerPageCombo.setSelectedIndex(1);
 		
-		difficultyCombo = new JComboBox<String>();
-		symmetryCombo = new JComboBox<String>();
+		difficultyCombo = new CheckBoxCombo<>(" " + Resources.getTranslation(
+				"export.select_label"));
+		symmetryCombo = new JComboBox<>();
 		
 		addComboBoxItems();
 		
@@ -199,7 +205,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		exporterParameters.setOutputPath(outputPathField.getText());
 		exporterParameters.setSymbolType(getSelectedSymbolType());
 		exporterParameters.setSymmetry(getSelectedSymmetry());
-		exporterParameters.setGrading(getSelectedGrading());
+		exporterParameters.setGradings(getSelectedGradings());
 		exporterParameters.setShowGrading(showDifficultiesCheck.isSelected());
 		exporterParameters.setShowNumbering(showNumberingCheck.isSelected());
 		exporterParameters.setPuzzlesPerPage(Integer.parseInt(
@@ -224,12 +230,16 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		return SymbolType.fromString(symbols);
 	}
 	
-	private Grading getSelectedGrading() {
-		final String difficulty = difficultyCombo.getItemAt(difficultyCombo.getSelectedIndex());
-		if(RANDOM_STRING.equals(difficulty)) {
-			return null;
+	private List<Grading> getSelectedGradings() {
+		
+		final List<String> selectedGradings = difficultyCombo.getSelectedElements();
+		final List<Grading> result = new ArrayList<>();
+		
+		for(final String grading : selectedGradings) {
+			result.add(Grading.fromString(grading));
 		}
-		return Grading.fromString(difficulty);
+		
+		return result;
 	}
 	
 	private void handleBrowse() {		
@@ -316,9 +326,8 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 			symmetryCombo.addItem(symmetry.getDescription());
 		}
 		for(final Grading grading : Grading.values()) {
-			difficultyCombo.addItem(grading.getDescription());
-		}
-		difficultyCombo.addItem(RANDOM_STRING);
+			difficultyCombo.addItem(new CheckBoxComboElement(grading.getDescription(), false));
+		}		
 		difficultyCombo.setSelectedIndex(difficultyCombo.getItemCount()-1);
 		
 		symmetryCombo.addItem(RANDOM_STRING);

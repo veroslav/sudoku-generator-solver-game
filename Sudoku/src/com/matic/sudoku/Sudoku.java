@@ -54,7 +54,7 @@ public class Sudoku {
 				try {
 					final String osName = System.getProperty(OS_NAME_KEY);
 					if(osName == null || LINUX_OS_NAME.equals(osName)) {
-						UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+						UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");						
 					}
 					else {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

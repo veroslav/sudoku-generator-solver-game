@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -171,7 +172,7 @@ public class PdfExporter implements FileSaveFilter {
 		int puzzlesPrinted = 0;
 		
 		final PdfContentByte contentByte = pdfWriter.getDirectContent();
-		final Grading[] gradings = getGradings(exporterParameters.getGrading(), 
+		final Grading[] gradings = getGeneratedPuzzleGradings(exporterParameters.getGradings(), 
 				exporterParameters.getOrdering(), exporterParameters.getPuzzleCount());
 		
 		pageCounter: for(int page = 0; page < pageCount; ++page) {						
@@ -182,7 +183,7 @@ public class PdfExporter implements FileSaveFilter {
 					//Check whether to generate a new puzzle or print empty boards 
 					final ExportMode exportMode = exporterParameters.getExportMode();
 					final Grading selectedGrading = exportMode == ExportMode.BLANK? null : 
-						getGrading(exporterParameters.getGrading(), gradings, puzzlesPrinted);
+						gradings[puzzlesPrinted];
 					if(exportMode == ExportMode.GENERATE_NEW) {						
 						board.setPuzzle(generatePuzzle(generator, getSymmetry(exporterParameters.getSymmetry()), 
 								selectedGrading));
@@ -251,27 +252,21 @@ public class PdfExporter implements FileSaveFilter {
 				y + (int)((width - fontHeight) / 2.0 + 0.5) + fontMetrics.getAscent());
 	}
 	
-	private Grading[] getGradings(final Grading targetGrading, final Ordering targetOrdering, final int puzzleCount) {
-		if(targetGrading == null) {
-			//If player selects random grading order AND random grading puzzles, need to keep track of orderings
-			final Grading[] gradings = new Grading[puzzleCount];
-			for(int i = 0; i < gradings.length; ++i) {
-				gradings[i] = Grading.getRandom();
-			}
-			if(targetOrdering != Ordering.RANDOM) {
-				Arrays.sort(gradings);
-			}
-			return gradings;
+	private Grading[] getGeneratedPuzzleGradings(final List<Grading> targetGradings, final Ordering targetOrdering, 
+			final int puzzleCount) {		
+		final Grading[] gradings = new Grading[puzzleCount];
+		for(int i = 0; i < gradings.length; ++i) {
+			final int randomGrading = Resources.RANDOM_INSTANCE.nextInt(targetGradings.size());
+			gradings[i] = targetGradings.get(randomGrading);
 		}
-		return null;
+		if(targetOrdering != Ordering.RANDOM) {
+			Arrays.sort(gradings);
+		}
+		return gradings;		
 	}
 	
 	private SymbolType getSymbolType(final SymbolType targetSymbolType) {
 		return targetSymbolType == null? SymbolType.getRandom() : targetSymbolType;
-	}
-	
-	private Grading getGrading(final Grading targetGrading, final Grading[] gradings, final int puzzleIndex) {
-		return gradings == null? targetGrading : gradings[puzzleIndex];
 	}
 	
 	private Symmetry getSymmetry(final Symmetry targetSymmetry) {		

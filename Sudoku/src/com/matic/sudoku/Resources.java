@@ -37,6 +37,9 @@ import javax.swing.UIManager;
  */
 public class Resources {
 	
+	//The name of the Nimbus Look&Feel
+	private static final String NIMBUS_LAF_NAME = "Nimbus";
+	
 	//Application preferences stored between the program sessions 
 	private static final Preferences APPLICATION_PREFERENCES = Preferences.userRoot().node(Resources.class.getName());
 	
@@ -87,6 +90,15 @@ public class Resources {
 
 	//Prevent instantiation of this class
 	private Resources() {}
+	
+	/**
+	 * Find out whether current look and feel is Nimbus LAF
+	 * 
+	 * @return Whether the current look and feel is set to Nimbus
+	 */
+	public static boolean isNimbusLookAndFeel() {
+		return NIMBUS_LAF_NAME.equals(UIManager.getLookAndFeel().getName());
+	}
 	
 	/**
 	 * Get a value of an application property
