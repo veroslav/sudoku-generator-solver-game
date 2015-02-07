@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -67,7 +68,7 @@ import com.matic.sudoku.solver.LogicSolver.Grading;
  *
  */
 
-public class GenerateAndExportWindow implements ActionListener, PropertyChangeListener {
+public final class GenerateAndExportWindow implements ActionListener, PropertyChangeListener {
 	
 	private static final String RANDOM_STRING = Resources.getTranslation("generate.random");
 	
@@ -85,7 +86,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	private final JComboBox<String> symbolsCombo;
 	
 	private final CheckBoxCombo<String> difficultyCombo;	
-	private final JComboBox<String> symmetryCombo;
+	private final CheckBoxCombo<String> symmetryCombo;
 	
 	private final JOptionPane optionPane;
 	private final ExportManager exportManager;
@@ -105,7 +106,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		puzzleCountField = new JTextField();
 		puzzleCountField.setText("10");
 		
-		outputPathField = new JTextField();
+		outputPathField = new JTextField(30);
 		outputPathField.setEditable(false);
 		
 		showDifficultiesCheck = new JCheckBox(
@@ -123,12 +124,13 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 				Resources.getTranslation("symbols.letters"), RANDOM_STRING});
 		puzzleOrderCombo = new JComboBox<>(new String[] {
 				Resources.getTranslation("generate.difficulty"), RANDOM_STRING});
-		puzzlesPerPageCombo = new JComboBox<>(new String[] {"1", "2", "4"});
-		puzzlesPerPageCombo.setSelectedIndex(1);
+		puzzlesPerPageCombo = new JComboBox<>(new String[] {"4", "2", "1"});
+		puzzlesPerPageCombo.setSelectedIndex(0);
 		
 		difficultyCombo = new CheckBoxCombo<>(" " + Resources.getTranslation(
+				"export.select_label"));		
+		symmetryCombo = new CheckBoxCombo<>(" " + Resources.getTranslation(
 				"export.select_label"));
-		symmetryCombo = new JComboBox<>();
 		
 		addComboBoxItems();
 		
@@ -204,7 +206,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		exporterParameters.setPuzzleCount(Integer.parseInt(puzzleCountField.getText()));
 		exporterParameters.setOutputPath(outputPathField.getText());
 		exporterParameters.setSymbolType(getSelectedSymbolType());
-		exporterParameters.setSymmetry(getSelectedSymmetry());
+		exporterParameters.setSymmetries(getSelectedSymmetries());
 		exporterParameters.setGradings(getSelectedGradings());
 		exporterParameters.setShowGrading(showDifficultiesCheck.isSelected());
 		exporterParameters.setShowNumbering(showNumberingCheck.isSelected());
@@ -214,12 +216,15 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		return exporterParameters;
 	}
 	
-	private Symmetry getSelectedSymmetry() {
-		final String symmetry = symmetryCombo.getItemAt(symmetryCombo.getSelectedIndex());
-		if(RANDOM_STRING.equals(symmetry)) {
-			return null;
+	private List<Symmetry> getSelectedSymmetries() {
+		final List<String> selectedSymmetries = symmetryCombo.getSelectedElements();
+		final List<Symmetry> result = new ArrayList<>();
+		
+		for(final String symmetry : selectedSymmetries) {
+			result.add(Symmetry.fromString(symmetry));
 		}
-		return Symmetry.fromString(symmetry);
+		
+		return result;
 	}
 	
 	private SymbolType getSelectedSymbolType() {
@@ -230,8 +235,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 		return SymbolType.fromString(symbols);
 	}
 	
-	private List<Grading> getSelectedGradings() {
-		
+	private List<Grading> getSelectedGradings() {		
 		final List<String> selectedGradings = difficultyCombo.getSelectedElements();
 		final List<Grading> result = new ArrayList<>();
 		
@@ -301,6 +305,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 			}
 		}
 		
+		//Check that the puzzle count is valid
 		try {
 			final int puzzleCount = Integer.parseInt(puzzleCountField.getText());
 			if(puzzleCount < 1) {
@@ -318,20 +323,33 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
+		
+		if(difficultyCombo.getSelectedElements().size() == 0) {
+			JOptionPane.showMessageDialog(dialog, 
+					Resources.getTranslation("export.grading_selection.error.message"), 
+					Resources.getTranslation("export.invalid_input"), 
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}		
+		if(symmetryCombo.getSelectedElements().size() == 0) {
+			JOptionPane.showMessageDialog(dialog, 
+					Resources.getTranslation("export.symmetry_selection.error.message"), 
+					Resources.getTranslation("export.invalid_input"), 
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 		return true;
 	}
 	
 	private void addComboBoxItems() {
 		for(final Symmetry symmetry : Symmetry.values()) {
-			symmetryCombo.addItem(symmetry.getDescription());
+			symmetryCombo.addItem(new CheckBoxComboElement(symmetry.getDescription(), false));
 		}
 		for(final Grading grading : Grading.values()) {
 			difficultyCombo.addItem(new CheckBoxComboElement(grading.getDescription(), false));
 		}		
-		difficultyCombo.setSelectedIndex(difficultyCombo.getItemCount()-1);
-		
-		symmetryCombo.addItem(RANDOM_STRING);
-		symmetryCombo.setSelectedItem(RANDOM_STRING);
+		difficultyCombo.setSelectedElementIndex(1);		
+		symmetryCombo.setSelectedElementIndex(1);
 	}
 	
 	private JPanel buildContentPanel() {
@@ -353,7 +371,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	}
 	
 	private JPanel buildSouthPanel() {
-		final JPanel southPanel = new JPanel(new BorderLayout());
+		final JPanel southPanel = new JPanel(new BorderLayout(0, 5));
 		
 		southPanel.add(buildFormattingOptionsPanel(), BorderLayout.NORTH);
 		southPanel.add(buildDisplayOptionsPanel(), BorderLayout.SOUTH);
@@ -365,7 +383,7 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	}
 	
 	private JPanel buildOutputOptionsPanel() {
-		final JPanel panel = new JPanel(new BorderLayout());
+		final JPanel panel = new JPanel(new BorderLayout(5, 0));
 		
 		panel.add(outputPathField, BorderLayout.CENTER);
 		panel.add(browseButton, BorderLayout.EAST);
@@ -377,17 +395,22 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	}
 	
 	private JPanel buildGeneratorOptionsPanel() {
-		final JPanel panel = new JPanel(new GridLayout(5,2));
+		final JPanel panel = new JPanel(new GridLayout(5, 2, 5, 5));
 		
-		panel.add(new JLabel(Resources.getTranslation("export.grid_type") + ": "));
+		panel.add(new JLabel(Resources.getTranslation("export.grid_type") + ": ",
+				SwingConstants.RIGHT));
 		panel.add(puzzleTypeCombo);
-		panel.add(new JLabel(Resources.getTranslation("export.puzzle_count") + ": "));
+		panel.add(new JLabel(Resources.getTranslation("export.puzzle_count") + ": ",
+				SwingConstants.RIGHT));
 		panel.add(puzzleCountField);
-		panel.add(new JLabel(Resources.getTranslation("symbols.label") + ": "));
+		panel.add(new JLabel(Resources.getTranslation("symbols.label") + ": ",
+				SwingConstants.RIGHT));
 		panel.add(symbolsCombo);
-		panel.add(new JLabel(Resources.getTranslation("generate.difficulty") + ": "));
+		panel.add(new JLabel(Resources.getTranslation("generate.difficulty") + ": ",
+				SwingConstants.RIGHT));
 		panel.add(difficultyCombo);
-		panel.add(new JLabel(Resources.getTranslation("symmetry.name") + ": "));
+		panel.add(new JLabel(Resources.getTranslation("symmetry.name") + ": ",
+				SwingConstants.RIGHT));
 		panel.add(symmetryCombo);
 		
 		panel.setBorder(BorderFactory.createTitledBorder(
@@ -398,23 +421,22 @@ public class GenerateAndExportWindow implements ActionListener, PropertyChangeLi
 	
 	private JPanel buildFormattingOptionsPanel() {
 		final JPanel panel = new JPanel(new BorderLayout());
+
+		final JPanel formattingPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+		formattingPanel.add(new JLabel(Resources.getTranslation("export.puzzles_per_page") + ": ",
+				SwingConstants.RIGHT));
+		formattingPanel.add(puzzlesPerPageCombo);						
+		formattingPanel.add(new JLabel(Resources.getTranslation("export.puzzle_ordering") + ": ",
+				SwingConstants.RIGHT));
+		formattingPanel.add(puzzleOrderCombo);
 		
-		final JPanel perPagePanel = new JPanel(new GridLayout());
-		perPagePanel.add(new JLabel(Resources.getTranslation("export.puzzles_per_page") + ": "));
-		perPagePanel.add(puzzlesPerPageCombo);
-				
-		final JPanel orderPanel = new JPanel(new GridLayout());
-		orderPanel.add(new JLabel(Resources.getTranslation("export.puzzle_ordering") + ": "));
-		orderPanel.add(puzzleOrderCombo);
-		
-		panel.add(perPagePanel, BorderLayout.NORTH);
-		panel.add(orderPanel, BorderLayout.SOUTH);
+		panel.add(formattingPanel, BorderLayout.NORTH);
 		
 		return panel;
 	}
 	
 	private JPanel buildDisplayOptionsPanel() {
-		final JPanel panel = new JPanel(new GridLayout(2,1));
+		final JPanel panel = new JPanel(new GridLayout(2, 1, 5, 5));
 		
 		panel.add(showDifficultiesCheck);
 		panel.add(showNumberingCheck);

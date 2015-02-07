@@ -26,6 +26,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +49,7 @@ import com.matic.sudoku.Resources;
  */
 public final class CheckBoxCombo<T> extends JComboBox<Object> {
 	
+	private static final String SELECTED_TOOLTIP_ELEMENTS_SEPARATOR = ", ";
 	private static final long serialVersionUID = 1L;
 	private boolean popupVisible = false;
 	
@@ -59,8 +62,23 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 	public CheckBoxCombo(final String emptySelectionCapture) {
 		super();
 		
-		setSelectedIndex(-1);
+		super.setSelectedIndex(-1);
 		setRenderer(new CheckBoxComboRenderer<Object>(emptySelectionCapture));
+		
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(final MouseEvent event) {
+				final String selectedElementsLabel = getSelectedElementsAsString();
+				if(selectedElementsLabel != null) {
+					setToolTipText(selectedElementsLabel);
+				}
+			}
+
+			@Override
+			public void mouseExited(final MouseEvent event) {
+				setToolTipText(null);
+			}			
+		});
 		
 		addActionListener(new ActionListener() {
 			@Override
@@ -116,6 +134,16 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 	}
 	
 	/**
+	 * Check element at specified index
+	 * 
+	 * @param index Index of the target element
+	 */
+	public final void setSelectedElementIndex(final int index) {		
+		final CheckBoxComboElement selectedItem = (CheckBoxComboElement)super.getItemAt(index);
+		selectedItem.setSelected(true);
+	}
+	
+	/**
 	 * Get all selected elements in this CheckBoxCombo as Strings
 	 * 
 	 * @return Selected string elements
@@ -123,12 +151,31 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 	public final List<String> getSelectedElements() {
 		final List<String> selectedItems = new ArrayList<>();
 		for(int i = 0; i < getItemCount(); ++i) {
-			final CheckBoxComboElement item = (CheckBoxComboElement)getItemAt(i);
+			final CheckBoxComboElement item = (CheckBoxComboElement)super.getItemAt(i);
 			if(item.isSelected()) {
 				selectedItems.add(item.getValue());
 			}
 		}
 		return selectedItems;
+	}
+	
+	private String getSelectedElementsAsString() {
+		final List<String> selectedElements = getSelectedElements();
+		
+		final StringBuilder result = new StringBuilder();
+		
+		if(selectedElements.isEmpty()) {
+			return null;
+		}
+		
+		result.append(selectedElements.get(0));
+		
+		for(int i = 1; i < selectedElements.size(); ++i) {
+			result.append(SELECTED_TOOLTIP_ELEMENTS_SEPARATOR);
+			result.append(selectedElements.get(i));
+		}
+		
+		return result.toString();
 	}
 	
 	private void onSetPopupVisible(final boolean visible) {
@@ -143,7 +190,7 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 	}
 	
 	private void onSelectionChange() {
-		final CheckBoxComboElement selectedItem = (CheckBoxComboElement)getSelectedItem();
+		final CheckBoxComboElement selectedItem = (CheckBoxComboElement)super.getSelectedItem();
 		selectedItem.setSelected(!selectedItem.isSelected());
 		
 		popupVisible = true;					
@@ -164,7 +211,7 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 		
 		private final String elementsSelectedText = Resources.getTranslation(
 				"export.select_count");
-		private final String noElementsSelectedText;
+		private final String emptySelectionText;
 		
 		private Color listSelectionBackground;
 		private Color listSelectionForeground;
@@ -174,10 +221,10 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 		/**
 		 * Create a new instance with a message to show when no items are checked
 		 * 
-		 * @param noElementsSelectedText The message to show when no items are checked
+		 * @param emptySelectionText The message to show when no items are checked
 		 */
-		public CheckBoxComboRenderer(final String noElementsSelectedText) {
-			this.noElementsSelectedText = noElementsSelectedText;
+		public CheckBoxComboRenderer(final String emptySelectionText) {
+			this.emptySelectionText = emptySelectionText;
 			
 			//A workaround for Nimbus LAF not setting component colors appropriately
 			if(Resources.isNimbusLookAndFeel()) {
@@ -194,7 +241,7 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 				this.enabledTextColor = new Color(enabledTextColor.getRGB());
 			}
 			
-			selectionInfoLabel = new JLabel(this.noElementsSelectedText);
+			selectionInfoLabel = new JLabel(this.emptySelectionText);
 			checkBox = new JCheckBox();	
 			checkBox.setOpaque(true);
 		}
@@ -221,7 +268,7 @@ public final class CheckBoxCombo<T> extends JComboBox<Object> {
 			
 			final int selectedItemsCount = getSelectedElements().size();
 			if(selectedItemsCount == 0) {
-				selectionInfoLabel.setText(noElementsSelectedText);
+				selectionInfoLabel.setText(emptySelectionText);
 			}
 			else {
 				selectionInfoLabel.setText(" " + selectedItemsCount + " " + elementsSelectedText);

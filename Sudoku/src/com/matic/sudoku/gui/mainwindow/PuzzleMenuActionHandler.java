@@ -180,9 +180,7 @@ class PuzzleMenuActionHandler implements ActionListener {
 		final Hint hint = mainWindow.logicSolver.getHint(board.toIntMatrix());
 		
 		System.out.println("\n" + hint.getDescription());
-		System.out.println("\nThis technique is called " + hint.getStrategyName());
-		
-		board.setToolTipText("Hoover over the highlighted cells to reveal the clue");
+		System.out.println("\nThis technique is called " + hint.getStrategyName());		
 	}
 	
 	private void handleGiveClueAction() {

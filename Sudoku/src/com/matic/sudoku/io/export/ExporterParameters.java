@@ -45,7 +45,8 @@ public class ExporterParameters {
 	private SymbolType symbolType;
 	private ExportMode exportMode;
 	private Ordering ordering;
-	private Symmetry symmetry;
+	
+	private List<Symmetry> symmetries;
 	private List<Grading> gradings;
 	
 	private String outputPath;
@@ -80,12 +81,12 @@ public class ExporterParameters {
 		this.exportMode = exportMode;
 	}
 	
-	public Symmetry getSymmetry() {
-		return symmetry;
+	public List<Symmetry> getSymmetries() {
+		return symmetries;
 	}
 	
-	public void setSymmetry(final Symmetry symmetry) {
-		this.symmetry = symmetry;
+	public void setSymmetries(final List<Symmetry> symmetries) {
+		this.symmetries = symmetries;
 	}
 	
 	public List<Grading> getGradings() {

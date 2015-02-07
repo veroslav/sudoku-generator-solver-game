@@ -25,9 +25,11 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import com.matic.sudoku.Resources;
 import com.matic.sudoku.generator.Generator.Symmetry;
@@ -125,17 +127,41 @@ public class NewPuzzleWindowOptions {
 	}
 	
 	private void build() {
-		final JPanel panel = new JPanel(new GridLayout(5,2));
-		panel.add(new JLabel(Resources.getTranslation("puzzle.create") + ": "));
-		panel.add(newOrEmptyCombo);
-		panel.add(new JLabel(Resources.getTranslation("puzzle.type") + ": "));
-		panel.add(typeCombo);
-		panel.add(new JLabel(Resources.getTranslation("symbols.label") + ": "));
-		panel.add(symbolsCombo);
-		panel.add(new JLabel(Resources.getTranslation("generate.difficulty") + ": "));
-		panel.add(difficultyCombo);
-		panel.add(new JLabel(Resources.getTranslation("symmetry.name") + ": "));
-		panel.add(symmetryCombo);
+		
+		final JPanel gridOptionsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+		final JPanel puzzleOptionsPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+		
+		gridOptionsPanel.add(new JLabel(Resources.getTranslation("puzzle.create") + ": ",
+				SwingConstants.RIGHT));
+		gridOptionsPanel.add(newOrEmptyCombo);
+		gridOptionsPanel.add(new JLabel(Resources.getTranslation("puzzle.type") + ": ",
+				SwingConstants.RIGHT));
+		gridOptionsPanel.add(typeCombo);
+		puzzleOptionsPanel.add(new JLabel(Resources.getTranslation("symbols.label") + ": ",
+				SwingConstants.RIGHT));
+		puzzleOptionsPanel.add(symbolsCombo);
+		puzzleOptionsPanel.add(new JLabel(Resources.getTranslation("generate.difficulty") + ": ",
+				SwingConstants.RIGHT));
+		puzzleOptionsPanel.add(difficultyCombo);
+		puzzleOptionsPanel.add(new JLabel(Resources.getTranslation("symmetry.name") + ": ",
+				SwingConstants.RIGHT));
+		puzzleOptionsPanel.add(symmetryCombo);
+		
+		final JPanel northPanel = new JPanel(new BorderLayout());
+		northPanel.add(gridOptionsPanel, BorderLayout.NORTH);
+		
+		northPanel.setBorder(BorderFactory.createTitledBorder(
+				Resources.getTranslation("generate.border.grid_options")));
+		
+		final JPanel southPanel = new JPanel(new BorderLayout());
+		southPanel.add(puzzleOptionsPanel, BorderLayout.NORTH);
+		
+		southPanel.setBorder(BorderFactory.createTitledBorder(
+				Resources.getTranslation("generate.border.puzzle_options")));
+		
+		final JPanel panel = new JPanel(new BorderLayout());
+		panel.add(northPanel, BorderLayout.NORTH);
+		panel.add(southPanel, BorderLayout.CENTER);
 		
 		mainPanel.add(panel, BorderLayout.NORTH);
 	}

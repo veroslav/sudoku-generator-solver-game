@@ -49,7 +49,7 @@ public class NakedSingles extends LogicStrategy {
 			singleFound(puzzle, rowIndex, colIndex, single);	
 			
 			hint = "A single value is left to fill in the cell at row " + (rowIndex + 1)
-					+ ", column " + (colIndex) + ", as all other values\nare contained in"
+					+ ", column " + (colIndex + 1) + ", as all other values\nare contained in"
 					+ " intersecting rows, columns or the box itself";
 			
 			return true;

@@ -185,7 +185,7 @@ public class PdfExporter implements FileSaveFilter {
 					final Grading selectedGrading = exportMode == ExportMode.BLANK? null : 
 						gradings[puzzlesPrinted];
 					if(exportMode == ExportMode.GENERATE_NEW) {						
-						board.setPuzzle(generatePuzzle(generator, getSymmetry(exporterParameters.getSymmetry()), 
+						board.setPuzzle(generatePuzzle(generator, getSymmetry(exporterParameters.getSymmetries()), 
 								selectedGrading));
 						board.recordGivens();
 					}
@@ -269,8 +269,8 @@ public class PdfExporter implements FileSaveFilter {
 		return targetSymbolType == null? SymbolType.getRandom() : targetSymbolType;
 	}
 	
-	private Symmetry getSymmetry(final Symmetry targetSymmetry) {		
-		return targetSymmetry == null? Symmetry.getRandom() : targetSymmetry; 
+	private Symmetry getSymmetry(final List<Symmetry> targetSymmetries) {		
+		return targetSymmetries.get(Resources.RANDOM_INSTANCE.nextInt(targetSymmetries.size())); 
 	}
 	
 	private int[] generatePuzzle(final Generator generator, final Symmetry symmetry, 

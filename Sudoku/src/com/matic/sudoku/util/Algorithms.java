@@ -109,10 +109,6 @@ public class Algorithms {
 		} 
 		else {
 			for(int i = r; i < pairs.size(); ++i) {
-				/*System.out.println(t);
-				System.out.println("pairs.size() = " + pairs.size() + ", i = " + i);
-				System.out.println("q = " + q);
-				System.out.println("pairs.get(i) = " + pairs.get(i));*/
 				t.set(q, pairs.get(i));
 				Algorithms.findSubsets(subsets, pairs, t, subsetSize, q + 1, i + 1);
 			}
