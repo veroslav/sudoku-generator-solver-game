@@ -228,7 +228,8 @@ public class PdfExporter implements FileSaveFilter {
 		}
 		
 		if(showGrading && grading != null) {
-			legend.append(grading.toString());
+			final String gradingName = grading.getDescription();			
+			legend.append(gradingName.charAt(0) + gradingName.substring(1).toLowerCase());
 		}
 		
 		return legend.toString();

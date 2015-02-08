@@ -103,9 +103,9 @@ public class SlicingAndSlotting extends LogicStrategy {
 					
 					singleFound(puzzle, emptyCellY, emptyCellX, i);
 					
-					hint = "All rows and/or columns intersecting the box, except those \nat row "
+					hint = "All rows and/or columns intersecting the box, except row "
 							+ (emptyCellY + 1) + " and column " + (emptyCellX + 1)
-							+ " ,already contain this value";
+							+ ", already contain this value";
 					
 					return true;
 				}

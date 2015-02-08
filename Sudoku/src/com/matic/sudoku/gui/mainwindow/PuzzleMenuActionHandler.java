@@ -177,6 +177,13 @@ class PuzzleMenuActionHandler implements ActionListener {
 		if(!board.isVerified()) {
 			return;
 		}
+		final String title = Resources.getTranslation("puzzle.give_hint");
+		if(mainWindow.bruteForceSolver.solve(board.getPuzzle()) != BruteForceSolver.UNIQUE_SOLUTION) {
+			JOptionPane.showMessageDialog(mainWindow.window, 
+					Resources.getTranslation("puzzle.invalid.message"), title, 
+					JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 		final Hint hint = mainWindow.logicSolver.getHint(board.toIntMatrix());
 		
 		System.out.println("\n" + hint.getDescription());
