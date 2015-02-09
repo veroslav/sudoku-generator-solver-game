@@ -32,6 +32,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Action;
@@ -76,7 +78,7 @@ import com.matic.sudoku.solver.LogicSolver;
  * @author vedran
  *
  */
-public class MainWindow {
+public final class MainWindow {
 	
 	//Menu strings
 	private static final String GAME_MENU = Resources.getTranslation("menubar.game");	
@@ -102,6 +104,8 @@ public class MainWindow {
 	protected static final String FOCUS_BUTTON_STRING = "focus.button";	
 	protected static final String NEW_STRING = "game.new";
 	protected static final String OPEN_STRING = "game.open";
+	protected static final String CLEAR_RECENT_FILES_STRING = "game.clear_recent";
+	protected static final String OPEN_RECENT_STRING = "game.open_recent";
 	protected static final String SAVE_AS_STRING = "game.save_as";
 	protected static final String SAVE_STRING = "game.save";
 	protected static final String VERIFY_STRING = "puzzle.verify";
@@ -127,6 +131,9 @@ public class MainWindow {
 	
 	//How many times we let the generator try to create a new puzzle before failing
 	private static final int MAX_GENERATOR_ITERATIONS = 100;
+	
+	//How many recent file items can be displayed in recent file menu
+	private static final int RECENT_FILE_LIST_MAX_SIZE = 5;
 			
 	protected final BruteForceSolver bruteForceSolver;
 	protected final LogicSolver logicSolver;
@@ -150,6 +157,9 @@ public class MainWindow {
 	protected final JMenuItem redoMenuItem;
 	protected final JMenuItem clearPencilmarksMenuItem;
 	protected final JMenuItem clearColorsMenuItem;
+	protected final JMenu recentFilesMenu = new JMenu(
+			Resources.getTranslation(OPEN_RECENT_STRING));
+	
 	protected final JToolBar colorsToolBar;
 	protected final JFrame window;
 	protected final Puzzle puzzle;
@@ -541,6 +551,22 @@ public class MainWindow {
 		final JMenuItem openMenuItem = new JMenuItem(Resources.getTranslation(OPEN_STRING));
 		openMenuItem.setActionCommand(OPEN_STRING);
 		
+		recentFilesMenu.setActionCommand(OPEN_RECENT_STRING); 
+        buildRecentMenuItems(recentFilesMenu, loadRecentFileList());
+        
+        final JMenuItem clearRecentFilesMenuItem = new JMenuItem(
+        		Resources.getTranslation(CLEAR_RECENT_FILES_STRING));        
+        clearRecentFilesMenuItem.setActionCommand(CLEAR_RECENT_FILES_STRING);
+        clearRecentFilesMenuItem.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(final ActionEvent event) {
+				onClearRecentFiles();
+			}
+		});
+        
+        recentFilesMenu.addSeparator();
+        recentFilesMenu.add(clearRecentFilesMenuItem);
+		
 		openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 		
 		final JMenuItem quitMenuItem = new JMenuItem(Resources.getTranslation(QUIT_STRING));
@@ -565,7 +591,9 @@ public class MainWindow {
 		saveAsMenuItem.setActionCommand(SAVE_AS_STRING);
 		
 		gameMenu.add(newMenuItem);
+		gameMenu.addSeparator();
 		gameMenu.add(openMenuItem);
+		gameMenu.add(recentFilesMenu);
 		gameMenu.addSeparator();
 		gameMenu.add(saveMenuItem);
 		gameMenu.add(saveAsMenuItem);
@@ -586,6 +614,55 @@ public class MainWindow {
 		}
 		
 		return gameMenu;
+	}
+	
+	private void buildRecentMenuItems(final JMenu recentFileMenu, final List<String> filePaths) {
+		for(final String filePath : filePaths) {
+			final String fileName = Paths.get(filePath).getFileName().toString();
+			final JMenuItem pathMenuItem = new JMenuItem(fileName + " [" + filePath + "]");
+			pathMenuItem.setActionCommand(filePath);
+			recentFileMenu.add(pathMenuItem);
+		}		
+		recentFileMenu.setEnabled(recentFileMenu.getItemCount() > 0);
+	}
+	
+	private void onClearRecentFiles() {
+		final int itemCount = recentFilesMenu.getItemCount();
+		
+		for(int i = 0; i < itemCount - 2; ++i) {
+			recentFilesMenu.remove(i);
+		}
+		
+		recentFilesMenu.setEnabled(false);
+		storeRecentFileList();		
+	}
+	
+	private void storeRecentFileList() {
+		final int itemCount = recentFilesMenu.getItemCount();
+		
+		for(int i = 0; i < RECENT_FILE_LIST_MAX_SIZE; ++i) {
+			if(i < itemCount - 2) {
+				final JMenuItem menuItem = recentFilesMenu.getItem(i);
+				Resources.setProperty("recent_file_" + i, menuItem.getActionCommand());
+			}
+			else {
+				Resources.setProperty("recent_file_" + i, null);
+			}
+		}
+	}
+	
+	private List<String> loadRecentFileList() {
+		final List<String> recentFileList = new ArrayList<>();
+		
+		int index = 0;
+		String filePath = Resources.getProperty("recent_file_" + index, null);
+		
+		while(filePath != null) {
+			recentFileList.add(filePath);
+			filePath = Resources.getProperty("recent_file_" + (++index), null);
+		}
+		
+		return recentFileList;
 	}
 	
 	private JMenu buildEditMenu() {
