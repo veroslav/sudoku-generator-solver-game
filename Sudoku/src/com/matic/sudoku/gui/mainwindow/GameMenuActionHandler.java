@@ -238,6 +238,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 			return false;
 		}	
 		
+		mainWindow.onUpdateRecentFileList(file.getAbsolutePath());
 		mainWindow.board.clearColorSelections();
 		updateBoard(result);
 		onPuzzleStorageChanged(file);

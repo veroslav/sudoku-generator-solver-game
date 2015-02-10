@@ -32,6 +32,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +168,8 @@ public final class MainWindow {
 	protected SymbolButtonActionHandler symbolButtonActionHandler;
 	protected PuzzleMenuActionHandler puzzleMenuActionListener;
 	protected GameMenuActionHandler gameMenuActionListener;
+	private final OpenRecentFileActionHandler recentFileActionHandler = 
+			new OpenRecentFileActionHandler();
 	
 	protected JToggleButton[] symbolButtons;
 	protected final JToggleButton focusAllButton;	
@@ -616,10 +619,51 @@ public final class MainWindow {
 		return gameMenu;
 	}
 	
+	public void onUpdateRecentFileList(final String openedFilePath) {
+		final int menuItemCount = recentFilesMenu.getItemCount();		
+		JMenuItem matchingMenuItem = null;
+		int matchingIndex = -1;
+		
+		for(int i = 0; i < menuItemCount - 2; ++i) {
+			final JMenuItem menuItem = recentFilesMenu.getItem(i);
+			final String menuItemId = menuItem.getActionCommand();
+			
+			if(menuItemId != null && menuItemId.equals(openedFilePath)) {
+				matchingMenuItem = menuItem;
+				matchingIndex = i;
+				break;
+			}
+		}
+		
+		if(matchingMenuItem == null) {
+			final int fileListSize = menuItemCount - 2;
+			if(fileListSize == RECENT_FILE_LIST_MAX_SIZE) {				
+				recentFilesMenu.remove(fileListSize - 1);
+			}
+			if(fileListSize == 0) {
+				recentFilesMenu.setEnabled(true);
+			}
+			final String fileName = Paths.get(openedFilePath).getFileName().toString();
+			final JMenuItem pathMenuItem = new JMenuItem(fileName + " [" + openedFilePath + "]");
+			pathMenuItem.addActionListener(recentFileActionHandler);
+			pathMenuItem.setActionCommand(openedFilePath);
+			recentFilesMenu.add(pathMenuItem, 0);
+		}
+		else {
+			if(matchingIndex == 0) {
+				return;
+			}						
+			recentFilesMenu.remove(matchingMenuItem);
+			recentFilesMenu.add(matchingMenuItem, 0);
+		}
+		storeRecentFileList();
+	}
+	
 	private void buildRecentMenuItems(final JMenu recentFileMenu, final List<String> filePaths) {
 		for(final String filePath : filePaths) {
 			final String fileName = Paths.get(filePath).getFileName().toString();
 			final JMenuItem pathMenuItem = new JMenuItem(fileName + " [" + filePath + "]");
+			pathMenuItem.addActionListener(recentFileActionHandler);
 			pathMenuItem.setActionCommand(filePath);
 			recentFileMenu.add(pathMenuItem);
 		}		
@@ -627,10 +671,10 @@ public final class MainWindow {
 	}
 	
 	private void onClearRecentFiles() {
-		final int itemCount = recentFilesMenu.getItemCount();
+		final int itemCount = recentFilesMenu.getItemCount();		
 		
 		for(int i = 0; i < itemCount - 2; ++i) {
-			recentFilesMenu.remove(i);
+			recentFilesMenu.remove(0);
 		}
 		
 		recentFilesMenu.setEnabled(false);
@@ -999,23 +1043,31 @@ public final class MainWindow {
 	
 	private class WindowCloseListener extends WindowAdapter {
 		@Override
-		public void windowClosing(WindowEvent event) {
+		public void windowClosing(final WindowEvent event) {
 			handleQuit();
 		}
 	}
 	
 	private class BoardResizeListener extends ComponentAdapter {
 		@Override
-		public void componentResized(ComponentEvent e) {
+		public void componentResized(final ComponentEvent event) {
 			board.handleResized();
 		}
 	}
 	
 	private class ColorSelectionActionHandler implements ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			final ColoredToggleButton src = (ColoredToggleButton)e.getSource();
+		public void actionPerformed(final ActionEvent event) {
+			final ColoredToggleButton src = (ColoredToggleButton)event.getSource();
 			board.setCellColorInputValue(src.getIndex());
+		}
+	}
+	
+	private class OpenRecentFileActionHandler implements ActionListener {
+		@Override
+		public void actionPerformed(final ActionEvent event) {
+			final String filePath = event.getActionCommand();
+			gameMenuActionListener.openFile(new File(filePath));
 		}
 	}
 }

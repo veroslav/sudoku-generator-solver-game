@@ -118,7 +118,12 @@ public class Resources {
 	 * @param propValue Property value
 	 */
 	public static void setProperty(final String propName, final String propValue) {
-		APPLICATION_PREFERENCES.put(propName, propValue);		
+		if(propValue != null) {
+			APPLICATION_PREFERENCES.put(propName, propValue);
+		}
+		else {
+			APPLICATION_PREFERENCES.remove(propName);
+		}		
 	}
 	
 	/**
