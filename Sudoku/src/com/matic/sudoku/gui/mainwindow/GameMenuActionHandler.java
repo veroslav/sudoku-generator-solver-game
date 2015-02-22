@@ -237,8 +237,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}	
-		
-		mainWindow.onUpdateRecentFileList(file.getAbsolutePath());
+				
 		mainWindow.board.clearColorSelections();
 		updateBoard(result);
 		onPuzzleStorageChanged(file);
@@ -341,6 +340,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		mainWindow.symbolButtonActionHandler.userPencilmarks = null;
 		
 		if(populateFromFile(puzzleFile)) {
+			mainWindow.onUpdateRecentFileList(puzzleFile.getAbsolutePath());
 			onPuzzleStateChanged(false);
 		}
 	}
@@ -400,6 +400,7 @@ class GameMenuActionHandler implements ActionListener, FileOpenHandler, ExportMa
 		
 		writeFile(targetFile, puzzleBean);		
 								
+		mainWindow.onUpdateRecentFileList(targetFile.getAbsolutePath());
 		mainWindow.puzzle.setFormatType(formatType);		
 		onPuzzleStorageChanged(targetFile);
 		onPuzzleStateChanged(false);
