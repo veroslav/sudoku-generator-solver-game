@@ -33,14 +33,14 @@ The following features are planned for version 1.1:
 - [IMPLEMENTED] Multi-language support (currently English, Croatian and Swedish)
 - [IMPLEMENTED] Autofill candidates for a puzzle
 - [IMPLEMENTED] Any combination of difficulty and symmetry settings when generating and exporting
+- [IMPLEMENTED] Recent puzzles list
+- [IN PROGRESS] Show hints for how the next solution step can be revealed
 - Show progress when generating and exporting puzzles
 - Display legend below puzzles when exporting to PDF
 - Export grids with pencilmarks already filled in
 - Offer to also print solutions when generating and exporting puzzles
-- [IN PROGRESS] Show hints for how the next solution step can be revealed
 - Show time taken to solve a puzzle
 - Candidate focus color highlighting
-- Recent puzzles list
 - Toolbar buttons
 - Add about window
 - Print puzzles
