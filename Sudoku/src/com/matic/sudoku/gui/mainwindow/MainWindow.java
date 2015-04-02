@@ -763,14 +763,14 @@ public final class MainWindow {
 		giveClueMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_MASK));
 		giveClueMenuItem.setEnabled(false);
 		
-		hintMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
+		//hintMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_MASK));
 		hintMenuItem.setEnabled(false);
 		
 		final JMenuItem resetMenuItem = new JMenuItem(Resources.getTranslation(RESET_STRING));
 		resetMenuItem.setActionCommand(RESET_STRING);
 		
 		final JMenuItem[] puzzleMenuItems = {verifyMenuItem, checkMenuItem, solveMenuItem, 
-				resetMenuItem, giveClueMenuItem, hintMenuItem, fillPencilmarksMenuItem,
+				resetMenuItem, giveClueMenuItem, fillPencilmarksMenuItem,
 				flagWrongEntriesMenuItem};
 		
 		puzzleMenu.add(puzzleMenuItems[0]);
@@ -780,10 +780,10 @@ public final class MainWindow {
 		puzzleMenu.add(puzzleMenuItems[3]);
 		puzzleMenu.addSeparator();
 		puzzleMenu.add(puzzleMenuItems[4]);
-		puzzleMenu.add(puzzleMenuItems[5]);
+		//puzzleMenu.add(puzzleMenuItems[5]);
 		puzzleMenu.addSeparator();
+		puzzleMenu.add(puzzleMenuItems[5]);
 		puzzleMenu.add(puzzleMenuItems[6]);
-		puzzleMenu.add(puzzleMenuItems[7]);
 		
 		puzzleMenuActionListener = new PuzzleMenuActionHandler(this, board);
 		
